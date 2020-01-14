@@ -1,0 +1,124 @@
+info:
+  app:
+    name: milepost-eureka-name
+    description: 注册中心-des
+    version: 1.0.0.100
+
+server:
+  servlet:
+    context-path: /milepost-eureka
+  port: 8761
+  tomcat:
+    max-threads: 2000
+    accept-count: 200
+    min-spare-threads: 10
+    uri-encoding: UTF-8
+  max-http-header-size: 64KB
+  server-header: milepost-framework
+  #生成jks文件
+  #keytool -genkeypair -alias milepost-alias -validity 365 -keyalg RSA -dname "CN=花瑞富,OU=milepost公司,O=milepost公司,L=shenyan,S=liaoning,C=CH" -keypass milepost -keystore milepost.jks -storepass milepost
+  #获取jks文件中的公钥，将公钥部分保存在public.key文件中，这个文件就是其他服务用来解码jwt的公钥。
+  #keytool -list -rfc --keystore milepost.jks | openssl x509 -inform pem -pubkey
+  ssl:
+    enabled: true
+    key-store: classpath:milepost.jks
+    key-store-password: milepost
+    key-password: milepost
+    key-alias: milepost-alias
+    key-store-type: jks
+management:
+  endpoints:
+    web:
+      base-path: /milepost-actuator
+      exposure:
+        include: "*"
+        exclude:
+          - shutdown
+          - beans
+  health:
+    redis:
+      enabled: false
+    mongo:
+      enabled: false
+    elasticsearch:
+      enabled: false
+    jms:
+      enabled: false
+  endpoint:
+    restart:
+      enabled: false
+    shutdown:
+      enabled: true
+
+spring:
+  application:
+    name: milepost-eureka
+  profiles:
+    active: dev
+#    active: prod
+  main:
+    # 配置在日志文件中打印banner
+    banner-mode: log
+  mvc:
+    dispatch-options-request: true
+    favicon:
+      enabled: false
+    date-format: "yyyy-MM-dd HH:mm:ss"
+  resources:
+    chain:
+      strategy:
+        content:
+          enabled: true
+          paths: "/**"
+  jackson:
+    time-zone: GMT+8
+    date-format: "yyyy-MM-dd HH:mm:ss"
+  servlet:
+    multipart:
+      enabled: true
+      file-size-threshold: 0B
+      max-file-size: 100MB
+      max-request-size: 1000MB
+
+
+eureka:
+  instance:
+    #instance-id: ${eureka.instance.hostname}:${spring.application.name}:${server.port}
+    #hostname: 172.16.1.208
+    ip-address: 192.168.1.105
+    hostname: ${eureka.instance.hostname}
+    prefer-ip-address: true
+    non-secure-port-enabled: false
+    secure-port-enabled: false
+    secure-port: 8761
+    home-page-url: https://${eureka.instance.hostname}:${server.port}${server.servlet.context-path}
+    home-page-url-path: ${server.servlet.context-path}
+    health-check-url: https://${eureka.instance.hostname}:${server.port}${server.servlet.context-path}${management.endpoints.web.base-path}/health
+    health-check-url-path: ${server.servlet.context-path}${management.endpoints.web.base-path}/health
+    secure-health-check-url: https://${eureka.instance.hostname}:${server.port}${server.servlet.context-path}${management.endpoints.web.base-path}/health
+    status-page-url: https://${eureka.instance.hostname}:${server.port}${server.servlet.context-path}${management.endpoints.web.base-path}/info
+    status-page-url-path: ${server.servlet.context-path}${management.endpoints.web.base-path}/info
+
+
+
+
+
+  client:
+    #禁止向自己注册自己
+    register-with-eureka: false
+    #禁止向注册中心检索服务列表
+    fetch-registry: false
+    service-url:
+      defaultZone: https://${eureka.instance.hostname}:${server.port}/eureka/
+  server:
+    #禁用自我保护机制
+    enable-self-preservation: false
+    #清理间隔，单位毫秒，默认60 * 1000
+    eviction-interval-timer-in-ms: 5000
+    #响应缓存更新时间，默认30 * 1000
+    response-cache-update-interval-ms: 5000
+jasypt:
+  encryptor:
+    password: milepost
+
+

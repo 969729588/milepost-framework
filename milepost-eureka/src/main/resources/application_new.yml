@@ -1,0 +1,172 @@
+info:
+  app:
+    name: milepost-eureka-name
+    description: 注册中心-des
+    version: 1.0.0.100
+
+server:
+  servlet:
+    context-path: /milepost-eureka
+  port: 8761
+  tomcat:
+    max-threads: 2000
+    accept-count: 200
+    min-spare-threads: 10
+    uri-encoding: UTF-8
+  max-http-header-size: 64KB
+  server-header: milepost-framework
+  ssl:
+    enabled: true
+    key-store: classpath:milepost.jks
+    key-store-password: milepost
+    key-password: milepost
+    key-alias: milepost-alias
+    key-store-type: jks
+
+management:
+  endpoints:
+    web:
+      base-path: /milepost-actuator
+      exposure:
+        include: *
+        exclude:
+          - shutdown
+          - beans
+  health:
+    redis:
+      enabled: false
+    mongo:
+      enabled: false
+    elasticsearch:
+      enabled: false
+    jms:
+      enabled: false
+  endpoint:
+    restart:
+      enabled: false
+    shutdown:
+      enabled: true
+
+
+spring:
+  application:
+    name: milepost-eureka
+  profiles:
+    active: dev
+#    active: prod
+  main:
+    # 配置在日志文件中打印banner
+    banner-mode: log
+  redis:
+    jedis:
+      pool:
+        max-active: 5
+        max-wait: -1
+        min-idle: 1
+        max-idle: 5
+    timeout: 1000
+  datasource: #数据源基本配置，这些非黄颜色的属性都是与某个类绑定的，比如这里是与org.springframework.boot.autoconfigure.jdbc.DataSourceProperties绑定的
+    username: root
+    password: admin123
+    url: jdbc:mysql://localhost:3306/milepost_auth?useUnicode=true&characterEncoding=utf8&characterSetResults=utf8&serverTimezone=GMT%2B8
+    driver-class-name: com.mysql.jdbc.Driver
+    #type: com.alibaba.druid.pool.DruidDataSource
+    #   数据源其他配置，这些黄颜色的属性是没有与任何类绑定的
+    test-while-idle: true
+    time-between-eviction-runs-millis: 300000
+    min-evictable-idle-time-millis: 30000
+    validation-query: SELECT 1
+    max-active: 100
+    max-idle: 5
+    min-idle: 2
+    max-wait: 30000
+    initialSize: 5
+  mvc:
+    dispatch-options-request: true
+    favicon:
+      enabled: false
+    date-format: yyyy-MM-dd HH:mm:ss
+  servlet:
+    multipart:
+      enabled: true
+      file-size-threshold: 0B
+      max-file-size: 100MB
+      max-request-size: 1000MB
+
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+  resources:
+    chain:
+      strategy:
+        content:
+          enabled: true
+          paths: /**
+jasypt:
+  encryptor:
+    password: milepost
+
+eureka:
+  instance:
+    hostname: 172.16.1.208
+    #hostname: 192.168.1.105
+    instance-id: ${eureka.instance.hostname}:${spring.application.name}:${server.port}
+    prefer-ip-address: true
+    metadata-map:
+      management:
+        context-path: ${server.servlet.context-path}${management.endpoints.web.base-path}
+      track-sampling: 0.1
+      weight: 1
+      user-domain: DEFAULT
+      milepostversion: 1.0.0
+      version: ${info.app.version}
+      name: ${info.app.name}
+      instance-id: ${eureka.instance.hostname}:${spring.application.name}:${server.port}
+      eureka.instance.metadata-map.deploytype: docker
+
+
+
+
+#ssl=true
+#    non-secure-port-enabled: false
+#    secure-port: ${server.port}
+#    secure-port-enabled: true
+#    home-page-url: https://${eureka.instance.hostname}:${server.port}${server.servlet.context-path}
+#    home-page-url-path: ${server.servlet.context-path}
+#    health-check-url: https://${eureka.instance.hostname}:${server.port}${server.servlet.context-path}${management.endpoints.web.base-path}/health
+#    health-check-url-path: ${server.servlet.context-path}${management.endpoints.web.base-path}/health
+#    secure-health-check-url: https://${eureka.instance.hostname}:${server.port}${server.servlet.context-path}${management.endpoints.web.base-path}/health
+#    status-page-url: https://${eureka.instance.hostname}:${server.port}${server.servlet.context-path}${management.endpoints.web.base-path}/info
+#    status-page-url-path: ${server.servlet.context-path}${management.endpoints.web.base-path}/info
+
+
+
+#ssl=false
+    non-secure-port-enabled: true
+    secure-port-enabled: false
+    home-page-url: http://${eureka.instance.hostname}:${server.port}${server.servlet.context-path}
+    home-page-url-path: ${server.servlet.context-path}
+    health-check-url: http://${eureka.instance.hostname}:${server.port}${server.servlet.context-path}${management.endpoints.web.base-path}/health
+    health-check-url-path: ${server.servlet.context-path}${management.endpoints.web.base-path}/health
+    secure-health-check-url: http://${eureka.instance.hostname}:${server.port}${server.servlet.context-path}${management.endpoints.web.base-path}/health
+    status-page-url: http://${eureka.instance.hostname}:${server.port}${server.servlet.context-path}${management.endpoints.web.base-path}/info
+    status-page-url-path: ${server.servlet.context-path}${management.endpoints.web.base-path}/info
+
+
+
+  client:
+    #禁止向自己注册自己
+    register-with-eureka: false
+    #禁止向注册中心检索服务列表
+    fetch-registry: false
+    service-url:
+      defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
+  server:
+    #禁用自我保护机制
+    enable-self-preservation: false
+    #清理间隔，单位毫秒，默认60 * 1000
+    eviction-interval-timer-in-ms: 5000
+    #响应缓存更新时间，默认30 * 1000
+    response-cache-update-interval-ms: 5000
+
+

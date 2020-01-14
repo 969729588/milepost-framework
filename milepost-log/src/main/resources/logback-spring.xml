@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+	<!--取spring配置文件信息-->
+	<springProperty name="spring.application.name" source="spring.application.name"/>
+	<springProperty name="eureka.instance.instance-id" source="eureka.instance.instance-id"/>
+
+	<!--包含srping默认的日志配置文件-->
+	<include resource="org/springframework/boot/logging/logback/defaults.xml" />
+
+	<!--指定日志文件的路径，当前路径下/应用名称.log-->
+	<property name="LOG_FILE" value="./logs/${spring.application.name}.log"/>
+
+	<!--springProfile-->
+	<springProfile name="dev">
+		<!--
+		日志输出格式：
+			%d表示日期时间，
+			%thread表示线程名，
+			%-5level：级别从左显示5个字符宽度
+			%logger{50} 表示logger名字最长50个字符，否则按照句点分割。
+			%line 表示代码行数
+			%msg：日志消息，
+			%n是换行符
+		彩色日志：
+			magenta:洋红
+			boldMagenta:粗红
+			cyan:青色
+			white:白色
+			magenta:洋红
+		-->
+		<!--当springboot配置文件中没有配置相关属性时，这里取不到属性值，即使这个属性有默认值也取不到(比如${eureka.instance.instance-id}属性)，
+        所以要在应用启动时候，将这样的属性注入到环境变量中。具体见org.iplatform.microservices.core.IPlatformApplication#loadDefaultProperties。-->
+		<!--<property name="LOG_PATTERN" value="${server.host} ${eureka.instance.metadataMap.tenant} ${spring.application.name} ${eureka.instance.instance-id} %d{yyyy-MM-dd HH:mm:ss.SSS} [%-5level] ${PID:- } [%t] %logger{39}.%M [%line] : %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}"/>-->
+		<property name="LOG_PATTERN" value="[${eureka.instance.instance-id}] %yellow(%d{yyyy-MM-dd HH:mm:ss.SSS}) - [%highlight(%-5level)] [%green(%-50logger{50}): %blue(%-4line)] - %msg%n"/>
+		<include resource="logback-dev.xml"/>
+	</springProfile>
+	<springProfile name="prod">
+		<!--level后面是 [%-30thread]，导致日志文件不在整齐，去掉了-->
+		<property name="LOG_PATTERN" value="[${eureka.instance.instance-id}] %d{yyyy-MM-dd HH:mm:ss.SSS} - [%-5level] [%-50logger{50}: %-4line] - %msg%n"/>
+		<include resource="logback-prod.xml"/>
+	</springProfile>
+</configuration>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<included>
+    <!-- ch.qos.logback.core.ConsoleAppender 表示控制台输出 -->
+    <!--
+		<appender>是<configuration>的子节点，是负责写日志的组件。
+		<appender>有两个必要属性name和class。name指定appender名称，class指定appender的全限定名。
+	 -->
+    <!--
+        ConsoleAppender：把日志添加到控制台，有以下子节点：
+        <encoder>：对日志进行格式化。（具体参数稍后讲解 ）
+        <target>：字符串 System.out 或者 System.err ，默认 System.out ；
+     -->
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <!--
+            日志输出格式：
+                %d表示日期时间，
+                %thread表示线程名，
+                %-5level：级别从左显示5个字符宽度
+                %logger{50} 表示logger名字最长50个字符，否则按照句点分割。
+                %line 表示代码行数
+                %msg：日志消息，
+                %n是换行符
+            -->
+            <pattern>${LOG_PATTERN}</pattern>
+            <charset>utf8</charset>
+        </encoder>
+    </appender>
+</included>

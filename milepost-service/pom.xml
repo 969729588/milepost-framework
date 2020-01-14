@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>com.milepost</groupId>
+		<artifactId>milepost-parent</artifactId>
+		<version>1.0.0-SNAPSHOT</version>
+		<relativePath/>
+	</parent>
+
+	<artifactId>milepost-service</artifactId>
+	<packaging>jar</packaging>
+	<name>milepost-service</name>
+	<description>service</description>
+	<!--
+	继承milepost-parent，
+	所有service都应该依赖这个pom，
+	dependencies中指定了所有service都需要的依赖，
+	里面可以提供一些后端代码，但这个pom与具体的业务系统ui的关系需要研究一下
+	-->
+
+	<dependencies>
+
+		<dependency>
+			<groupId>com.milepost</groupId>
+			<artifactId>milepost-log</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>com.milepost</groupId>
+			<artifactId>milepost-core</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<!--actuator-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+		<!--支持springboot的http 监控端点-->
+		<dependency>
+			<groupId>org.springframework.hateoas</groupId>
+			<artifactId>spring-hateoas</artifactId>
+		</dependency>
+
+		<!--读取spring配置文件-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-configuration-processor</artifactId>
+			<optional>true</optional>
+		</dependency>
+
+	</dependencies>
+
+</project>

@@ -1,0 +1,23 @@
+info:
+  app:
+    name: milepost-eureka-name
+    description: 注册中心-des
+    version: 1.0.0.100
+
+server:
+  port: 8761
+
+spring:
+  application:
+    name: milepost-eureka
+  profiles:
+    active: dev
+
+eureka:
+  instance:
+    ip-address: 172.16.1.208
+  client:
+    service-url:
+      defaultZone: http://${eureka.instance.ip-address}:${server.port}/eureka/
+  server:
+    enable-self-preservation: false

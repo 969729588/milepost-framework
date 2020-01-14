@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.milepost</groupId>
+    <artifactId>milepost-parent</artifactId>
+    <packaging>pom</packaging>
+    <version>1.0.0-SNAPSHOT</version>
+    <description>框架父工程</description>
+    <!--
+    只用来被其他pom继承的，里面不包含子模块，
+    整个框架的依赖版本管理，使用里面的dependencies和dependencyManagement，
+    所有应用都继承这个pom，所以，将所有应用都需要的依赖写在dependencies中，
+    类比iplatform-parent和iplatform-dependencies。
+    区别是milepost继承了spring-boot-starter-parent，
+    而iplatform没继承任何pom，他是自己写的版本匹配。
+
+    如果有Nexus私服则将这个上传到Nexus，否则运行idea的install命令，
+    其安装到自己本地的maven仓库中，然后就可以在其他项目中引用了。
+    -->
+
+    <!--继承spring boot-->
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.1.0.RELEASE</version>
+        <relativePath/>
+    </parent>
+
+    <!--properties，框架所有的properties都在这里指定-->
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <java.version>1.8</java.version>
+        <spring-cloud.version>Greenwich.RELEASE</spring-cloud.version>
+        <spring-boot.version>2.1.0.RELEASE</spring-boot.version>
+        <milepost.version>1.0.0-SNAPSHOT</milepost.version>
+        <jasypt.version>3.0.1</jasypt.version>
+    </properties>
+
+    <dependencies>
+        <!--写在这里的依赖，子模块默认引用了这些依赖-->
+        <!--最好不要在这里面写依赖，最好都写在dependencyManagement中，
+        子模块在使用是给出groupId和artifactId即可，把依赖写在这里容易导致循环依赖，
+        也增加了耦合性-->
+    </dependencies>
+
+    <dependencyManagement>
+        <!--写在这里的依赖，子模块在需要时只需要指定groupId、artifactId，不需要指定版本。-->
+        <dependencies>
+
+            <!-- milepost -->
+            <dependency>
+                <groupId>com.milepost</groupId>
+                <artifactId>milepost-log</artifactId>
+                <!--${project.version}表示当前pom坐标中的version-->
+                <version>${milepost.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.milepost</groupId>
+                <artifactId>milepost-api</artifactId>
+                <version>${milepost.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.milepost</groupId>
+                <artifactId>milepost-core</artifactId>
+                <version>${milepost.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.milepost</groupId>
+                <artifactId>milepost-ui</artifactId>
+                <version>${milepost.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.milepost</groupId>
+                <artifactId>milepost-service</artifactId>
+                <version>${milepost.version}</version>
+            </dependency>
+
+            <!--spring cloud-->
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- OauthServer-->
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-jwt</artifactId>
+                <version>1.0.9.RELEASE</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.security.oauth</groupId>
+                <artifactId>spring-security-oauth2</artifactId>
+                <version>2.3.4.RELEASE</version>
+            </dependency>
+
+            <!--test-->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-test</artifactId>
+                <version>${spring-boot.version}</version>
+                <scope>test</scope>
+            </dependency>
+
+            <!--jasypt，https://github.com/ulisesbocchio/jasypt-spring-boot-->
+            <dependency>
+                <groupId>com.github.ulisesbocchio</groupId>
+                <artifactId>jasypt-spring-boot-starter</artifactId>
+                <version>${jasypt.version}</version>
+            </dependency>
+
+            <!--commons -->
+            <!--spring-cloud-starter-openfeign依赖了这个-->
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>2.2</version>
+            </dependency>
+
+        </dependencies>
+    </dependencyManagement>
+
+</project>

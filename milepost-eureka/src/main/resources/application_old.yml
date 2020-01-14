@@ -1,0 +1,32 @@
+server:
+  port: 8761
+
+spring:
+  application:
+    name: milepost-eureka
+  profiles:
+    active: dev
+#    active: prod
+  main:
+    # 配置在日志文件中打印banner
+    banner-mode: log
+
+eureka:
+  instance:
+    hostname: 172.16.1.208
+    #hostname: 192.168.1.105
+  client:
+    #禁止向自己注册自己
+    register-with-eureka: false
+    #禁止向注册中心检索服务列表
+    fetch-registry: false
+    service-url:
+      defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
+  server:
+    #禁用自我保护机制
+    enable-self-preservation: false
+    #清理间隔，单位毫秒，默认60 * 1000
+    eviction-interval-timer-in-ms: 5000
+    #响应缓存更新时间，默认30 * 1000
+    response-cache-update-interval-ms: 5000
+
