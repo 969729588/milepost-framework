@@ -2,6 +2,9 @@
 <included>
 	<include resource="file-appender.xml" />
 
+	<!-- 所有的calss -->
+	<logger name="com.milepost" level="debug"/>
+
 	<root level="info">
 		<appender-ref ref="file" />
 	</root>

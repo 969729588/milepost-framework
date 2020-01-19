@@ -1,5 +1,13 @@
+info:
+  app:
+    name: milepost-auth
+    description: 认证服务
+    version: 1.0.0.100
+
 server:
   port: 9998
+  servlet:
+    context-path: "/milepost-auth"
 
 spring:
   application:
@@ -34,4 +42,12 @@ spring:
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: http://172.16.1.208:8761/eureka/
+  instance:
+    ip-address: 192.168.223.1
+
+multiple-tenant:
+  tenant: def
+  weight: 9
+  label-and: aa,bb
+  label-or: dd,ee,ff

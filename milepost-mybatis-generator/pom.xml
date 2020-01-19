@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.milepost</groupId>
+        <artifactId>milepost-parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <relativePath/>
+    </parent>
+
+    <artifactId>milepost-mybatis-generator</artifactId>
+    <packaging>jar</packaging>
+    <name>milepost-mybatis-generator</name>
+    <description>mybatis-代码生成插件</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.milepost</groupId>
+            <artifactId>milepost-api</artifactId>
+        </dependency>
+        <!-- mybatis代码生成器 -->
+        <dependency>
+            <groupId>org.mybatis.generator</groupId>
+            <artifactId>mybatis-generator-core</artifactId>
+        </dependency>
+        <!-- mbg实现动态改变配置文件 -->
+        <dependency>
+            <groupId>org.dom4j</groupId>
+            <artifactId>dom4j</artifactId>
+        </dependency>
+    </dependencies>
+
+
+</project>

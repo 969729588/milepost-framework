@@ -11,6 +11,7 @@
 	</parent>
 
 	<artifactId>milepost-service</artifactId>
+	<version>1.0.0.100</version>
 	<packaging>jar</packaging>
 	<name>milepost-service</name>
 	<description>service</description>
@@ -59,6 +60,54 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-configuration-processor</artifactId>
 			<optional>true</optional>
+		</dependency>
+
+		<!--数据库相关-->
+		<!--mysql驱动包-->
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<!-- oracle驱动包-->
+
+		<!--druid，不是被springboot管理的-->
+		<dependency>
+			<groupId>com.alibaba</groupId>
+			<artifactId>druid-spring-boot-starter</artifactId>
+		</dependency>
+		<!--MyBatis，这个starter是mybatis自己写的，不是springboot提供的-->
+		<dependency>
+			<groupId>org.mybatis.spring.boot</groupId>
+			<artifactId>mybatis-spring-boot-starter</artifactId>
+		</dependency>
+		<!-- *************************ehcache -->
+		<dependency>
+			<groupId>org.mybatis.caches</groupId>
+			<artifactId>mybatis-ehcache</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>net.sf.ehcache</groupId>
+			<artifactId>ehcache-core</artifactId>
+		</dependency>
+
+		<!--pagehelper分页插件，不是被springboot管理的-->
+		<dependency>
+			<groupId>com.github.pagehelper</groupId>
+			<artifactId>pagehelper</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-core</artifactId>
+		</dependency>
+
+		<!--spring-boot-starter-swagger
+			https://github.com/SpringForAll/spring-boot-starter-swagger
+		-->
+		<dependency>
+			<groupId>com.spring4all</groupId>
+			<artifactId>swagger-spring-boot-starter</artifactId>
 		</dependency>
 
 	</dependencies>

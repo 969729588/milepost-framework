@@ -4,10 +4,13 @@ import com.milepost.api.constant.MilepostConstant;
 import com.milepost.api.enums.MilepostApplicationType;
 import com.milepost.core.MilepostApplication;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.ComponentScan;
 
 import java.util.HashMap;
 import java.util.Map;
 
+//父类上的注解会被子类继承
+@ComponentScan(basePackages = {"com.milepost.core"})
 public class MilepostUiApplication {
 
 	public MilepostUiApplication() {

@@ -55,7 +55,6 @@
             <dependency>
                 <groupId>com.milepost</groupId>
                 <artifactId>milepost-log</artifactId>
-                <!--${project.version}表示当前pom坐标中的version-->
                 <version>${milepost.version}</version>
             </dependency>
             <dependency>
@@ -76,6 +75,11 @@
             <dependency>
                 <groupId>com.milepost</groupId>
                 <artifactId>milepost-service</artifactId>
+                <version>${milepost.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.milepost</groupId>
+                <artifactId>milepost-mybatis-generator</artifactId>
                 <version>${milepost.version}</version>
             </dependency>
 
@@ -121,6 +125,68 @@
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
                 <version>2.2</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-lang</groupId>
+                <artifactId>commons-lang</artifactId>
+                <version>2.6</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-compress</artifactId>
+                <version>1.19</version>
+            </dependency>
+
+
+            <!--druid，不是被springboot管理的-->
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>druid-spring-boot-starter</artifactId>
+                <version>1.1.17</version>
+            </dependency>
+            <!--MyBatis，这个starter是mybatis自己写的，不是springboot提供的-->
+            <dependency>
+                <groupId>org.mybatis.spring.boot</groupId>
+                <artifactId>mybatis-spring-boot-starter</artifactId>
+                <version>2.1.1</version>
+            </dependency>
+            <!--ehcache缓存-->
+            <dependency>
+                <groupId>org.mybatis.caches</groupId>
+                <artifactId>mybatis-ehcache</artifactId>
+                <version>1.1.0</version>
+            </dependency>
+            <dependency>
+                <groupId>net.sf.ehcache</groupId>
+                <artifactId>ehcache-core</artifactId>
+                <version>2.6.8</version>
+            </dependency>
+            <!-- mybatis代码生成器 -->
+            <dependency>
+                <groupId>org.mybatis.generator</groupId>
+                <artifactId>mybatis-generator-core</artifactId>
+                <version>1.3.2</version>
+            </dependency>
+            <!-- mbg实现动态改变配置文件 -->
+            <dependency>
+                <groupId>org.dom4j</groupId>
+                <artifactId>dom4j</artifactId>
+                <version>2.0.0</version>
+            </dependency>
+            <!--pagehelper分页插件，不是被springboot管理的-->
+            <dependency>
+                <groupId>com.github.pagehelper</groupId>
+                <artifactId>pagehelper</artifactId>
+                <version>5.1.11</version>
+            </dependency>
+
+            <!--spring-boot-starter-swagger，不是springboot提供的starter
+                https://github.com/SpringForAll/spring-boot-starter-swagger
+            -->
+            <dependency>
+                <groupId>com.spring4all</groupId>
+                <artifactId>swagger-spring-boot-starter</artifactId>
+                <version>1.9.1.RELEASE</version>
             </dependency>
 
         </dependencies>

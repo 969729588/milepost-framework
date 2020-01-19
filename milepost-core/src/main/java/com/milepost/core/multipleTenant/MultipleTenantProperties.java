@@ -11,9 +11,9 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix="multiple-tenant")
 public class MultipleTenantProperties {
     /**
-     * 租户，不区分大小写，不支持逗号分割。
+     * 租户，默认为 default，不区分大小写，不支持逗号分割。
      */
-    private String tenant;
+    private String tenant = "default";
     /**
      * 权重，0和正整数，默认1，<br>
      * 负载均衡计算方法：<br>

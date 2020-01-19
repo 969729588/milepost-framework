@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <settings>
+        <!-- mapUnderscoreToCamelCase：是否开启自动驼峰命名规则(camel|case)映射，
+        即从经典的数据库列名A_COLUMN到经典的Java属性名aColumn的类似映射，默认不开启，
+        对reslutType=map的情况无效 -->
+        <setting name="mapUnderscoreToCamelCase" value="true"/>
+        <!-- 默认值是OTHER，因为oracle不识别OTHER，所以我们将他改成NULL-->
+        <setting name="jdbcTypeForNull" value="NULL"/>
+
+        <!--显示的指定每个我们需要更改的配置的值，即使他是默认的。防止版本更新带来的问题  -->
+        <!-- 开启二级缓存，被缓存的实体要实现Serializable接口 -->
+        <setting name="cacheEnabled" value="true"/>
+        <!-- 开启懒加载 -->
+        <!-- 全局启用或禁用延迟加载。当禁用时，所有关联对象都会即时加载。 -->
+        <setting name="lazyLoadingEnabled" value="true" />
+        <!-- 当启用时，有延迟加载属性的对象在被调用时将会完全加载任意属性。否则，每种属性将会按需要加载。 -->
+        <setting name="aggressiveLazyLoading" value="true" />
+
+        <!-- <setting name="logImpl" value="STDOUT_LOGGING" /> --><!-- 打印mybatis的日志 -->
+
+        <!-- citygoo项目中这样配置 -->
+        <!-- 是否允许单条sql 返回多个数据集 (取决于驱动的兼容性) default:true -->
+        <!-- <setting name="multipleResultSetsEnabled" value="true" /> -->
+        <!-- 是否可以使用列的别名 (取决于驱动的兼容性) default:true -->
+        <!-- <setting name="useColumnLabel" value="true" /> -->
+        <!-- 允许JDBC 生成主键。需要驱动器支持。如果设为了true，这个设置将强制使用被生成的主键，有一些驱动器不兼容不过仍然可以执行。 default:false -->
+        <!-- <setting name="useGeneratedKeys" value="false" /> -->
+        <!-- 指定 MyBatis 如何自动映射 数据基表的列 NONE：不隐射 PARTIAL:部分 FULL:全部 -->
+        <!-- <setting name="autoMappingBehavior" value="PARTIAL" /> -->
+        <!-- 这是默认的执行类型 （SIMPLE: 简单； REUSE: 执行器可能重复使用prepared statements语句；BATCH:
+            执行器可以重复执行语句和批量更新） -->
+        <!-- <setting name="defaultExecutorType" value="SIMPLE" /> -->
+        <!-- 设置本地缓存范围 session:就会有数据的共享 statement:语句范围 (这样就不会有数据的共享 ) defalut:session -->
+        <!-- <setting name="localCacheScope" value="SESSION" /> -->
+
+
+    </settings>
+
+    <plugins>
+        <!-- com.github.pagehelper为PageHelper类所在包名 -->
+        <plugin interceptor="com.github.pagehelper.PageInterceptor">
+            <!-- 使用下面的方式配置参数，后面会有所有的参数介绍 -->
+            <!-- <property name="param1" value="value1"/> -->
+        </plugin>
+    </plugins>
+
+    <!-- <databaseIdProvider type="DB_VENDOR">
+        为不同的数据库厂商起别名
+        <property name="MySQL" value="mysql"/>
+        <property name="Oracle" value="oracle"/>
+        <property name="SQL Server" value="sqlserver"/>
+    </databaseIdProvider> -->
+
+</configuration>

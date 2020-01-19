@@ -16,9 +16,16 @@
      -->
 	<!-- 没有指定相关数据，继承自root的 -->
 	<!-- 所有的calss -->
-	<!--<logger name="com.milepost" level="debug"/>-->
-	<!-- spring 日志 -->
-	<!--<logger name="org.springframework" level="debug"/>-->
+	<logger name="com.milepost" level="debug"/>
+	<!--&lt;!&ndash; spring 日志 &ndash;&gt;
+	<logger name="org.springframework" level="debug"/>
+	&lt;!&ndash; mybatis 日志 &ndash;&gt;
+	<logger name="org.mybatis" level="debug"/>
+	&lt;!&ndash; druid 日志 &ndash;&gt;
+	<logger name="com.alibaba.druid" level="debug"/>
+	&lt;!&ndash;ehcache 日志&ndash;&gt;
+	<logger name="net.sf.ehcache" level="debug"/>-->
+
 
 	<!--debug: false=info, debug: true=debug, -->
 	<!--<logger name="org.springframework.boot.autoconfigure.logging" level="info"/>-->
