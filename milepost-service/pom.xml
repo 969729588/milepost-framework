@@ -11,6 +11,7 @@
 	</parent>
 
 	<artifactId>milepost-service</artifactId>
+	<version>1.0.0.100</version>
 	<packaging>jar</packaging>
 	<name>milepost-service</name>
 	<description>service</description>
