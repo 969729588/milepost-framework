@@ -10,7 +10,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 //父类上的注解会被子类继承
-@ComponentScan(basePackages = {"com.milepost.core"})
+@ComponentScan(basePackages = {
+		"com.milepost.core"
+})
 public class MilepostUiApplication {
 
 	public MilepostUiApplication() {

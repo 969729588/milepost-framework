@@ -4,15 +4,17 @@ import com.milepost.api.constant.MilepostConstant;
 import com.milepost.api.enums.MilepostApplicationType;
 import com.milepost.core.MilepostApplication;
 import com.spring4all.swagger.EnableSwagger2Doc;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 
 import java.util.HashMap;
 import java.util.Map;
 
-@ComponentScan(basePackages = {"com.milepost.core", "com.milepost.service.config.druid"})
+@ComponentScan(basePackages = {
+		"com.milepost.core",//打印banner、分布式锁、多租户、ApplicationContextProvider
+		"com.milepost.service.config.druid"//数据源
+})
+//Swagger
 @EnableSwagger2Doc
 public class MilepostServiceApplication {
 
