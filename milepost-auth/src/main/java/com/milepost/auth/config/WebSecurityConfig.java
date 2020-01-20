@@ -1,7 +1,6 @@
 package com.milepost.auth.config;
 
 
-import com.milepost.auth.service.UserServiceDetail;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,6 +8,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.servlet.http.HttpServletResponse;
@@ -18,7 +18,7 @@ import javax.servlet.http.HttpServletResponse;
  */
 
 @Configuration
-class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     @Bean
@@ -34,13 +34,14 @@ class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .authenticationEntryPoint((request, response, authException) -> response.sendError(HttpServletResponse.SC_UNAUTHORIZED))
             .and()
                 .authorizeRequests()
+                .antMatchers("/milepost-actuator/**").permitAll()
                 .antMatchers("/**").authenticated()
             .and()
                 .httpBasic();
     }
 
     @Autowired
-    UserServiceDetail userServiceDetail;
+    UserDetailsService userDetailsService;
 
     /**
      * 自定义的MD5加密方式，
@@ -50,7 +51,7 @@ class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(userServiceDetail)
+        auth.userDetailsService(userDetailsService)
 //                .passwordEncoder(new BCryptPasswordEncoder());//此处控制对用户密码的加密方式，此处为BCryptPasswordEncoder，
                 .passwordEncoder(passwordEncoder);//此处控制对用户密码的加密方式，此处为自定义的MD5加密方式
 

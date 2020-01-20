@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE generatorConfiguration PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN" "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+
+<generatorConfiguration>
+	<!--好像只能读取properties文件中的配置项-->
+	<!--<properties resource="application.yml"/>-->
+	<context id="DB2Tables" targetRuntime="MyBatis3" defaultModelType="flat">
+		<plugin type="org.mybatis.generator.plugins.ToStringPlugin"/>
+		<plugin type="org.mybatis.generator.plugins.CachePlugin">
+			<property name="cache_type" value="org.mybatis.caches.ehcache.EhcacheCache"/>
+		</plugin>
+		<plugin type="org.mybatis.generator.plugins.SerializablePlugin">
+			<property name="addGWTInterface" value="false"/>
+			<property name="suppressJavaInterface" value="false"/>
+		</plugin>
+		<commentGenerator type="com.milepost.mybatisGenerator.MyCommentGenerator">
+			<property name="javaFileEncoding" value="UTF-8"/>
+			<property name="suppressDate" value="true"/>
+			<property name="suppressAllComments" value="false"/>
+		</commentGenerator>
+		<!--配置的用户最好只能读取到一个库，如使用root则能读取到多个库，如果两个库有同样的表，就会生成多分配置文件，就乱了-->
+		<jdbcConnection driverClass="com.mysql.cj.jdbc.Driver"
+						connectionURL="jdbc:mysql://localhost:3306/milepost_auth?useUnicode=true&amp;characterEncoding=utf8&amp;characterSetResults=utf8&amp;serverTimezone=GMT%2B8" userId="milepost_auth" password="milepost_auth">
+			<property name="remarksReporting" value="true"/>
+			<!--设置为 true 可以获取 tables 信息, 解决生成文件缺少 xxxByPrimaryKey 的问题 -->
+			<property name="useInformationSchema" value="true"/>
+		</jdbcConnection>
+		<javaTypeResolver>
+			<property name="forceBigDecimals" value="false"/>
+		</javaTypeResolver>
+		<javaModelGenerator targetPackage="com.milepost.auth.user.entity" targetProject=".\milepost-auth\src\main\java">
+			<!-- AutoODN -->
+			<property name="enableSubPackages" value="true"/>
+			<property name="trimStrings" value="true"/>
+		</javaModelGenerator>
+		<sqlMapGenerator targetPackage="com.milepost.auth.user.dao" targetProject=".\milepost-auth\src\main\java">
+			<!-- AutoODN -->
+			<property name="enableSubPackages" value="true"/>
+		</sqlMapGenerator>
+		<table tableName="user" domainObjectName="User">
+			<!-- jdbcType去org.apache.ibatis.type.JdbcType中找 -->
+			<!-- 注意，所有数字类的字段都要用其包装类，因为基本数据类型没有null值， -->
+			<!-- oracle需要如下三个覆盖 -->
+			<!-- <columnOverride column="BIRTH" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+			<columnOverride column="SCORE" javaType="java.lang.Float" jdbcType="NUMERIC"/> -->
+			<!-- 数据库中是Clob类型，这里不能用Clob，否则会生成针对于Clob的方法，
+				注意：clob类型的字段，在构造条件时候，能使用的有如下：
+					只能用like，与is null
+					不能用andRemarkBetween(between)、andRemarkEqualTo(=)、andRemarkGreaterThan(>)、andRemarkLessThan(<)、andRemarkIn(in)
+			 -->
+			<!-- <columnOverride column="REMARK" javaType="java.lang.String" jdbcType="VARCHAR"/> -->
+			<!-- mysql只需要如以下个覆盖 -->
+			<!-- mysql数据库是text、mediumtext、longtext类型，相当于oracle的clob -->
+			<!--<columnOverride column="REMARK" javaType="java.lang.String" jdbcType="VARCHAR"/>-->
+		</table>
+	</context>
+</generatorConfiguration>

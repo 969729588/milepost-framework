@@ -5,7 +5,7 @@ info:
     version: 1.0.0.100
 
 server:
-  port: 9998
+  port: 9999
   servlet:
     context-path: "/milepost-auth"
 
@@ -15,14 +15,34 @@ spring:
   profiles:
     active: dev
   datasource:
-    driver-class-name: com.mysql.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/milepost_auth?useUnicode=true&characterEncoding=utf8&characterSetResults=utf8&serverTimezone=GMT%2B8
-    username: root
-    password: admin123
-  jpa:
-    hibernate:
-      ddl-auto: update
-    show-sql: true
+    druid:
+      #flyway使用这个参数,mysql/oracle
+      db-type: mysql
+
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      url: jdbc:mysql://localhost:3306/milepost_auth?useUnicode=true&characterEncoding=utf8&characterSetResults=utf8&serverTimezone=GMT%2B8
+      username: root
+      password: admin123
+
+      initial-size: 5
+      max-active: 20
+      min-idle: 5
+      max-wait: 60000
+      pool-prepared-statements: true
+      max-pool-prepared-statement-per-connection-size: 20
+      #和上面的等价
+      #max-open-prepared-statements:
+      validation-query: SELECT 1 FROM DUAL
+      #validation-query-timeout:
+      test-on-borrow: false
+      test-on-return: false
+      test-while-idle: true
+      time-between-eviction-runs-millis: 60000
+      min-evictable-idle-time-millis: 300000
+      #max-evictable-idle-time-millis:
+      #配置多个英文逗号分隔
+      #filters:
+
   redis:
     jedis:
       pool:
@@ -38,7 +58,6 @@ spring:
     #password: bomc
     #redis连接超时时间，单位毫秒
     timeout: 2000
-
 eureka:
   client:
     serviceUrl:

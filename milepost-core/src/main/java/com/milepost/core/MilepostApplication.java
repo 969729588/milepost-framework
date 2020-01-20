@@ -238,6 +238,12 @@ public class MilepostApplication extends SpringApplication{
         //最顶层的元素
         HashMap appYmlMap = mapper.readValue(resource.getInputStream(), HashMap.class);
 
+        //获取当前应用的引用类型
+        String applicationType = "";
+        if(customProperties != null){
+            applicationType = (String)(customProperties.get(MilepostConstant.MILEPOST_APPLICATION_TYPE_KEY));
+        }
+
         //构造默认属性
         Map<String,Object> defaultProperties = new HashMap<>();
 
@@ -571,24 +577,31 @@ public class MilepostApplication extends SpringApplication{
 //        defaultProperties.put("spring.sleuth.event.sql.time.overpct", "3");
 //        defaultProperties.put("spring.sleuth.event.scheduling.time.overpct", "3");
 
-        //flyway，数据库脚本名为“V1__xxx.sql”，当有表结构更新时，新增脚本，版本号增加即可，
-        String springDatasourceDruidDbType = getStringByKeyFromAppYmlMap(appYmlMap, "spring.datasource.druid.db-type");
-        if(StringUtils.isBlank(springDatasourceDruidDbType)){
-            springDatasourceDruidDbType = "";
-        }
-        defaultProperties.put("spring.datasource.initialize", "false");//禁止spring使用data.sql来初始化。
-        defaultProperties.put("spring.flyway.enabled", "true");//默认开启
-        defaultProperties.put("spring.flyway.baseline-on-migrate", "true");//当迁移时发现目标schema非空，而且带有没有元数据的表时，是否自动执行基准迁移，默认false.
-        //defaultProperties.put("spring.flyway.baseline-description", "init");//对执行迁移时基准版本的描述.
-        defaultProperties.put("spring.flyway.baseline-version", "0");//执行基线时用来标记已有Schema的版本，默认值为1.
-        defaultProperties.put("spring.flyway.locations", "classpath:db/" + springDatasourceDruidDbType);//sql脚本存放位置，按照数据库类型区分
-        defaultProperties.put("spring.flyway.clean-on-validation-error", "true");//Whether to automatically call clean when a validation error occurs.
-        defaultProperties.put("spring.flyway.clean-disabled", "true");//Whether to disable cleaning of the database.
-        defaultProperties.put("spring.flyway.table", "flyway_md_" + springApplicationName);//flyway元数据表名称
+        //service、auth需要flyway和mybatis
 
-        //mybatis
-        defaultProperties.put("mybatis.config-location", "classpath:mybatis-config.xml");
-        defaultProperties.put("mybatis.mapper-locations", "classpath:com/milepost/**/**/dao/*.xml");
+        if(MilepostApplicationType.SERVICE.getValue().equalsIgnoreCase(applicationType)
+                || MilepostApplicationType.AUTH.getValue().equalsIgnoreCase(applicationType)){
+            //flyway，数据库脚本名为“V1__xxx.sql”，当有表结构更新时，新增脚本，版本号增加即可，
+            String springDatasourceDruidDbType = getStringByKeyFromAppYmlMap(appYmlMap, "spring.datasource.druid.db-type");
+            if(StringUtils.isBlank(springDatasourceDruidDbType)){
+                springDatasourceDruidDbType = "";
+            }
+            defaultProperties.put("spring.datasource.initialize", "false");//禁止spring使用data.sql来初始化。
+            defaultProperties.put("spring.flyway.enabled", "true");//默认开启
+            defaultProperties.put("spring.flyway.baseline-on-migrate", "true");//当迁移时发现目标schema非空，而且带有没有元数据的表时，是否自动执行基准迁移，默认false.
+            //defaultProperties.put("spring.flyway.baseline-description", "init");//对执行迁移时基准版本的描述.
+            defaultProperties.put("spring.flyway.baseline-version", "0");//执行基线时用来标记已有Schema的版本，默认值为1.
+            defaultProperties.put("spring.flyway.locations", "classpath:db/" + springDatasourceDruidDbType);//sql脚本存放位置，按照数据库类型区分
+            defaultProperties.put("spring.flyway.clean-on-validation-error", "true");//Whether to automatically call clean when a validation error occurs.
+            defaultProperties.put("spring.flyway.clean-disabled", "true");//Whether to disable cleaning of the database.
+            defaultProperties.put("spring.flyway.table", "flyway_md_" + springApplicationName);//flyway元数据表名称
+
+            //mybatis
+            defaultProperties.put("mybatis.config-location", "classpath:mybatis-config.xml");
+            defaultProperties.put("mybatis.mapper-locations", "classpath:com/milepost/**/**/dao/*.xml");
+        }else{
+            defaultProperties.put("spring.flyway.enabled", "false");
+        }
 
         //velocity与thymeleaf类似，是一个模版引擎，
         defaultProperties.put("spring.velocity.enabled", "false");

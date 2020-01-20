@@ -11,37 +11,39 @@
 	</parent>
 
 	<artifactId>milepost-auth</artifactId>
+	<version>1.0.0.100</version>
 	<packaging>jar</packaging>
 	<name>milepost-auth</name>
 	<description>Oauth2</description>
 	<!--
-	使用基于jwt的认证（auth），利用jdk生成的证书来实现license。
+	使用基于jwt的认证（auth），
 	认证服务只负责认证，不管其他的。
-	这个应用可以不在认证页面显示出来，作为整个框架的一个隐藏能力，不显示在认证页面。
+	这个应用可以不在认证页面显示出来，作为整个框架的一个隐藏能力。
 
 	继承milepost-parent，
-	依赖milepost-log，
-	其余的都自己管理，不需要指定依赖的版本，继承自milepost-parent。
+	依赖milepost-service，
+	其余的认证相关的都自己管理。
 	-->
 
-
 	<dependencies>
-
-		<dependency>
-			<groupId>com.milepost</groupId>
-			<artifactId>milepost-log</artifactId>
-		</dependency>
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 		</dependency>
-
 		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId>
+			<groupId>com.milepost</groupId>
+			<artifactId>milepost-service</artifactId>
 		</dependency>
 
+		<dependency>
+			<groupId>com.milepost</groupId>
+			<artifactId>milepost-mybatis-generator</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+
+		<!--认证相关-->
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-jwt</artifactId>
@@ -56,15 +58,6 @@
 			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
 		</dependency>
 
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-data-jpa</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>mysql</groupId>
-			<artifactId>mysql-connector-java</artifactId>
-		</dependency>
 	</dependencies>
 
 	<build>
@@ -74,6 +67,21 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
 		</plugins>
+
+		<!--编译时增加xml文件-->
+		<resources>
+			<resource>
+				<directory>src/main/java</directory>
+				<includes>
+					<include>**/*.xml</include>
+				</includes>
+				<filtering>true</filtering>
+			</resource>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+			</resource>
+		</resources>
 	</build>
 
 </project>

@@ -24,7 +24,9 @@ import java.util.Map;
 @EnableScheduling
 @EnableEurekaServer
 @SpringBootApplication
-@ComponentScan(basePackages = {"com.milepost.core.spring"})
+@ComponentScan(basePackages = {
+		"com.milepost.core.spring"// ApplicationContextProvider
+})
 public class MilepostEurekaApplication{
 
 	private static Logger logger = LoggerFactory.getLogger(MilepostEurekaApplication.class);

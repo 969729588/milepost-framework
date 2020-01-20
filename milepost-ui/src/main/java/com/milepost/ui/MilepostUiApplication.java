@@ -11,7 +11,11 @@ import java.util.Map;
 
 //父类上的注解会被子类继承
 @ComponentScan(basePackages = {
-		"com.milepost.core"
+		"com.milepost.ui.config.auth",//认证、
+		"com.milepost.core.listener",//打印banner、
+		"com.milepost.core.lock",//分布式锁、
+		"com.milepost.core.multipleTenant",//多租户、
+		"com.milepost.core.spring"// ApplicationContextProvider
 })
 public class MilepostUiApplication {
 

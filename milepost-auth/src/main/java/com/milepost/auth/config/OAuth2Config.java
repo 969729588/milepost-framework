@@ -27,8 +27,15 @@ import javax.sql.DataSource;
 public class OAuth2Config extends AuthorizationServerConfigurerAdapter {
 
     @Autowired
-    @Qualifier("dataSource")
     private DataSource dataSource;
+
+    /**
+     * 生成jks文件时指定的alias，
+     * jks文件在core项目中
+     */
+    public static String JKS_ALIAS = "milepost-alias";
+    public static String JKS_FILE_NAME = "milepost.jks";
+    public static String JKS_PASSWORD = "milepost";
 
     @Override
     public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
@@ -83,9 +90,9 @@ public class OAuth2Config extends AuthorizationServerConfigurerAdapter {
 
     @Bean
     protected JwtAccessTokenConverter jwtTokenEnhancer() {
-        KeyStoreKeyFactory keyStoreKeyFactory = new KeyStoreKeyFactory(new ClassPathResource("fzp-jwt.jks"), "fzp123".toCharArray());
+        KeyStoreKeyFactory keyStoreKeyFactory = new KeyStoreKeyFactory(new ClassPathResource(JKS_FILE_NAME), JKS_PASSWORD.toCharArray());
         JwtAccessTokenConverter converter = new JwtAccessTokenConverter();
-        converter.setKeyPair(keyStoreKeyFactory.getKeyPair("fzp-jwt"));
+        converter.setKeyPair(keyStoreKeyFactory.getKeyPair(JKS_ALIAS));
         return converter;
     }
 }

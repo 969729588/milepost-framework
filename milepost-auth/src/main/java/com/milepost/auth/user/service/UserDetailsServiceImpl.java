@@ -1,23 +1,25 @@
-package com.milepost.auth.service;
+package com.milepost.auth.user.service;
 
-
-import com.milepost.auth.dao.UserDao;
+import com.milepost.auth.user.dao.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 /**
- * Created by fangzhipeng on 2017/5/10.
+ * Created by Ruifu Hua on 2020/1/19.
  */
 @Service
-public class UserServiceDetail implements UserDetailsService {
+public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Autowired
-    private UserDao userRepository;
+    private UserMapper userMapper;
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userRepository.findByUsername(username);
+        UserDetails user = userMapper.selectByUsername(username);
+        return user;
     }
 }
