@@ -1,99 +1,84 @@
 package com.milepost.api.util;
 
-import org.apache.commons.compress.archivers.ArchiveEntry;
-import org.apache.commons.compress.archivers.ArchiveInputStream;
-import org.apache.commons.compress.archivers.ArchiveOutputStream;
-import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
-import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
-import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
-import org.apache.commons.compress.utils.IOUtils;
+import net.lingala.zip4j.core.ZipFile;
+import net.lingala.zip4j.exception.ZipException;
+import net.lingala.zip4j.model.ZipParameters;
+import net.lingala.zip4j.util.Zip4jConstants;
 
-import java.io.*;
-import java.nio.file.*;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.util.Objects;
+import java.io.File;
+import java.util.ArrayList;
 
 /**
- * Created by Ruifu Hua on 2020/1/16.
+ * 操作文件工具类
+ * 
+ * @author HRF
  */
 public class ZipUtil {
-    public static void zip(String srcDir, String targetFile) throws IOException {
-        OutputStream fos = new FileOutputStream(targetFile);
-        OutputStream bos = new BufferedOutputStream(fos);
-        ArchiveOutputStream aos = new ZipArchiveOutputStream(bos);
-        try {
-            Path dirPath = Paths.get(srcDir);
-            Files.walkFileTree(dirPath, new SimpleFileVisitor<Path>() {
-                @Override
-                public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-                    ArchiveEntry entry = new ZipArchiveEntry(dir.toFile(), dirPath.relativize(dir).toString());
-                    aos.putArchiveEntry(entry);
-                    aos.closeArchiveEntry();
-                    return super.preVisitDirectory(dir, attrs);
-                }
 
-                @Override
-                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                    InputStream fileIs = null;
-                    try {
-                        fileIs = new FileInputStream(file.toFile());
+	/**
+	 * 压缩文件夹，文件夹中可以包含文件，子文件夹等
+	 * @param folderPath 文件夹路径
+	 * @param saveZipFileName zip的保存路径
+	 * @return
+	 */
+	public static boolean zipFolder(String folderPath, String saveZipFileName) throws ZipException {
+		boolean result = false;
+		// Initiate ZipFile object with the path/name of the zip file.
+		ZipFile zipFile = new ZipFile(saveZipFileName);
 
-                        ArchiveEntry entry = new ZipArchiveEntry(
-                                file.toFile(), dirPath.relativize(file).toString());
-                        aos.putArchiveEntry(entry);
-                        IOUtils.copy(fileIs, aos);
-                        aos.closeArchiveEntry();
-                        return super.visitFile(file, attrs);
-                    }finally {
-                        IOUtils.closeQuietly(fileIs);
-                    }
-                }
+		// Initiate Zip Parameters which define various properties such
+		// as compression method, etc.
+		ZipParameters parameters = new ZipParameters();
 
-            });
-        }finally {
-            IOUtils.closeQuietly(aos);
-            IOUtils.closeQuietly(bos);
-            IOUtils.closeQuietly(fos);
-        }
-    }
+		// set compression method to store compression
+		parameters.setCompressionMethod(Zip4jConstants.COMP_DEFLATE);
 
+		// Set the compression level. This value has to be in between 0 to 9
+		parameters.setCompressionLevel(Zip4jConstants.DEFLATE_LEVEL_NORMAL);
 
-    public static void unzip(String zipFileName, String destDir) throws IOException {
-        InputStream fis = null;
-        InputStream bis = null;
-        ArchiveInputStream ais = null;
+		// Create a split file by setting splitArchive parameter to true
+		// and specifying the splitLength. SplitLenth has to be greater than
+		// 65536 bytes(字节)，即65536/1024=64KB
+		// Please note: If the zip file already exists, then this method throws an
+		// exception
+		zipFile.createZipFileFromFolder(folderPath, parameters, false, 65536);//10485760B = 10240KB = 10MB
+		result = true;
+		return result;
+	}
+	
+	/**
+	 * 压缩文件
+	 * @param fileName 文件路径
+	 * @param saveZipFileName zip的保存路径
+	 * @return
+	 */
+	public static boolean zipFile(String fileName, String saveZipFileName) throws ZipException {
+		boolean result = false;
+		// Initiate ZipFile object with the path/name of the zip file.
+		ZipFile zipFile = new ZipFile(saveZipFileName);
 
-        try {
-            fis = Files.newInputStream(Paths.get(zipFileName));
-            bis = new BufferedInputStream(fis);
-            ais = new ZipArchiveInputStream(bis);
+		// Build the list of files to be added in the array list
+		// Objects of type File have to be added to the ArrayList
+		ArrayList<File> filesToAdd = new ArrayList<File>();
+		filesToAdd.add(new File(fileName));
 
-            ArchiveEntry entry;
-            while (Objects.nonNull(entry = ais.getNextEntry())) {
-                if (!ais.canReadEntryData(entry)) {
-                    continue;
-                }
+		// Initiate Zip Parameters which define various properties such
+		// as compression method, etc.
+		ZipParameters parameters = new ZipParameters();
 
-                String name = destDir + File.separator + entry.getName();
-                File f = new File(name);
-                if (entry.isDirectory()) {
-                    if (!f.isDirectory() && !f.mkdirs()) {
-                        f.mkdirs();
-                    }
-                } else {
-                    File parent = f.getParentFile();
-                    if (!parent.isDirectory() && !parent.mkdirs()) {
-                        throw new IOException("failed to create directory " + parent);
-                    }
-                    try (OutputStream o = Files.newOutputStream(f.toPath())) {
-                        IOUtils.copy(ais, o);
-                    }
-                }
-            }
-        } finally {
-            IOUtils.closeQuietly(ais);
-            IOUtils.closeQuietly(bis);
-            IOUtils.closeQuietly(fis);
-        }
-    }
+		// set compression method to store compression
+		parameters.setCompressionMethod(Zip4jConstants.COMP_DEFLATE);
+
+		// Set the compression level. This value has to be in between 0 to 9
+		parameters.setCompressionLevel(Zip4jConstants.DEFLATE_LEVEL_NORMAL);
+
+		// Create a split file by setting splitArchive parameter to true
+		// and specifying the splitLength. SplitLenth has to be greater than
+		// 65536 bytes
+		// Please note: If the zip file already exists, then this method throws an
+		// exception
+		zipFile.createZipFile(filesToAdd, parameters, false, 10485760);
+		result = true;
+		return result;
+	}
 }

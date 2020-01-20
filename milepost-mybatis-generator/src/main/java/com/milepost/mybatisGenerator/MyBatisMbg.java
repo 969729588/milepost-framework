@@ -86,7 +86,7 @@ public class MyBatisMbg {
 				if("y".equals(backup)){
 					String folderPath = projectRootPath + eclipseDir + "/" + (packName.contains(".")? packName.replace(".", "/") : packName);//整个模块包
 					String zipFilePath = projectRootPath + eclipseDir + "/" + (packName.contains(".")? packName.replace(".", "/") : packName) + "/mbg";
-					ZipUtil.zip(folderPath, zipFilePath + "/" + modleName + "_"+ DateFormatUtils.format(new Date(), "yyyy-MM-dd_HH-mm-ss") +".zip");
+					ZipUtil.zipFolder(folderPath, zipFilePath + "/" + modleName + "_"+ DateFormatUtils.format(new Date(), "yyyy-MM-dd_HH-mm-ss") +".zip");
 				}
 				//先删除原来mapper的文件，否则mbg会在原文件上追加内容
 				String mapperFilePath = projectRootPath + eclipseDir + "/" + (packName.contains(".")? packName.replace(".", "/") : packName)
