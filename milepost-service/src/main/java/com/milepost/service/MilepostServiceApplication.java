@@ -12,6 +12,7 @@ import java.util.Map;
 
 @ComponentScan(basePackages = {
 		"com.milepost.service.config.auth",//认证、
+		"com.milepost.service.config.feignClient",//feignClient拦截器
 		"com.milepost.core.listener",//打印banner、
 		"com.milepost.core.lock",//分布式锁、
 		"com.milepost.core.multipleTenant",//多租户、

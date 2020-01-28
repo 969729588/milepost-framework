@@ -43,6 +43,12 @@
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
 
+		<!--openfeign-->
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-openfeign</artifactId>
+		</dependency>
+
 		<!--actuator-->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -69,7 +75,6 @@
 			<scope>runtime</scope>
 		</dependency>
 		<!-- oracle驱动包-->
-
 		<!--druid，不是被springboot管理的-->
 		<dependency>
 			<groupId>com.alibaba</groupId>
@@ -89,17 +94,16 @@
 			<groupId>net.sf.ehcache</groupId>
 			<artifactId>ehcache-core</artifactId>
 		</dependency>
-
 		<!--pagehelper分页插件，不是被springboot管理的-->
 		<dependency>
 			<groupId>com.github.pagehelper</groupId>
 			<artifactId>pagehelper</artifactId>
 		</dependency>
-
 		<dependency>
 			<groupId>org.flywaydb</groupId>
 			<artifactId>flyway-core</artifactId>
 		</dependency>
+
 
 		<!--spring-boot-starter-swagger
 			https://github.com/SpringForAll/spring-boot-starter-swagger
