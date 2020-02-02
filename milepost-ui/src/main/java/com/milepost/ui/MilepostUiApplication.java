@@ -12,7 +12,7 @@ import java.util.Map;
 //父类上的注解会被子类继承
 @ComponentScan(basePackages = {
 		"com.milepost.ui.config.auth",//认证、
-		"com.milepost.ui.config.feignClient",//feignClient拦截器
+        "com.milepost.ui.config.openfeign",//feignClient拦截器
 		"com.milepost.core.listener",//打印banner、
 		"com.milepost.core.lock",//分布式锁、
 		"com.milepost.core.multipleTenant",//多租户、

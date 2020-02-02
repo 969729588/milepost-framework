@@ -7,6 +7,7 @@ import com.milepost.api.enums.MilepostApplicationType;
 import com.milepost.core.spring.ApplicationContextProvider;
 import com.netflix.appinfo.ApplicationInfoManager;
 import com.netflix.appinfo.InstanceInfo;
+import io.swagger.annotations.Authorization;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -255,6 +256,9 @@ public class MilepostApplication extends SpringApplication{
             defaultProperties.put("spring.profiles.active", "dev");
         }
         defaultProperties.put("spring.main.banner-mode", "off");//关闭，使用自己写的com.milepost.core.banner.PrintBanner打印banner
+
+        //允许多个接口上的@FeignClient(“相同服务名”)
+        defaultProperties.put("spring.main.allow-bean-definition-overriding", true);
 
         //xxs暂时不考虑，后续要加进来
 //        defaultProperties.put("iplatform.xss.enabled", "true");
@@ -599,6 +603,13 @@ public class MilepostApplication extends SpringApplication{
             //mybatis
             defaultProperties.put("mybatis.config-location", "classpath:mybatis-config.xml");
             defaultProperties.put("mybatis.mapper-locations", "classpath:com/milepost/**/**/dao/*.xml");
+
+            if(MilepostApplicationType.SERVICE.getValue().equalsIgnoreCase(applicationType)){
+                defaultProperties.put("swagger.authorization.key-name", "Authorization");//swagger-ui调用接口时传入的token请求头名称，值为“Bearer {token}”
+
+                defaultProperties.put("swagger.title", springApplicationName + " swagger");//swagger-ui调用接口时传入的token请求头名称，值为“Bearer {token}”
+                defaultProperties.put("swagger.description", springApplicationName + " swagger");//swagger-ui调用接口时传入的token请求头名称，值为“Bearer {token}”
+            }
         }else{
             defaultProperties.put("spring.flyway.enabled", "false");
         }

@@ -24,7 +24,7 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
             .csrf().disable()
             .authorizeRequests()
             .antMatchers("/milepost-actuator/**",
-                    "/test/test0").permitAll()
+                    "/login").permitAll()
             .antMatchers("/**").authenticated();
     }
 }

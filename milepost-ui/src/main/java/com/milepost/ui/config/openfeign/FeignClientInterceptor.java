@@ -1,4 +1,4 @@
-package com.milepost.service.config.feignClient;
+package com.milepost.ui.config.openfeign;
 
 
 import feign.RequestInterceptor;

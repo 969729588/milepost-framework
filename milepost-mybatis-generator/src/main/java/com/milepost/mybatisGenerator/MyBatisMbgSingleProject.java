@@ -24,26 +24,21 @@ import java.util.List;
 import java.util.Scanner;
 
 /**
- * @author Huarf
- * 生成mapper映射文件、mapper接口、实体类、查询条件实体类，
- * 使用方法：
- * 	1.将MybatisMbg.xml放到com.milepost.xxx.mbg下。
- * 	2.用运行main方法，按照中提示的进行操作。
- * 	3.当原来存在文件的时候，要给出提示并原备份。
- * 	4.每次生成，要覆盖原来的mbg配置文件。
- * 2017年8月22日
+ * 单一项目的生成器，entity与dao在一个项目中的。<br>
  *
- *
- * 对于student，输入以下：authenticationService.student
- *
+ * 生成mapper映射文件、实体类、查询条件实体类。<br>
+ * 使用方法：<br>
+ *  1.将MybatisMbg.xml放到com.milepost.**.mbg下，具体见“G:/学习资料/ideaWorkingSpace/springcloud-book-greenwich_milepost-1/milepost-framework/milepost-auth/src/main/java/com/milepost/auth/user/mbg/MybatisMbg.xml”<br>
+ *  2.配置Program arguments为“G:\学习资料\ideaWorkingSpace\springcloud-book-greenwich_milepost-1\milepost-framework\milepost-auth”，这个路径下面有pom、src。<br>
+ * 	3.用运行main方法，按照中提示的进行操作。<br>
+ * 	4.对于milepost-auth工程的user，输入auth.user。<br>
+ * 	5.当原来存在文件的时候，给出提示并原备份。<br>
+ * 	6.每次生成新的mbg配置文件，覆盖原来的mbg配置文件。<br>
  */
-public class MyBatisMbg {
+public class MyBatisMbgSingleProject {
 	
 	public static void main(String[] args) throws Exception {
 
-		//在Program arguments中配置一个参数，即当前项目的绝对跟路径
-		//G:\学习资料\ideaWorkingSpace\springcloud-book-greenwich_milepost-1\authentication-parent\authentication-service
-		//这个路径下面就是pom、src。
 		if(args==null || args.length==0){
 			System.out.println("[error]		请配置Program arguments。");
 			return;
@@ -110,8 +105,15 @@ public class MyBatisMbg {
 			Element sqlMapEle = contextEle.element("sqlMapGenerator");
 			sqlMapEle.addAttribute("targetPackage", daoTargetPackage);
 			Element tableEle = contextEle.element("table");
-			System.out.println("[info]		注意table配置信息如下：");
-			System.out.println("[info]		<table tableName=\""+ tableEle.attributeValue("tableName") +"\" domainObjectName=\""+ tableEle.attributeValue("domainObjectName") +"\">");
+//			System.out.println("[info]		注意table配置信息如下：");
+//			System.out.println("[info]		<table catalog=\""+ tableEle.attributeValue("catalog") +"\" " +
+//												   "tableName=\""+ tableEle.attributeValue("tableName") +"\" " +
+//												   "domainObjectName=\""+ tableEle.attributeValue("domainObjectName") +"\">");
+			System.out.println("[info]		注意如下配置：");
+			System.out.println("[info]		数据库：" + tableEle.attributeValue("catalog") + "，" +
+					"表名：" + tableEle.attributeValue("tableName") + "，" +
+					"实体类：" + tableEle.attributeValue("domainObjectName"));
+
 			System.out.print("[confirm]	请确认（y/n）：y >");
 			String confirm = scanner.nextLine().trim();
 			confirm = confirm.equals("")? "y" : confirm;//默认值y

@@ -23,7 +23,10 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
         http
             .csrf().disable()
             .authorizeRequests()
-            .antMatchers("/milepost-actuator/**").permitAll()
+            .antMatchers("/milepost-actuator/**",//监控
+                    "/swagger-resources/**", "/v2/**", "/swagger-ui.html/**", "/webjars/**"//swagger
+
+            ).permitAll()
             .antMatchers("/**").authenticated();
     }
 }

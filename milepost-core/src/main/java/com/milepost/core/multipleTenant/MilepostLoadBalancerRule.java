@@ -12,6 +12,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -23,9 +24,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Created by Ruifu Hua on 2020/1/8.
  * Robin默认使用的是com.netflix.loadbalancer.RoundRobinRule，本类也是从RoundRobinRule中复制过来的
- * 这里自定义一个，以实现租户、群众、标签等负载机制
+ * 这里自定义一个，以实现租户、权重、标签等负载机制
  */
-@Component
+@Component//默认是单例的
+@Scope("prototype")//必须用原型的，否则getLoadBalancer()方法返回的LoadBalancer是最后一个FeignClient的LoadBalancer，因为被覆盖了。
 public class MilepostLoadBalancerRule extends AbstractLoadBalancerRule {
     private AtomicInteger nextServerCyclicCounter;
     private static final boolean AVAILABLE_ONLY_SERVERS = true;

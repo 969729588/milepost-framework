@@ -80,7 +80,7 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
-            <optional>true</optional>
+            <!--<optional>true</optional>--><!--true表示子类不继承这个依赖-->
         </dependency>
 
         <dependency>

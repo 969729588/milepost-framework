@@ -12,14 +12,15 @@ import java.util.Map;
 
 @ComponentScan(basePackages = {
 		"com.milepost.service.config.auth",//认证、
-		"com.milepost.service.config.feignClient",//feignClient拦截器
+		"com.milepost.service.config.openfeign",//feignClient拦截器
 		"com.milepost.core.listener",//打印banner、
 		"com.milepost.core.lock",//分布式锁、
 		"com.milepost.core.multipleTenant",//多租户、
 		"com.milepost.core.spring",// ApplicationContextProvider
 		"com.milepost.service.config.druid"//数据源
 })
-//Swagger，这里好像默认是全部扫描，之后需要指定一下扫描的包
+//Swagger，这里好像默认是全部扫描，之后需要指定一下扫描的包,
+//访问：http://192.168.223.1:9991/authentication-service/swagger-ui.html
 @EnableSwagger2Doc
 public class MilepostServiceApplication {
 

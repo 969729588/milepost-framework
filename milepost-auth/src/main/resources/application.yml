@@ -61,12 +61,30 @@ spring:
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://172.16.1.208:8761/eureka/
+      #defaultZone: http://172.16.1.208:8761/eureka/
+      defaultZone: http://192.168.1.105:8761/eureka/
   instance:
     ip-address: 192.168.223.1
 
 multiple-tenant:
-  tenant: def
+  tenant: tenant1
   weight: 9
   label-and: aa,bb
   label-or: dd,ee,ff
+
+
+#auth:
+#  client-detail:
+#    client-id: aaa
+#    resource-ids: bbb
+#    client-secret: ccc
+#    scope: ddd
+#    authorized-grant-types: eee
+#    web-server-redirect-uri: fff
+#    authorities: ggg
+#    access-token-validity: 222
+#    refresh-token-validity: 333
+#    additional-information: fdas
+#    autoapprove: true
+
+
