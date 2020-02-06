@@ -14,8 +14,6 @@ import org.springframework.util.FileCopyUtils;
 import java.io.IOException;
 
 /**
- * Created by fangzhipeng on 2017/6/1.
- *
  * 解析token
  */
 @Configuration
@@ -24,7 +22,10 @@ public class JwtConfig {
     @Autowired
     JwtAccessTokenConverter jwtAccessTokenConverter;
 
-    public static String PUBLIC_KEY = "public.key";
+    public static final String  PUBLIC_KEY = "public.key";
+
+    public static final String PUBLIC_KEY_BEGIN = "-----BEGIN PUBLIC KEY-----\r";
+    public static final String PUBLIC_KEY_END = "\r-----END PUBLIC KEY-----";
 
     @Bean
     @Qualifier("tokenStore")
@@ -38,7 +39,7 @@ public class JwtConfig {
         Resource resource = new ClassPathResource(PUBLIC_KEY);
         String publicKey ;
         try {
-            publicKey = new String(FileCopyUtils.copyToByteArray(resource.getInputStream()));
+            publicKey = PUBLIC_KEY_BEGIN + new String(FileCopyUtils.copyToByteArray(resource.getInputStream())) + PUBLIC_KEY_END;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

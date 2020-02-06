@@ -13,10 +13,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.servlet.http.HttpServletResponse;
 
-/**
- * Created by fangzhipeng on 2017/5/27.
- */
-
 @Configuration
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 

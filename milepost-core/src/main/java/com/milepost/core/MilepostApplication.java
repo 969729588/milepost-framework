@@ -216,12 +216,18 @@ public class MilepostApplication extends SpringApplication{
         logger.info("supportSsl=" + supportSsl);
 
         //生成jwt和https相关文件，这几个文件都是事先放在当前jar包下的
-        //#生成jks文件
+        //1、生成jks文件
         //#keytool -genkeypair -alias milepost-alias -validity 365 -keyalg RSA -dname "CN=花瑞富,OU=milepost公司,O=milepost公司,L=shenyan,S=liaoning,C=CH" -keypass milepost -keystore milepost.jks -storepass milepost
-        //#获取jks文件中的公钥，将公钥部分保存在public.key文件中，这个文件就是其他服务用来解码jwt的公钥。
+
+        //2、获取jks文件中的公钥(PUBLIC KEY)和证书(CERTIFICATE，证书文件以“.cer”结尾)，将公钥部分保存在public.key文件中，这个文件就是其他服务用来解码jwt的公钥。
         //#keytool -list -rfc --keystore milepost.jks | openssl x509 -inform pem -pubkey
+
+        //3、获取获取jks文件中的私钥(PUBLIC KEY)和证书(CERTIFICATE，证书文件以“.cer”结尾)，将私钥部分保存在private.key文件中，这个文件就是用来给license.dat文件签名的，使用上面的公钥验签。
+        //keytool -v -importkeystore -srckeystore milepost.jks -srcstoretype jks -srcstorepass milepost -destkeystore milepost.pfx -deststoretype pkcs12 -deststorepass milepost -destkeypass milepost
+        //openssl pkcs12 -in milepost.pfx -nodes
+
         //StreamFiles.InputStreamToFile(ResourceUtils.getURL("classpath:milepost.jks").openStream(), new File("milepost.jks"));
-        FileCopyUtils.copy(ResourceUtils.getURL("classpath:milepost.jks").openStream(), new FileOutputStream(new File("milepost.jks")));
+        FileCopyUtils.copy(ResourceUtils.getURL(ResourceUtils.CLASSPATH_URL_PREFIX + "milepost.jks").openStream(), new FileOutputStream(new File("milepost.jks")));
         //设置这两个之后，回去一个临时路径找milepost.jks，导致报错，
         //System.setProperty("javax.net.ssl.trustStore", "milepost.jks");
         //System.setProperty("javax.net.ssl.trustStorePassword", defaultPassword);
