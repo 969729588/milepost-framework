@@ -112,7 +112,11 @@
                 <scope>test</scope>
             </dependency>
 
-            <!--jasypt，https://github.com/ulisesbocchio/jasypt-spring-boot-->
+            <!--jasypt，https://github.com/ulisesbocchio/jasypt-spring-boot
+                去https://www.oracle.com/technetwork/java/javase/downloads/jce8-download-2133166.html
+                下载支持jar包，放到D:\JavaSoftware\Java8\jdk1.8.0_144\jre\lib\security中，
+                覆盖掉原有的jar包，否则报
+                A possible cause is you are using strong encryption algorithms and you have not installed the Java ...-->
             <dependency>
                 <groupId>com.github.ulisesbocchio</groupId>
                 <artifactId>jasypt-spring-boot-starter</artifactId>

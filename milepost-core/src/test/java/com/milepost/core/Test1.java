@@ -53,7 +53,7 @@ public class Test1 {
         //生成license文件
         String licenseFilePath = getRealPath("license.dat");
         String product = "all";
-        String expirationDate = "2019/12/31";
+        String expirationDate = "2020/12/31";
         String companyName = "milepost";
         String emailAddress = "969729588@qq.com";
         generateLicense(licenseFilePath, privateKeyFilePath,

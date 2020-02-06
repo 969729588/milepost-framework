@@ -7,7 +7,6 @@ import com.milepost.api.enums.MilepostApplicationType;
 import com.milepost.core.spring.ApplicationContextProvider;
 import com.netflix.appinfo.ApplicationInfoManager;
 import com.netflix.appinfo.InstanceInfo;
-import io.swagger.annotations.Authorization;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -384,6 +383,7 @@ public class MilepostApplication extends SpringApplication{
         //引入这个jasypt-spring-boot-starter依赖才有下面这个配置，
         //jasyt是一个加密框架，见https://github.com/ulisesbocchio/jasypt-spring-boot
         defaultProperties.put("jasypt.encryptor.password", defaultPassword);
+        defaultProperties.put("jasypt.encryptor.algorithm", "PBEWithMD5AndDES");
 
         //Date format to use.
         defaultProperties.put("spring.mvc.date-format", "yyyy-MM-dd HH:mm:ss");

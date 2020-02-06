@@ -56,6 +56,7 @@ public class EncryptionUtilTest {
     public void test4() throws Exception {
         String src = "哈哈哈哈";
         byte[] bytes = EncryptionUtil.pbeEncrypt(src, "aaa");
+        System.out.println(EncryptionUtil.bytes2HexString(bytes));
         System.out.println(EncryptionUtil.pbeDecrypt(bytes, "aaa"));
     }
 

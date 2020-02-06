@@ -1,7 +1,9 @@
 info:
   app:
     name: milepost-auth
-    description: 认证服务
+    #description: 认证服务
+    #description: ENC(7lzUuhb5W9WMqEk8VJOQLmxFz4X1OlJ+K6A231K415Y=)
+    description: ENC(1kzzvzROE6shlmMUioX3JMY+7Qu6+ArKh209IpnCckY=)
     version: 1.0.0.100
 
 server:
@@ -22,7 +24,8 @@ spring:
       driver-class-name: com.mysql.cj.jdbc.Driver
       url: jdbc:mysql://localhost:3306/milepost_auth?useUnicode=true&characterEncoding=utf8&characterSetResults=utf8&serverTimezone=GMT%2B8
       username: root
-      password: admin123
+      #password: admin123
+      password: ENC(tXVsX2fiUQfrNM9Gqey3pmRiLgw+Znp/ISEaZCOMDo0=)
 
       initial-size: 5
       max-active: 20
