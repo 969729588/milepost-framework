@@ -276,6 +276,10 @@ public class MilepostApplication extends SpringApplication{
 
         //设置org.apache.activemq的日志级别为error，后续处理，感觉可以放在logback中配置
         //defaultProperties.put("logging.level.org.apache.activemq", "ERROR");
+        defaultProperties.put("spring.activemq.user", "admin");
+        defaultProperties.put("spring.activemq.password", "admin");
+        defaultProperties.put("spring.activemq.pool.enabled", true);//使用连接池
+        defaultProperties.put("spring.activemq.pool.max-connections", 10);
 
         //management监控相关，
         //监控相关端点的前缀，访问路径为https://localhost:port/${server.servlet.context-path}/milepost-actuator

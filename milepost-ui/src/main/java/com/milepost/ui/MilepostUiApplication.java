@@ -17,7 +17,8 @@ import java.util.Map;
 		"com.milepost.core.lock",//分布式锁、
 		"com.milepost.core.multipleTenant",//多租户、
 		"com.milepost.core.spring",// ApplicationContextProvider
-		"com.milepost.core.lns"//license
+		"com.milepost.core.lns",//license
+		"com.milepost.core.mq"//mq
 })
 public class MilepostUiApplication {
 

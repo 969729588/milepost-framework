@@ -19,7 +19,8 @@ import java.util.Map;
 		"com.milepost.core.listener",//打印banner、
 		"com.milepost.core.multipleTenant",//多租户、
 		"com.milepost.core.spring",// ApplicationContextProvider
-		"com.milepost.service.config.druid"//数据源
+		"com.milepost.service.config.druid",//数据源
+		"com.milepost.core.mq"//mq
 })
 public class MilepostAuthApplication {
 
