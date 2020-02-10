@@ -38,6 +38,7 @@
         <spring-boot.version>2.1.0.RELEASE</spring-boot.version>
         <milepost.version>1.0.0-SNAPSHOT</milepost.version>
         <jasypt.version>3.0.1</jasypt.version>
+        <poi.version>3.14</poi.version>
     </properties>
 
     <dependencies>
@@ -207,6 +208,38 @@
                 <artifactId>fastjson</artifactId>
                 <version>1.2.62</version>
             </dependency>
+
+            <!-- poi -->
+            <dependency>
+                <groupId>org.apache.poi</groupId>
+                <artifactId>poi</artifactId>
+                <version>${poi.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.poi</groupId>
+                <artifactId>poi-ooxml</artifactId>
+                <version>${poi.version}</version>
+            </dependency>
+
+            <!-- qrCode -->
+            <dependency>
+                <groupId>com.google.zxing</groupId>
+                <artifactId>core</artifactId>
+                <version>3.3.2</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.zxing</groupId>
+                <artifactId>javase</artifactId>
+                <version>3.0.0</version>
+            </dependency>
+
+            <!-- Java HTML Parser，官网在https://jsoup.org/，中文版的在这http://www.open-open.com/jsoup/ -->
+            <dependency>
+                <groupId>org.jsoup</groupId>
+                <artifactId>jsoup</artifactId>
+                <version>1.11.3</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 

@@ -19,7 +19,9 @@ import java.util.Map;
 		"com.milepost.core.spring",// ApplicationContextProvider
 		"com.milepost.service.config.druid",//数据源
 		"com.milepost.core.lns",//license
-		"com.milepost.core.mq"//mq
+		"com.milepost.core.mq",//mq
+		"com.milepost.core.restTemplate",//restTemplate
+		"com.milepost.core.exception"//全局异常处理
 })
 //Swagger，这里好像默认是全部扫描，之后需要指定一下扫描的包,
 //访问：http://192.168.223.1:9991/authentication-service/swagger-ui.html
