@@ -33,6 +33,7 @@
         <module>milepost-ui</module>
         <module>milepost-service</module>
         <module>milepost-mybatis-generator</module>
+        <module>milepost-test</module>
     </modules>
 
 </project>

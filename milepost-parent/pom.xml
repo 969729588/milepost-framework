@@ -55,12 +55,17 @@
             <!-- milepost -->
             <dependency>
                 <groupId>com.milepost</groupId>
-                <artifactId>milepost-log</artifactId>
+                <artifactId>milepost-test</artifactId>
                 <version>${milepost.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.milepost</groupId>
                 <artifactId>milepost-api</artifactId>
+                <version>${milepost.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.milepost</groupId>
+                <artifactId>milepost-log</artifactId>
                 <version>${milepost.version}</version>
             </dependency>
             <dependency>
@@ -142,6 +147,12 @@
                 <artifactId>commons-compress</artifactId>
                 <version>1.19</version>
             </dependency>
+            <dependency>
+                <groupId>commons-beanutils</groupId>
+                <artifactId>commons-beanutils</artifactId>
+                <version>1.9.4</version>
+            </dependency>
+
 
             <!-- 压缩文件，比commons-compress好用 -->
             <dependency>

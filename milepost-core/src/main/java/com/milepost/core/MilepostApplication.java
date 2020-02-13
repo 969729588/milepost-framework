@@ -329,15 +329,15 @@ public class MilepostApplication extends SpringApplication{
         defaultProperties.put("spring.redis.timeout", "1000");
 
         //datasource，
-        defaultProperties.put("spring.datasource.test-while-idle", "true");
-        defaultProperties.put("spring.datasource.time-between-eviction-runs-millis", "300000");
-        defaultProperties.put("spring.datasource.min-evictable-idle-time-millis", "30000");
-        defaultProperties.put("spring.datasource.validation-query", "SELECT 1");
-        defaultProperties.put("spring.datasource.max-active", "100");
-        defaultProperties.put("spring.datasource.max-idle", "5");
-        defaultProperties.put("spring.datasource.min-idle", "2");
-        defaultProperties.put("spring.datasource.max-wait", "30000");
-        defaultProperties.put("spring.datasource.initial-size", "5");
+//        defaultProperties.put("spring.datasource.test-while-idle", "true");
+//        defaultProperties.put("spring.datasource.time-between-eviction-runs-millis", "300000");
+//        defaultProperties.put("spring.datasource.min-evictable-idle-time-millis", "30000");
+//        defaultProperties.put("spring.datasource.validation-query", "SELECT 1");
+//        defaultProperties.put("spring.datasource.max-active", "100");
+//        defaultProperties.put("spring.datasource.max-idle", "5");
+//        defaultProperties.put("spring.datasource.min-idle", "2");
+//        defaultProperties.put("spring.datasource.max-wait", "30000");
+//        defaultProperties.put("spring.datasource.initial-size", "5");
 
         //logapi开关
         //defaultProperties.put("iplatform.logapi.enabled", "true");

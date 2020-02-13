@@ -1,14 +1,13 @@
 package com.milepost.api.util;
 
+import com.milepost.test.BaseTest;
+import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.mail.internet.MimeMessage;
 import java.io.File;
@@ -16,20 +15,14 @@ import java.io.File;
 /**
  * Created by Ruifu Hua on 2018-12-12.
  */
-@RunWith(SpringRunner.class)
-@SpringBootTest(value = {"spring.main.allow-bean-definition-overriding=true",
-        "spring.mail.username=m18310891237@163.com",
-        "spring.mail.password=sqm123456qweasd",
-        "spring.mail.host=smtp.163.com",
-})
-public class JavaMailSenderTest {
+public class JavaMailSenderTest extends BaseTest {
 
-    @Value("${spring.mail.username}")
     private String mailUsername;
 
     /**
      * 这里直接注入即可，配置文件中这样配置
-     *   mail:
+     * spring:
+     mail:
      username: m18310891237@163.com
      password: sqm123456qweasd
      host: smtp.163.com
@@ -40,8 +33,13 @@ public class JavaMailSenderTest {
      #连接qq邮箱服务器，需要额外配置这个
      enable: true
      */
-    @Autowired
-    private JavaMailSenderImpl mailSender;
+    private JavaMailSender mailSender;
+
+    @Before
+    public void init(){
+        mailUsername = getProperty("spring.mail.username");
+//        mailSender = getBean(JavaMailSender.class);
+    }
 
     /**
      * smtp.163.com
@@ -62,7 +60,7 @@ public class JavaMailSenderTest {
         SimpleMailMessage message = new SimpleMailMessage();
         //邮件设置
         message.setSubject("通知-今晚开会");
-        message.setText("今晚7:30开会");
+        message.setText("今晚7:31开会");
 
         message.setTo("969729588@qq.com");
         message.setFrom(mailUsername);

@@ -26,14 +26,16 @@
     -->
     <dependencies>
 
+        <!--单元测试-->
         <dependency>
             <groupId>com.milepost</groupId>
-            <artifactId>milepost-api</artifactId>
+            <artifactId>milepost-test</artifactId>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
+            <groupId>com.milepost</groupId>
+            <artifactId>milepost-api</artifactId>
         </dependency>
 
         <dependency>

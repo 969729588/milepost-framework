@@ -1,13 +1,9 @@
 package com.milepost.eureka;
 
+import com.milepost.test.BaseTest;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest
-public class MilepostEurekaApplicationTests {
+public class MilepostEurekaApplicationTests extends BaseTest<MilepostEurekaApplication>{
 
 	@Test
 	public void contextLoads() {

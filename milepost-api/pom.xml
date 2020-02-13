@@ -14,14 +14,14 @@
     <artifactId>milepost-api</artifactId>
     <packaging>jar</packaging>
     <name>milepost-api</name>
-    <description>日志</description>
+    <description>api</description>
     <!--框架级别的常量，bean，枚举等放在这里-->
 
     <dependencies>
         <!--单元测试-->
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
+            <groupId>com.milepost</groupId>
+            <artifactId>milepost-test</artifactId>
             <scope>test</scope>
         </dependency>
 
@@ -50,6 +50,10 @@
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
         </dependency>
+        <dependency>
+            <groupId>commons-beanutils</groupId>
+            <artifactId>commons-beanutils</artifactId>
+        </dependency>
 
         <!--zip-->
         <dependency>
@@ -61,6 +65,12 @@
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
+        </dependency>
+
+        <!--jackson-dataformat-->
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-yaml</artifactId>
         </dependency>
 
         <!--ehcache-->

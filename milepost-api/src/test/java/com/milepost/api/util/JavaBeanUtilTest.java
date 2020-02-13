@@ -1,6 +1,11 @@
 package com.milepost.api.util;
 
+import org.apache.commons.beanutils.BeanUtils;
 import org.junit.Test;
+
+import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by Ruifu Hua on 2019/7/25.
@@ -14,9 +19,27 @@ public class JavaBeanUtilTest {
         System.out.println(person);
         System.out.println(student);
 
-        JavaBeanUtil.copyBean(person, student, "age");
+        //org.springframework.beans
+        //BeanUtils.copyProperties(person, student, "age");
         System.out.println(person);
         System.out.println(student);
+    }
+
+    @Test
+    public void test2() throws InvocationTargetException, IllegalAccessException {
+        Map<String, Object> person = new HashMap<>();
+        person.put("name", "aaaa");
+        person.put("age", 1111);
+        Student student = new Student("李四", 30, "20190725-001", "三年2班");
+        System.out.println(person);
+        System.out.println(student);
+
+
+        //org.apache.commons.beanutils
+        BeanUtils.populate(student, person);
+        System.out.println(person);
+        System.out.println(student);
+
     }
 }
 

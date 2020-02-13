@@ -26,10 +26,10 @@
 	-->
 
 	<dependencies>
-
 		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
+			<groupId>com.milepost</groupId>
+			<artifactId>milepost-test</artifactId>
+			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.milepost</groupId>
