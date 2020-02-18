@@ -32,6 +32,7 @@
         <module>milepost-core</module>
         <module>milepost-ui</module>
         <module>milepost-service</module>
+        <module>milepost-dist-transaction</module>
         <module>milepost-mybatis-generator</module>
         <module>milepost-test</module>
     </modules>

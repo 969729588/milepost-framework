@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.milepost.api.constant.MilepostConstant;
 import com.milepost.api.enums.MilepostApplicationType;
+import com.milepost.api.util.ReadAppYml;
 import com.milepost.core.spring.ApplicationContextProvider;
 import com.netflix.appinfo.ApplicationInfoManager;
 import com.netflix.appinfo.InstanceInfo;
@@ -254,7 +255,8 @@ public class MilepostApplication extends SpringApplication{
         Map<String,Object> defaultProperties = new HashMap<>();
 
         //profiles
-        String springProfilesActive = getStringByKeyFromAppYmlMap(appYmlMap, "spring.profiles.active");
+        //String springProfilesActive = getStringByKeyFromAppYmlMap(appYmlMap, "spring.profiles.active");
+        String springProfilesActive = ReadAppYml.getValue("spring.profiles.active");
         if(StringUtils.isNotBlank(springProfilesActive)){
             defaultProperties.put("spring.profiles.active", springProfilesActive);
         }else{
@@ -436,12 +438,12 @@ public class MilepostApplication extends SpringApplication{
             protocol = "https";
         }
 
-        String tenant = getStringByKeyFromAppYmlMap(appYmlMap, "multiple-tenant.tenant");
+        String tenant = ReadAppYml.getValue("multiple-tenant.tenant");
         tenant = (tenant==null? "default":tenant);//默认为default。
         //eureka，以下三个属性是必须配置的，eureka.instance.ip-address、spring.application.name、server.port
-        String eurekaInstanceIpAddress = getStringByKeyFromAppYmlMap(appYmlMap, "eureka.instance.ip-address");
-        String springApplicationName = getStringByKeyFromAppYmlMap(appYmlMap, "spring.application.name");
-        String serverPort = getStringByKeyFromAppYmlMap(appYmlMap, "server.port");
+        String eurekaInstanceIpAddress = ReadAppYml.getValue("eureka.instance.ip-address");
+        String springApplicationName = ReadAppYml.getValue("spring.application.name");
+        String serverPort = ReadAppYml.getValue("server.port");
         defaultProperties.put("eureka.instance.ip-address", eurekaInstanceIpAddress);
         defaultProperties.put("spring.application.name", springApplicationName);
         defaultProperties.put("server.port", (StringUtils.isBlank(serverPort)? "8080":serverPort));
@@ -453,12 +455,12 @@ public class MilepostApplication extends SpringApplication{
         //既然eureka.instance.prefer-ip-address=true，就不需要hostname了
         //defaultProperties.put("eureka.instance.hostname", "${eureka.instance.ip-address}");
 
-        String serverServletContextPath = getStringByKeyFromAppYmlMap(appYmlMap, "server.servlet.context-path");
+        String serverServletContextPath = ReadAppYml.getValue("server.servlet.context-path");
 
         //在EurekaServer的启动类中将isEurekaServer属性设置进了java系统属性中，System.setProperty("isEurekaServer", "true");
         boolean isEurekaServer = this.isEurekaServer();
         if(isEurekaServer) {
-            //defaultProperties.put("eureka.client.serviceUrl.defaultZone", "${discovery.server.address}");
+            //defaultProperties.put("eureka.client.service-url.defaultZone", "${discovery.server.address}");
             //EurekaServer两个false，注意，当集群部署时候要开启，否则EurekaServer控制台的基本信息中显示副本不可达，
             //当abc集群时，a向bc注册，b向ac注册，c向ab注册，本质上还是非自注册的。
             //此时也可以配置EurekaServer的续约过期时长、续约间隔时间等参数
@@ -487,7 +489,7 @@ public class MilepostApplication extends SpringApplication{
             //更新控制台页面上续约阈值的时间间隔，
             defaultProperties.put("eureka.server.renewal-threshold-update-interval-ms",15*60*1000);
         } else {
-            //defaultProperties.put("eureka.client.serviceUrl.defaultZone", "${discovery.server.address}");
+            //defaultProperties.put("eureka.client.service-url.defaultZone", "${discovery.server.address}");
             //Indicates how often(in seconds) to fetch the registry information from the eureka server. 默认是30，这里改成5
             defaultProperties.put("eureka.client.registry-fetch-interval-seconds", "10");
             /**
@@ -530,22 +532,22 @@ public class MilepostApplication extends SpringApplication{
         defaultProperties.put("eureka.instance.status-page-url-path",  serverServletContextPathEmpty +"${management.endpoints.web.base-path}/info");
 
         //eureka.instance.metadata-map
-        String infoAppVersion = getStringByKeyFromAppYmlMap(appYmlMap, "info.app.version");
+        String infoAppVersion = ReadAppYml.getValue("info.app.version");
         infoAppVersion = StringUtils.isBlank(infoAppVersion)? MilepostConstant.APPLICATION_VERSION : infoAppVersion;//应用版本
         defaultProperties.put("eureka.instance.metadata-map.management.context-path", serverServletContextPathEmpty +"${management.endpoints.web.base-path}");
 
         //从配置文件中读取权重和跟踪采样率，设置默认值，
         // 默认值写在pojo的属性中了，但是这里无法注入，所以只能判断一下，写在pojo中的默认值当作编写yml时的提示，
-        String weight = getStringByKeyFromAppYmlMap(appYmlMap, "multiple-tenant.weight");
+        String weight = ReadAppYml.getValue("multiple-tenant.weight");
         weight = (StringUtils.isNotBlank(weight)? weight : "1");//默认值为1
-        String trackSampling = getStringByKeyFromAppYmlMap(appYmlMap, "multiple-tenant.track-sampling");
+        String trackSampling = ReadAppYml.getValue("multiple-tenant.track-sampling");
         trackSampling = (StringUtils.isNotBlank(trackSampling)? trackSampling : "0.1");//默认值为0.1
         defaultProperties.put("eureka.instance.metadata-map.weight", weight);//权重
         defaultProperties.put("eureka.instance.metadata-map.track-sampling", trackSampling);//应用的跟中采样率
         //如果配置文件中设置了租户、标签则读取出来设置到eureka.instance.metadata-map中，
         //String tenant = getStringByKeyFromAppYmlMap(appYmlMap, "multiple-tenant.tenant");//在前面读取，因为设置默认的实例id要用到租户
-        String labelAnd = getStringByKeyFromAppYmlMap(appYmlMap, "multiple-tenant.label-and");
-        String labelOr = getStringByKeyFromAppYmlMap(appYmlMap, "multiple-tenant.label-or");
+        String labelAnd = ReadAppYml.getValue("multiple-tenant.label-and");
+        String labelOr = ReadAppYml.getValue("multiple-tenant.label-or");
         if(StringUtils.isNotBlank(tenant)) defaultProperties.put("eureka.instance.metadata-map.tenant", tenant);//租户
         if(StringUtils.isNotBlank(labelAnd)) defaultProperties.put("eureka.instance.metadata-map.label-and", labelAnd);//与标签
         if(StringUtils.isNotBlank(labelOr)) defaultProperties.put("eureka.instance.metadata-map.label-or", labelOr);//或标签
@@ -596,7 +598,7 @@ public class MilepostApplication extends SpringApplication{
         if(MilepostApplicationType.SERVICE.getValue().equalsIgnoreCase(applicationType)
                 || MilepostApplicationType.AUTH.getValue().equalsIgnoreCase(applicationType)){
             //flyway，数据库脚本名为“V1__xxx.sql”，当有表结构更新时，新增脚本，版本号增加即可，
-            String springDatasourceDruidDbType = getStringByKeyFromAppYmlMap(appYmlMap, "spring.datasource.druid.db-type");
+            String springDatasourceDruidDbType = ReadAppYml.getValue("spring.datasource.druid.db-type");
             if(StringUtils.isBlank(springDatasourceDruidDbType)){
                 springDatasourceDruidDbType = "";
             }
@@ -619,6 +621,9 @@ public class MilepostApplication extends SpringApplication{
 
                 defaultProperties.put("swagger.title", springApplicationName + " swagger");//swagger-ui调用接口时传入的token请求头名称，值为“Bearer {token}”
                 defaultProperties.put("swagger.description", springApplicationName + " swagger");//swagger-ui调用接口时传入的token请求头名称，值为“Bearer {token}”
+
+                //分布式事务， seata
+                seataConfiguration(defaultProperties);
             }
         }else{
             defaultProperties.put("spring.flyway.enabled", "false");
@@ -657,49 +662,162 @@ public class MilepostApplication extends SpringApplication{
     }
 
     /**
-     * @param appYmlMap
-     * @param key
-     * @return
+     * 分布式事务， seata，
+     *  使用yml配置seata有一下两个bug
+     *  1、undo相关配置不生效（估计seata.client.rm.lock相关属性也有类似问题），解决：我们不更改这些配置就可以了，
+     *  2、service.disable-global-transaction不生效，解决：在类路径下放一个file.conf，里面只配置service.disable-global-transaction。
+     * @param defaultPro
      */
-    private Map<String, Object> getMapByKeyFromAppYmlMap(HashMap appYmlMap, String key) {
-        String[] keyArray = key.split("\\.");
-        Map<String, Object> mapTemp = appYmlMap;
-        for(int i=0; i<(keyArray.length); i++){
-            if(mapTemp != null){
-                mapTemp = (HashMap<String, Object>)mapTemp.get(keyArray[i]);
-            }else{
-                return null;
-            }
+    private void seataConfiguration(Map<String, Object> defaultPro) {
+        //根据是否存在com.milepost.distTransaction.config.DistTransactionProperties类，来确定是否引入了milepost-dist-transaction依赖
+        Boolean dependencyMilepostDistTransaction = false;
+        try {
+            dependencyMilepostDistTransaction = null != Class.forName("com.milepost.distTransaction.config.DistTransactionProperties");
+        } catch (Throwable t) {
+            dependencyMilepostDistTransaction = false;
         }
-        return mapTemp;
-    }
 
-    /**
-     * 如果没有配置则返回null
-     * @param appYmlMap
-     * @param key
-     * @return
-     */
-    private String getStringByKeyFromAppYmlMap(HashMap appYmlMap, String key) {
-        String[] keyArray = key.split("\\.");
-        String mapKey = key.substring(0, (key.lastIndexOf(".")));
-        Map<String, Object> map = getMapByKeyFromAppYmlMap(appYmlMap, mapKey);
-        if(map != null){
-            Object value = map.get(keyArray[keyArray.length-1]);
-            if(value == null){
-                return null;
-            }
-            //读取到那些在yml中引用其他属性的属性值
-            String valurString = String.valueOf(value);
-            if(valurString.startsWith("${") && valurString.endsWith("}")){
-                return getStringByKeyFromAppYmlMap(appYmlMap, valurString);
-            }else{
-                return valurString;
+        Boolean distTransactionEnabled = Boolean.valueOf(ReadAppYml.getValue("dist-transaction.enabled"));
+        if(!distTransactionEnabled){
+            //关闭
+            defaultPro.put("seata.enabled", false);
+            if(dependencyMilepostDistTransaction){
+                //警告，移除milepost-dist-transaction依赖
+                logger.warn("dist-transaction.enabled默认值为false，即关闭分布式事务，建议移除milepost-dist-transaction依赖。");
             }
         }else{
-            return null;
+            //开启
+            defaultPro.put("seata.enabled", true);
+            if(!dependencyMilepostDistTransaction){
+                defaultPro.put("seata.enabled", false);
+                //错误，请加入milepost-dist-transaction依赖
+                logger.error("dist-transaction.enabled=true，即开启分布式事务，请加入milepost-dist-transaction依赖，否则不能支持分布式事务。");
+                return;
+            }
+
+            //defaultPro.put("seata.application-id", "xxx");
+
+            //事务群组（可以每个应用独立取名，也可以使用相同的名字），默认default
+            defaultPro.put("seata.tx-service-group", "default");
+
+            //client
+            defaultPro.put("seata.client.rm-report-success-enable", true);
+            //自动刷新缓存中的表结构（默认false）
+            defaultPro.put("seata.client.rm-table-meta-check-enable", false);
+            //一阶段结果上报TC重试次数（默认5）
+            defaultPro.put("seata.client.rm-report-retry-count", 5);
+            //异步提交缓存队列长度（默认10000）
+            defaultPro.put("seata.client.rm-async-commit-buffer-limit", 10000);
+            //校验或占用全局锁重试间隔（默认10ms）
+            defaultPro.put("seata.client.rm.lock.lock-retry-interval", 10);
+            //校验或占用全局锁重试次数（默认30）
+            defaultPro.put("seata.client.rm.lock.lock-retry-times", 30);
+            //分支事务与其它全局回滚事务冲突时锁策略（优先释放本地锁让回滚成功）
+            defaultPro.put("seata.client.rm.lock.lock-retry-policy-branch-rollback-on-conflict", true);
+            //一阶段全局提交结果上报TC重试次数（默认1次，建议大于1）
+            defaultPro.put("seata.client.tm-commit-retry-count", 5);
+            //一阶段全局回滚结果上报TC重试次数（默认1次，建议大于1）
+            defaultPro.put("seata.client.tm-rollback-retry-count", 5);
+            //二阶段回滚镜像校验（默认true开启）
+            defaultPro.put("seata.client.undo.undo-data-validation", true);
+            //undo序列化方式（默认jackson）
+            defaultPro.put("seata.client.undo.undo-log-serialization", "jackson");
+            //自定义undo表名（默认undo_log）
+            defaultPro.put("seata.client.undo.undo-log-table", "undo_log");
+            //日志异常输出概率（默认100）
+            defaultPro.put("seata.client.log.exceptionRate", 100);
+            //auto proxy the DataSource bean，必须设置成true，否则不能生成undo_log，也不能回滚，
+            defaultPro.put("seata.client.support.spring.datasource-autoproxy", true);
+
+            //service
+            //TC 集群（必须与seata-server保持一致）
+            defaultPro.put("seata.service.vgroup-mapping", "tx-server");
+            //降级开关
+            defaultPro.put("seata.service.enable-degrade", false);
+            //禁用全局事务（默认false）
+            defaultPro.put("seata.service.disable-global-transaction", false);
+            //only support when registry.type=file, please don't set multiple addresses
+            //defaultPro.put("seata.service.grouplist", "127.0.0.1:8091");
+
+            //transport
+            //when destroy server, wait seconds
+            defaultPro.put("seata.transport.shutdown.wait", 3);
+
+            //thread factory for netty
+            defaultPro.put("seata.transport.thread-factory.boss-thread-prefix", "NettyBoss");
+            defaultPro.put("seata.transport.thread-factory.worker-thread-prefix", "NettyServerNIOWorker");
+            defaultPro.put("seata.transport.thread-factory.server-executor-thread-prefix", "NettyServerBizHandler");
+            defaultPro.put("seata.transport.thread-factory.share-boss-worker", false);
+            defaultPro.put("seata.transport.thread-factory.client-selector-thread-prefix", "NettyClientSelector");
+            defaultPro.put("seata.transport.thread-factory.client-selector-thread-size", 1);
+            defaultPro.put("seata.transport.thread-factory.client-worker-thread-prefix", "NettyClientWorkerThread");
+            //netty boss thread size,will not be used for UDT
+            defaultPro.put("seata.transport.thread-factory.boss-thread-size", 1);
+            //auto default pin or 8
+            defaultPro.put("seata.transport.thread-factory.worker-thread-size", 8);
+            //tcp udt unix-domain-socket
+            defaultPro.put("seata.transport.type", "TCP");
+            //NIO NATIVE
+            defaultPro.put("seata.transport.server", "NIO");
+            //enable heartbeat
+            defaultPro.put("seata.transport.heartbeat", true);
+
+            defaultPro.put("seata.transport.serialization", "seata");
+            defaultPro.put("seata.transport.compressor", "none");
+            //the client batch send request enable
+            defaultPro.put("seata.transport.enable-client-batch-send-request", true);
+
+            //registry
+            defaultPro.put("seata.registry.type", "eureka");
+            String eurekaServiceUrl = ReadAppYml.getValue("eureka.client.service-url.default-zone");
+            defaultPro.put("seata.registry.eureka.service-url", eurekaServiceUrl);
         }
     }
+
+//    /**
+//     * @param appYmlMap
+//     * @param key
+//     * @return
+//     */
+//    private Map<String, Object> getMapByKeyFromAppYmlMap(HashMap appYmlMap, String key) {
+//        String[] keyArray = key.split("\\.");
+//        Map<String, Object> mapTemp = appYmlMap;
+//        for(int i=0; i<(keyArray.length); i++){
+//            if(mapTemp != null){
+//                mapTemp = (HashMap<String, Object>)mapTemp.get(keyArray[i]);
+//            }else{
+//                return null;
+//            }
+//        }
+//        return mapTemp;
+//    }
+//
+//    /**
+//     * 如果没有配置则返回null
+//     * @param appYmlMap
+//     * @param key
+//     * @return
+//     */
+//    private String getStringByKeyFromAppYmlMap(HashMap appYmlMap, String key) {
+//        String[] keyArray = key.split("\\.");
+//        String mapKey = key.substring(0, (key.lastIndexOf(".")));
+//        Map<String, Object> map = getMapByKeyFromAppYmlMap(appYmlMap, mapKey);
+//        if(map != null){
+//            Object value = map.get(keyArray[keyArray.length-1]);
+//            if(value == null){
+//                return null;
+//            }
+//            //读取到那些在yml中引用其他属性的属性值
+//            String valurString = String.valueOf(value);
+//            if(valurString.startsWith("${") && valurString.endsWith("}")){
+//                return getStringByKeyFromAppYmlMap(appYmlMap, valurString);
+//            }else{
+//                return valurString;
+//            }
+//        }else{
+//            return null;
+//        }
+//    }
 
     private void runBefore() {
         printEnv();

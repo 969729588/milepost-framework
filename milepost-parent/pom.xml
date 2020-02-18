@@ -85,6 +85,11 @@
             </dependency>
             <dependency>
                 <groupId>com.milepost</groupId>
+                <artifactId>milepost-dist-transaction</artifactId>
+                <version>${milepost.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.milepost</groupId>
                 <artifactId>milepost-mybatis-generator</artifactId>
                 <version>${milepost.version}</version>
             </dependency>
@@ -251,7 +256,13 @@
                 <version>1.11.3</version>
             </dependency>
 
-        </dependencies>
+            <!-- seata-->
+            <dependency>
+                <groupId>com.alibaba.cloud</groupId>
+                <artifactId>spring-cloud-alibaba-seata</artifactId>
+                <version>2.2.0.RELEASE</version>
+            </dependency>
+       </dependencies>
     </dependencyManagement>
 
 </project>
