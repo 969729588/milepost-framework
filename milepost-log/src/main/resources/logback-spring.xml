@@ -34,9 +34,13 @@
 		<property name="LOG_PATTERN" value="[${eureka.instance.instance-id}] %yellow(%d{yyyy-MM-dd HH:mm:ss.SSS}) - [%highlight(%-5level)] [%green(%-50logger{50}): %blue(%-4line)] - %msg%n"/>
 		<include resource="logback-dev.xml"/>
 	</springProfile>
-	<springProfile name="prod">
+	<springProfile name="test">
 		<!--level后面是 [%-30thread]，导致日志文件不在整齐，去掉了-->
 		<property name="LOG_PATTERN" value="[${eureka.instance.instance-id}] %d{yyyy-MM-dd HH:mm:ss.SSS} - [%-5level] [%-50logger{50}: %-4line] - %msg%n"/>
 		<include resource="logback-prod.xml"/>
+	</springProfile>
+	<springProfile name="prod">
+		<property name="LOG_PATTERN" value="[${eureka.instance.instance-id}] %d{yyyy-MM-dd HH:mm:ss.SSS} - [%-5level] [%-50logger{50}: %-4line] - %msg%n"/>
+		<include resource="logback-test.xml"/>
 	</springProfile>
 </configuration>

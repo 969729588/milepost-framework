@@ -56,9 +56,6 @@
 			<artifactId>spring-hateoas</artifactId>
 		</dependency>
 
-
-
-
 		<!--为了测试默认属性增加的依赖-->
 		<dependency>
 			<groupId>mysql</groupId>
