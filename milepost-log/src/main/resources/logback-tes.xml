@@ -9,7 +9,7 @@
 		<appender-ref ref="file" />
 	</root>
 	<!--
-	测试环境只输出到文件，
-	测试环境推荐配置为info或者warn，便于排查错误
+	生产环境只输出到文件，
+	生产环境推荐配置为info或者warn，便于排查错误
 	-->
 </included>

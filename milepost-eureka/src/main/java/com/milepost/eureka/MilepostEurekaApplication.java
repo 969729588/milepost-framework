@@ -43,22 +43,22 @@ public class MilepostEurekaApplication{
 	/**
 	 * 为了测试的，没有实际作用
 	 */
-	@Scheduled(initialDelay = 10000, fixedDelay = 5000)
-	public void printAllServiceInstance() {
-		//获取注册到注册中心的所有服务，获取的服务与Eureka Dashboard显示的一致。
-		PeerAwareInstanceRegistry registry = EurekaServerContextHolder.getInstance().getServerContext().getRegistry();
-		Applications applications = registry.getApplications();
-		List<Application> registeredApplications = applications.getRegisteredApplications();
-		if(registeredApplications.size() == 0){
-			logger.info("PeerAwareInstanceRegistry没有发现任何服务注册到注册中心。");
-		}
-		for(Application application : registeredApplications){
-			List<InstanceInfo> instanceInfoList = application.getInstances();
-			for(InstanceInfo instanceInfo : instanceInfoList){
-				String appName = instanceInfo.getAppName();
-				String instanceId = instanceInfo.getInstanceId();
-				logger.info("PeerAwareInstanceRegistry获取到的服务--服务名称:" + appName + "; 实例ID:" + instanceId);
-			}
-		}
-	}
+//	@Scheduled(initialDelay = 10000, fixedDelay = 5000)
+//	public void printAllServiceInstance() {
+//		//获取注册到注册中心的所有服务，获取的服务与Eureka Dashboard显示的一致。
+//		PeerAwareInstanceRegistry registry = EurekaServerContextHolder.getInstance().getServerContext().getRegistry();
+//		Applications applications = registry.getApplications();
+//		List<Application> registeredApplications = applications.getRegisteredApplications();
+//		if(registeredApplications.size() == 0){
+//			logger.info("PeerAwareInstanceRegistry没有发现任何服务注册到注册中心。");
+//		}
+//		for(Application application : registeredApplications){
+//			List<InstanceInfo> instanceInfoList = application.getInstances();
+//			for(InstanceInfo instanceInfo : instanceInfoList){
+//				String appName = instanceInfo.getAppName();
+//				String instanceId = instanceInfo.getInstanceId();
+//				logger.info("PeerAwareInstanceRegistry获取到的服务--服务名称:" + appName + "; 实例ID:" + instanceId);
+//			}
+//		}
+//	}
 }
