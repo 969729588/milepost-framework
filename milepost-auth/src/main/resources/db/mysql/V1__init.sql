@@ -66,4 +66,5 @@ CREATE TABLE user (
   PRIMARY KEY (id),
   UNIQUE KEY user_username_uq (username) USING BTREE
 ) ;
+-- 初始用户，admin/123456
 INSERT INTO user(id, username, truename, mobile, email, password, activated) values('1', 'admin', 'Huarf', '18310891237', '969729588@qq.com', 'e10adc3949ba59abbe56e057f20f883e', '1');

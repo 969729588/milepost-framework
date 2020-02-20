@@ -1,18 +1,26 @@
 #!/bin/sh
-JAR_NAME=milepost-eureka-1.0.0.100.jar
+JAR_NAME=milepost-auth-1.0.0.100.jar
 start() {
     echo "start process...";
     rm -rf ./logs
     nohup java -Xmx256m -Xms256m \
 	-jar ${JAR_NAME} \
     --spring.profiles.active=test \
-    --server.port=8761 \
+    --server.port=9999 \
+    --spring.datasource.druid.db-type=mysql \
+    --spring.datasource.druid.driver-class-name=com.mysql.cj.jdbc.Driver \
+    --spring.datasource.druid.url="jdbc:mysql://localhost:3306/milepost_auth?useUnicode=true&characterEncoding=utf8&characterSetResults=utf8&serverTimezone=GMT%2B8" \
+    --spring.datasource.druid.username=root \
+    --spring.datasource.druid.password=admin123 \
+    --eureka.client.service-url.default-zone=http://192.168.223.129:8761/eureka/ \
     --eureka.instance.ip-address=192.168.223.129 \
+    --multiple-tenant.tenant=tenant1 \
+    --multiple-tenant.weight=9 \
+    --multiple-tenant.label-and=aa,bb \
+    --multiple-tenant.label-or=dd,ee,ff \
     >/dev/null 2>&1 &
 }
 
-#java后加“-Dssl=true”开启https。
-#java后加“-Xmx256m -Xms256m”配置内存，支持的m、g单位。
 
 stop() {    
     while true
