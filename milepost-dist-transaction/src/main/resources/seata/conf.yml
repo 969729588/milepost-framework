@@ -76,4 +76,4 @@ seata.transport.enable-client-batch-send-request: true # 客户端事务消息�
 
 #registry
 seata.registry.type: eureka
-seata.registry.eureka.service-url: ${eureka.client.service-url.default-zone}
+seata.registry.eureka.service-url: ${eureka.client.service-url.defaultZone}

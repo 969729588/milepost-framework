@@ -769,7 +769,7 @@ public class MilepostApplication extends SpringApplication{
 
             //registry
             defaultPro.put("seata.registry.type", "eureka");
-            String eurekaServiceUrl = ReadAppYml.getValue("eureka.client.service-url.default-zone");
+            String eurekaServiceUrl = ReadAppYml.getValue("eureka.client.service-url.defaultZone");
             defaultPro.put("seata.registry.eureka.service-url", eurekaServiceUrl);
         }
     }

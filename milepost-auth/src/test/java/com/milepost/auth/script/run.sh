@@ -12,7 +12,7 @@ start() {
     --spring.datasource.druid.url="jdbc:mysql://localhost:3306/milepost_auth?useUnicode=true&characterEncoding=utf8&characterSetResults=utf8&serverTimezone=GMT%2B8" \
     --spring.datasource.druid.username=root \
     --spring.datasource.druid.password=admin123 \
-    --eureka.client.service-url.default-zone=http://192.168.223.129:8761/eureka/ \
+    --eureka.client.service-url.defaultZone=http://192.168.223.129:8761/eureka/ \
     --eureka.instance.ip-address=192.168.223.129 \
     --multiple-tenant.tenant=tenant1 \
     --multiple-tenant.weight=9 \

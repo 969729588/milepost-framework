@@ -62,7 +62,7 @@ eureka:
   client:
     service-url:
       #defaultZone: http://172.16.1.208:8761/eureka/
-      default-zone: http://192.168.1.105:8761/eureka/
+      defaultZone: http://192.168.1.105:8761/eureka/
   instance:
     ip-address: 192.168.223.1
 
