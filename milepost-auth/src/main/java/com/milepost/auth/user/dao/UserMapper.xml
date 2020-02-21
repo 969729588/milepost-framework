@@ -240,7 +240,8 @@
       activated = #{activated,jdbcType=BIT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
-  <cache type="org.mybatis.caches.ehcache.EhcacheCache" />
+  <!--关闭缓存-->
+  <!--<cache type="org.mybatis.caches.ehcache.EhcacheCache" />-->
 
   <!--根据用户名查询用户-->
   <select id="selectByUsername" resultMap="BaseResultMap" parameterType="java.lang.String">

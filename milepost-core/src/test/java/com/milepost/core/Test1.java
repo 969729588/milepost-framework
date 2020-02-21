@@ -30,6 +30,11 @@ public class Test1 {
 
     @Test
     public void test1() throws Exception {
+        //检测resources下是否存在jks文件，如果存在则不要重新创建
+        if(jksInResources()){
+            return;
+        }
+
         //生成jks文件
         String keyStoreType = "JKS";
         String alias = "milepost-alias";
@@ -59,9 +64,31 @@ public class Test1 {
         generateLicense(licenseFilePath, privateKeyFilePath,
                 product, expirationDate, companyName, emailAddress);
 
+        //验签
         test2();
     }
 
+    /**
+     * 检测resources下是否存在jks文件，存在则返回true，否则返回false
+     * @return
+     */
+    private boolean jksInResources() throws UnsupportedEncodingException {
+        URL url = this.getClass().getResource("/");
+        String urlStr = URLDecoder.decode(url.getPath(), "UTF-8");
+        urlStr = urlStr.replace("target/test-classes/", "src/main/resources/");
+        urlStr = urlStr + "milepost.jks";
+        File file = new File(urlStr);
+        if(file.exists() && file.isFile()){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    /**
+     * 验签
+     * @throws Exception
+     */
     public void test2() throws Exception {
         InputStream inputStream = null;
         try {
