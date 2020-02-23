@@ -24,10 +24,10 @@ import java.util.*;
  *
  * 生成mapper映射文件、实体类、查询条件实体类。<br>
  * 使用方法：<br>
- *  1.新建在service中mbg、dao、service、controller包，在api中新建entity包。<br>
+ *  1.在service中新建mbg、dao、service、controller包，在api中新建entity包。<br>
  *  2.将MybatisMbg.xml放到com.milepost.**.mbg下。<br>
  *  3.配置MybatisMbg.xml中的jdbc、table。<br>
- *  4.配置Program arguments，为json字符串，包含以下4个k-v，注意必须是单引号，而不是双引号：<br>
+ *  4.配置Program arguments，为json字符串，包含以下4个k-v，注意必须是单引号，而不是双引号。<br>
 		{<br>
 		 	'projectRootPath': 'G:/学习资料/ideaWorkingSpace/springcloud-book-greenwich_milepost-1/authentication-parent',	//parent项目路径，这个路径下面有pom、src。<br>
  			'javaModelGenerator.targetProject': './authentication-api/src/main/java',	//entity(api)项目相对路径，<br>

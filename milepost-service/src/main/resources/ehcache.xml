@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="../config/ehcache.xsd">
+ 	<!-- 磁盘保存路径，由于这里使用的是MyBatis整合Ehcache，配置文件还不能被springboot整合。 -->
+ 	<diskStore path="./mybatis-ehcache" />
+ 
+ 	<defaultCache 
+   		maxElementsInMemory="10000" 
+   		maxElementsOnDisk="10000000"
+   		eternal="false" 
+   		overflowToDisk="true" 
+   		timeToIdleSeconds="120"
+   		timeToLiveSeconds="120" 
+   		diskExpiryThreadIntervalSeconds="120"
+   		memoryStoreEvictionPolicy="LRU">
+ 	</defaultCache>
+</ehcache>
+ 
+<!-- 
+属性说明：
+	diskStore.path：指定数据在磁盘中的存储位置。
+	defaultCache：当借助CacheManager.add("demoCache")创建Cache时，EhCache便会采用<defalutCache/>指定的的管理策略。
+ 
+	以下属性是必须的：
+	defaultCache.maxElementsInMemory - 在内存中缓存的element的最大数目。
+	defaultCache.maxElementsOnDisk - 在磁盘上缓存的element的最大数目，若是0表示无穷大。
+	defaultCache.eternal - 设定缓存的elements是否永远不过期。如果为true，则缓存的数据始终有效，如果为false那么还要根据timeToIdleSeconds，timeToLiveSeconds判断。
+	defaultCache.overflowToDisk - 设定当内存缓存溢出的时候是否将过期的element缓存到磁盘上。
+ 
+	以下属性是可选的：
+	defaultCache.timeToIdleSeconds - 设置对象在失效前的允许闲置时间。仅当eternal=false时使用，默认值是0，也就是可闲置时间无穷大。
+    defaultCache.timeToLiveSeconds - 设置对象在失效前允许存活时间。最大时间介于创建时间和失效时间之间。仅当eternal=false时使用，默认是0，也就是对象存活时间无穷大。
+	defaultCache.diskSpoolBufferSizeMB - 这个参数设置DiskStore(磁盘存储)的缓存区大小，默认是30MB，每个Cache都应该有自己的一个缓冲区。
+	defaultCache.diskPersistent - 在JVM重启的时候是否启用磁盘保存EhCache中的数据，默认是false。
+	defaultCache.diskExpiryThreadIntervalSeconds - 磁盘缓存的清理线程运行间隔，默认是120秒，每隔120s，相应的线程会进行一次EhCache中数据的清理工作。
+	defaultCache.memoryStoreEvictionPolicy - 当内存缓存达到最大，有新的element加入的时候， 移除缓存中element的策略。默认是LRU（最近最少使用），可选的有LFU（最不常使用）和FIFO（先进先出）。
+ -->
