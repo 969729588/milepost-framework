@@ -696,9 +696,12 @@ public class MilepostApplication extends SpringApplication{
             }
 
             //defaultPro.put("seata.application-id", "xxx");
-
             //事务群组（可以每个应用独立取名，也可以使用相同的名字），默认default
-            defaultPro.put("seata.tx-service-group", "default");
+            String txServiceGroup = ReadAppYml.getValue("dist-transaction.tx-service-group");
+            if(StringUtils.isBlank(txServiceGroup)){
+                txServiceGroup = "default";
+            }
+            defaultPro.put("seata.tx-service-group", txServiceGroup);
 
             //client
             defaultPro.put("seata.client.rm-report-success-enable", true);
@@ -730,8 +733,12 @@ public class MilepostApplication extends SpringApplication{
             defaultPro.put("seata.client.support.spring.datasource-autoproxy", true);
 
             //service
-            //TC 集群（必须与seata-server保持一致）
-            defaultPro.put("seata.service.vgroup-mapping", "tx-server");
+            //TC 集群（必须与seata-server保持一致），默认tx-server
+            String txServerAppName = ReadAppYml.getValue("dist-transaction.tx-server-app-name");
+            if(StringUtils.isBlank(txServerAppName)){
+                txServerAppName = "tx-server";
+            }
+            defaultPro.put("seata.service.vgroup-mapping", txServerAppName);
             //降级开关
             defaultPro.put("seata.service.enable-degrade", false);
             //禁用全局事务（默认false）

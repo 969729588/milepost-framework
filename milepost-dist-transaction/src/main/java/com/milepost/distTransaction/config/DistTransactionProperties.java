@@ -18,7 +18,7 @@ public class DistTransactionProperties {
 
     /**
      * 事务群组（可以每个应用独立取名，也可以使用相同的名字）,
-     * 默认 default，
+     * 默认 default，一般来讲不需要配置，使用默认值即可。
      * 对应seata.tx-service-group
      */
     private String txServiceGroup = "default";
