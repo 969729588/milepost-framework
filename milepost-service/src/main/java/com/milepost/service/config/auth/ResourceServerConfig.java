@@ -38,7 +38,8 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
             .csrf().disable()
             .authorizeRequests()
             .antMatchers("/milepost-actuator/**",//监控
-                    "/swagger-resources/**", "/v2/**", "/swagger-ui.html/**", "/webjars/**"//swagger
+                    "/swagger-resources/**", "/v2/**", "/swagger-ui.html/**", "/webjars/**",//swagger
+                    "/enc"//文本加密
 
             ).permitAll()
             .antMatchers("/**").authenticated();
