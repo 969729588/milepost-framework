@@ -91,9 +91,9 @@ public class ManualCreateDataSource implements BeanDefinitionRegistryPostProcess
     //@Primary //当有多个bean存在时，这个是主bean，优先使用这个，增加动态数据源后，这个注解应该标注在创建milepostRoutingDataSource方法上
     @ConfigurationProperties("spring.datasource.druid")
     @ConditionalOnExpression("#{environment.getProperty('spring.datasource.druid.password') != null}")  //当存在数据源配置时才创建数据源，否则不创建
-    //@ConditionalOnExpression("'${spring.datasource.druid.password}'!='null'")//这个表达式不好用了
     public DataSource mainDs(){
-        return DruidDataSourceBuilder.create().build();
+        DataSource mainDs = DruidDataSourceBuilder.create().build();
+        return mainDs;
     }
 
     /**
@@ -104,10 +104,13 @@ public class ManualCreateDataSource implements BeanDefinitionRegistryPostProcess
     @Primary
     @Bean(name = "milepostRoutingDataSource")
     @ConditionalOnExpression("#{environment.getProperty('spring.datasource.druid.password') != null}")  //当存在数据源配置时才创建数据源，否则不创建
-    public DataSource milepostRoutingDataSource() {
+    public DataSource milepostRoutingDataSource(DataSource mainDs) {
+        //这里的入参即会被传入上面mainDs()方法实例化的对象，不会实例化多个对象，
+        //见com.milepost.authenticationExample.configurationAndComponent
         MilepostRoutingDataSource milepostRoutingDataSource = new MilepostRoutingDataSource();
         Map<Object, Object> targetDataSources = new HashMap<>();
-        DataSource mainDs = (DataSource)this.beanFactory.getBean("mainDs");
+        //也可以通过这种方式获取mainDs。
+        //DataSource mainDs = (DataSource)this.beanFactory.getBean("mainDs");
         targetDataSources.put("mainDs", mainDs);//主数据源
         targetDataSources.putAll(multipleDs);//其他数据源
         milepostRoutingDataSource.setTargetDataSources(targetDataSources);
