@@ -1,5 +1,8 @@
 package com.milepost.core.mq;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
@@ -12,7 +15,15 @@ import javax.jms.ConnectionFactory;
  * JmsListenerContainerFactory
  */
 @Configuration
+@ConditionalOnProperty("spring.activemq.broker-url")
 public class JmsListenerContainerFactoryConfig {
+
+    private static Logger logger = LoggerFactory.getLogger(JmsListenerContainerFactoryConfig.class);
+
+    public JmsListenerContainerFactoryConfig() {
+        logger.info("初始化消息总线服务JmsListenerContainerFactory...");
+    }
+
     /**
      * Topic模式，
      * 在bean的方法上标

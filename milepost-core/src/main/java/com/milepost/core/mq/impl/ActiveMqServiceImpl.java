@@ -3,7 +3,10 @@ package com.milepost.core.mq.impl;
 import com.milepost.core.mq.ActiveMqService;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.command.ActiveMQTopic;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +20,14 @@ import java.util.Map;
  * ActiveMq 服务实现类
  */
 @Service
+@ConditionalOnProperty("spring.activemq.broker-url")
 public class ActiveMqServiceImpl implements ActiveMqService{
+
+    private static Logger logger = LoggerFactory.getLogger(ActiveMqServiceImpl.class);
+
+    public ActiveMqServiceImpl() {
+        logger.info("初始化消息总线服务...");
+    }
 
     /**
      * 存放queue、topic对象
