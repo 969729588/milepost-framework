@@ -53,34 +53,49 @@ public class InstanceRoleHandleRunner implements ApplicationRunner {
             return;
         }
 
-        //因为RedisTemplate不支持setnx命令，所以要使用Jedis。这个Jedis不需要关闭，因为整个应用的生命周期持续使用这一个连接
-        Jedis jedis = (Jedis) redisTemplate.getConnectionFactory().getConnection().getNativeConnection();
-        //获取appName和instanceId
-        InstanceInfo instanceInfo = eurekaClient.getApplicationInfoManager().getInfo();
-        //这里最好不要使用@Value读取配置文件，因为在不配置这个属性时，@Value注解报错，而这个方法返回UNKNOWN
-        String currAppName = instanceInfo.getAppName();//注意，无论配置如何，这里都会获取到大写的，所以在DiscoveryClient中获取到小写的需要转换成大写的
-        String currInstanceId = instanceInfo.getInstanceId();
+        //因为RedisTemplate不支持setnx命令，所以要使用Jedis，这个Jedis使用之后必须要关闭，
+        Jedis jedis = null;
 
-        //先获取redis中master的实例id，注意，这里的值是在应用启动之初获取的，不能用在timer中的循环中，因为master是浮动的，所以timer的循环中应该重新获取
-        String redisInstanceId = jedis.get(currAppName);
+        try {
+            jedis = (Jedis) redisTemplate.getConnectionFactory().getConnection().getNativeConnection();
 
-        Long setnx = jedis.setnx(currAppName, currInstanceId);//返回1表示设置成功，
-        if (setnx == 1) {
-            //设置成功，设置过期时间
-            jedis.expire(currAppName, schedulerLockProperties.getHeartbeatExpirationDurationInSeconds());
-            logger.info("服务名称=" + currAppName + "，实例ID=" + currInstanceId + "，实例角色初始化成功，实例角色=" + InstanceRole.MASTER.getValue() + "。");
-        } else if (setnx == 0 && currInstanceId.equals(redisInstanceId)) {
-            //设置失败，但是redis中的master的实例id == 当前应用的实例id，(快速重启master就会发生这种情况)，只更新过期时间
-            jedis.expire(currAppName, schedulerLockProperties.getHeartbeatExpirationDurationInSeconds());
-            logger.info("服务名称=" + currAppName + "，实例ID=" + currInstanceId + "，这个实例在redis中已经被标记为" + InstanceRole.MASTER.getValue() + "，此处只更新过期时间。");
-            logger.info("服务名称=" + currAppName + "，实例ID=" + currInstanceId + "，实例角色初始化成功，实例角色=" + InstanceRole.MASTER.getValue() + "。");
-        } else {
-            //设置失败，并且redis中的master的实例id != 当前应用的实例id，(已经有运行良好的master了)，
-            logger.info("服务名称=" + currAppName + "，实例ID=" + currInstanceId + "，实例角色初始化成功，实例角色=" + InstanceRole.SLAVE.getValue() + "，" + InstanceRole.MASTER.getValue() + "的实例ID=" + redisInstanceId + "。");
+            //获取appName和instanceId
+            InstanceInfo instanceInfo = eurekaClient.getApplicationInfoManager().getInfo();
+            //这里最好不要使用@Value读取配置文件，因为在不配置这个属性时，@Value注解报错，而这个方法返回UNKNOWN
+            String currAppName = instanceInfo.getAppName();//注意，无论配置如何，这里都会获取到大写的，所以在DiscoveryClient中获取到小写的需要转换成大写的
+            String currInstanceId = instanceInfo.getInstanceId();
+
+            //先获取redis中master的实例id，注意，这里的值是在应用启动之初获取的，不能用在timer中的循环中，因为master是浮动的，所以timer的循环中应该重新获取
+            String redisInstanceId = jedis.get(currAppName);
+
+            Long setnx = jedis.setnx(currAppName, currInstanceId);//返回1表示设置成功，
+            if (setnx == 1) {
+                //设置成功，设置过期时间
+                jedis.expire(currAppName, schedulerLockProperties.getHeartbeatExpirationDurationInSeconds());
+                logger.info("服务名称=" + currAppName + "，实例ID=" + currInstanceId + "，实例角色初始化成功，实例角色=" + InstanceRole.MASTER.getValue() + "。");
+            } else if (setnx == 0 && currInstanceId.equals(redisInstanceId)) {
+                //设置失败，但是redis中的master的实例id == 当前应用的实例id，(快速重启master就会发生这种情况)，只更新过期时间
+                jedis.expire(currAppName, schedulerLockProperties.getHeartbeatExpirationDurationInSeconds());
+                logger.info("服务名称=" + currAppName + "，实例ID=" + currInstanceId + "，这个实例在redis中已经被标记为" + InstanceRole.MASTER.getValue() + "，此处只更新过期时间。");
+                logger.info("服务名称=" + currAppName + "，实例ID=" + currInstanceId + "，实例角色初始化成功，实例角色=" + InstanceRole.MASTER.getValue() + "。");
+            } else {
+                //设置失败，并且redis中的master的实例id != 当前应用的实例id，(已经有运行良好的master了)，
+                logger.info("服务名称=" + currAppName + "，实例ID=" + currInstanceId + "，实例角色初始化成功，实例角色=" + InstanceRole.SLAVE.getValue() + "，" + InstanceRole.MASTER.getValue() + "的实例ID=" + redisInstanceId + "。");
+            }
+
+            //如果是当前是master，则保持自己的心跳，如果是slave，则尝试抢占master
+
+            //这里必须传入RedisTemplate，方法内部的定时器中每次循环都要从redisTemplate中获取Jedis，并且使用后要关闭，
+            //因为哨兵模式中，redisTemplate一直连接这master(受哨兵控制，是浮动的)，每获取一个Jedis都执行当时的master，
+            //当master变化后，如果不重新获取Jedis，就会连不上。
+            keepHeartbeatAndGrabMaster(currAppName, currInstanceId, redisTemplate);
+
+        }finally {
+            //关闭连接
+            if(jedis != null){
+                jedis.close();
+            }
         }
-
-        //如果是当前是master，则保持自己的心跳，如果是slave，则尝试抢占master
-        keepHeartbeatAndGrabMaster(currAppName, currInstanceId, jedis);
     }
 
     /**
@@ -90,7 +105,7 @@ public class InstanceRoleHandleRunner implements ApplicationRunner {
      * @param currAppName    当前应用名称
      * @param currInstanceId 当前实例id
      */
-    private void keepHeartbeatAndGrabMaster(String currAppName, String currInstanceId, Jedis jedis) {
+    private void keepHeartbeatAndGrabMaster(String currAppName, String currInstanceId, RedisTemplate redisTemplate) {
         logger.info("服务名称=" + currAppName + "，实例ID=" + currInstanceId + "，开始维护心跳和抢占" + InstanceRole.MASTER.getValue() + "，" +
                 "每" + schedulerLockProperties.getHeartbeatExpirationDurationInSeconds() + "秒更新一次心跳，抢占一次" + InstanceRole.MASTER.getValue() + "，心跳失效时间为" +
                 schedulerLockProperties.getHeartbeatExpirationDurationInSeconds() + "秒。");
@@ -100,7 +115,11 @@ public class InstanceRoleHandleRunner implements ApplicationRunner {
             //run方法中如果发生异常，就会停止循环，所以使用try-catch
             @Override
             public void run() {
+
+                Jedis jedis = null;
+
                 try {
+                    jedis = (Jedis) redisTemplate.getConnectionFactory().getConnection().getNativeConnection();
                     //timer的循环中每次都要重新获取
                     String redisInstanceId = jedis.get(currAppName);
 
@@ -127,6 +146,11 @@ public class InstanceRoleHandleRunner implements ApplicationRunner {
                 }catch (Exception e){
                     //必须捕获异常，否则当发生异常后就不再循环了，比如连接redis超时就会发生异常
                     logger.error(e.getMessage(), e);
+                }finally {
+                    //关闭连接
+                    if(jedis != null){
+                        jedis.close();
+                    }
                 }
             }
         }, 1000, schedulerLockProperties.getTouchHeartbeatIntervalInSeconds() * 1000);
