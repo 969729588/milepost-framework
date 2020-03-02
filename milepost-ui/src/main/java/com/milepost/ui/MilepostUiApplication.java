@@ -20,6 +20,7 @@ import java.util.Map;
 		"com.milepost.core.lns",//license
 		"com.milepost.core.mq",//mq
 		"com.milepost.core.restTemplate",//restTemplate
+		"com.milepost.core.redisTemplate",//redisTemplate
 		"com.milepost.core.exception"//全局异常处理
 })
 public class MilepostUiApplication {

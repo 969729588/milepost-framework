@@ -5,10 +5,12 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.RedisSerializer;
+import org.springframework.stereotype.Component;
 
 /**
  * Created by Ruifu Hua on 2020/2/29.
  */
+@Component
 public class RedisTemplateConfig {
 
     @Autowired
