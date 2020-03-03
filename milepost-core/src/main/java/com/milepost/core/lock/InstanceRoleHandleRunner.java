@@ -1,6 +1,7 @@
 package com.milepost.core.lock;
 
 import com.milepost.api.enums.InstanceRole;
+import com.milepost.api.util.RedisUtil;
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.EurekaClient;
 import org.slf4j.Logger;
@@ -10,7 +11,7 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
-import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisCommands;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -53,11 +54,13 @@ public class InstanceRoleHandleRunner implements ApplicationRunner {
             return;
         }
 
-        //因为RedisTemplate不支持setnx命令，所以要使用Jedis，这个Jedis使用之后必须要关闭，
-        Jedis jedis = null;
+        //因为RedisTemplate不支持setnx命令，所以要使用JedisCommands，
+        //当配置redis单机和哨兵时，JedisCommands实际上是Jedis，
+        //当配置redis集群时，JedisCommands实际上是JedisCluster，
+        JedisCommands jedisCommands = null;
 
         try {
-            jedis = (Jedis) redisTemplate.getConnectionFactory().getConnection().getNativeConnection();
+            jedisCommands = RedisUtil.getJedisCommands(redisTemplate);
 
             //获取appName和instanceId
             InstanceInfo instanceInfo = eurekaClient.getApplicationInfoManager().getInfo();
@@ -66,16 +69,16 @@ public class InstanceRoleHandleRunner implements ApplicationRunner {
             String currInstanceId = instanceInfo.getInstanceId();
 
             //先获取redis中master的实例id，注意，这里的值是在应用启动之初获取的，不能用在timer中的循环中，因为master是浮动的，所以timer的循环中应该重新获取
-            String redisInstanceId = jedis.get(currAppName);
+            String redisInstanceId = jedisCommands.get(currAppName);
 
-            Long setnx = jedis.setnx(currAppName, currInstanceId);//返回1表示设置成功，
+            Long setnx = jedisCommands.setnx(currAppName, currInstanceId);//返回1表示设置成功，
             if (setnx == 1) {
                 //设置成功，设置过期时间
-                jedis.expire(currAppName, schedulerLockProperties.getHeartbeatExpirationDurationInSeconds());
+                jedisCommands.expire(currAppName, schedulerLockProperties.getHeartbeatExpirationDurationInSeconds());
                 logger.info("服务名称=" + currAppName + "，实例ID=" + currInstanceId + "，实例角色初始化成功，实例角色=" + InstanceRole.MASTER.getValue() + "。");
             } else if (setnx == 0 && currInstanceId.equals(redisInstanceId)) {
                 //设置失败，但是redis中的master的实例id == 当前应用的实例id，(快速重启master就会发生这种情况)，只更新过期时间
-                jedis.expire(currAppName, schedulerLockProperties.getHeartbeatExpirationDurationInSeconds());
+                jedisCommands.expire(currAppName, schedulerLockProperties.getHeartbeatExpirationDurationInSeconds());
                 logger.info("服务名称=" + currAppName + "，实例ID=" + currInstanceId + "，这个实例在redis中已经被标记为" + InstanceRole.MASTER.getValue() + "，此处只更新过期时间。");
                 logger.info("服务名称=" + currAppName + "，实例ID=" + currInstanceId + "，实例角色初始化成功，实例角色=" + InstanceRole.MASTER.getValue() + "。");
             } else {
@@ -91,10 +94,8 @@ public class InstanceRoleHandleRunner implements ApplicationRunner {
             keepHeartbeatAndGrabMaster(currAppName, currInstanceId, redisTemplate);
 
         }finally {
-            //关闭连接
-            if(jedis != null){
-                jedis.close();
-            }
+            //关闭JedisCommands
+            RedisUtil.closeJedisCommandsQuietly(jedisCommands);
         }
     }
 
@@ -116,16 +117,16 @@ public class InstanceRoleHandleRunner implements ApplicationRunner {
             @Override
             public void run() {
 
-                Jedis jedis = null;
+                JedisCommands jedisCommands = null;
 
                 try {
-                    jedis = (Jedis) redisTemplate.getConnectionFactory().getConnection().getNativeConnection();
+                    jedisCommands = RedisUtil.getJedisCommands(redisTemplate);
                     //timer的循环中每次都要重新获取
-                    String redisInstanceId = jedis.get(currAppName);
+                    String redisInstanceId = jedisCommands.get(currAppName);
 
                     if (instanceRoleService.isMaster()) {
                         //维护心跳
-                        Long expire = jedis.expire(currAppName, schedulerLockProperties.getHeartbeatExpirationDurationInSeconds());
+                        Long expire = jedisCommands.expire(currAppName, schedulerLockProperties.getHeartbeatExpirationDurationInSeconds());
                         if (expire == 1) {
                             logger.info("服务名称=" + currAppName + "，实例ID=" + currInstanceId + "，实例角色=" + InstanceRole.MASTER.getValue() + "，更新心跳成功。");
                         } else {
@@ -133,10 +134,10 @@ public class InstanceRoleHandleRunner implements ApplicationRunner {
                         }
                     } else {
                         //抢占master
-                        Long setnx = jedis.setnx(currAppName, currInstanceId);
+                        Long setnx = jedisCommands.setnx(currAppName, currInstanceId);
                         if (setnx == 1) {
                             //抢占成功，设置过期时间
-                            jedis.expire(currAppName, schedulerLockProperties.getHeartbeatExpirationDurationInSeconds());
+                            jedisCommands.expire(currAppName, schedulerLockProperties.getHeartbeatExpirationDurationInSeconds());
                             logger.info("服务名称=" + currAppName + "，实例ID=" + currInstanceId + "，实例抢占" + InstanceRole.MASTER.getValue() + "成功。");
                         } else if (setnx == 0) {
                             //抢占失败
@@ -147,10 +148,8 @@ public class InstanceRoleHandleRunner implements ApplicationRunner {
                     //必须捕获异常，否则当发生异常后就不再循环了，比如连接redis超时就会发生异常
                     logger.error(e.getMessage(), e);
                 }finally {
-                    //关闭连接
-                    if(jedis != null){
-                        jedis.close();
-                    }
+                    //关闭JedisCommands
+                    RedisUtil.closeJedisCommandsQuietly(jedisCommands);
                 }
             }
         }, 1000, schedulerLockProperties.getTouchHeartbeatIntervalInSeconds() * 1000);

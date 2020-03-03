@@ -1,6 +1,6 @@
 package com.milepost.core.lock;
 
-import com.milepost.api.constant.MilepostConstant;
+import com.milepost.api.util.RedisUtil;
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.EurekaClient;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
-import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisCommands;
 
 import java.lang.reflect.Method;
 
@@ -49,7 +49,7 @@ public class SynchronizedLockAspect {
      */
     @Around("advice()")
     public synchronized Object aroundMethod(ProceedingJoinPoint proceedingJoinPoint) {
-        Jedis jedis = null;
+        JedisCommands jedisCommands = null;
         Object result = null;
 
         //传入目标方法的参数
@@ -77,7 +77,7 @@ public class SynchronizedLockAspect {
             //前置通知
 //            System.out.println("SynchronizedLockAspect.aroundMethod--1" + ", flag=" + flag);
 
-            jedis = (Jedis) redisTemplate.getConnectionFactory().getConnection().getNativeConnection();
+            jedisCommands = RedisUtil.getJedisCommands(redisTemplate);
             args = proceedingJoinPoint.getArgs();
             methodSignature = (MethodSignature)proceedingJoinPoint.getSignature();
             msLongString = methodSignature.toLongString();
@@ -90,14 +90,14 @@ public class SynchronizedLockAspect {
 
             //尝试获取锁
             do{
-                setnx = jedis.setnx(msLongString, instanceId);
+                setnx = jedisCommands.setnx(msLongString, instanceId);
                 if(setnx == 0){
                     //如果获取锁失败，则等候MilepostConstant.SYNCHRONIZEDLOCK_RETRY_INTERVAL重试
-                    logger.info(instanceId +"实例获取"+ msLongString +"锁失败，实例"+ jedis.get(msLongString) +"正占有锁，等待"+ schedulerLockProperties.getSynchronizedLockRetryIntervalInMilliseconds() +"ms后重试。");
+                    logger.info(instanceId +"实例获取"+ msLongString +"锁失败，实例"+ jedisCommands.get(msLongString) +"正占有锁，等待"+ schedulerLockProperties.getSynchronizedLockRetryIntervalInMilliseconds() +"ms后重试。");
                     Thread.sleep(schedulerLockProperties.getSynchronizedLockRetryIntervalInMilliseconds());
                 }else{
                     //获取锁成功后，设置过期时间，即设置占有锁的最长时间，防止死锁
-                    jedis.expire(msLongString, schedulerLockProperties.getSynchronizedLockHoldDurationInSeconds());
+                    jedisCommands.expire(msLongString, schedulerLockProperties.getSynchronizedLockHoldDurationInSeconds());
                     logger.info(instanceId +"实例获取"+ msLongString +"锁成功。");
                 }
             }while(setnx == 0);
@@ -120,12 +120,12 @@ public class SynchronizedLockAspect {
                 //后置通知，无论目标方法正常返回还是遇到异常，后置通知都是要执行的，而且是最后执行的
                 //释放锁
 //                System.out.println("SynchronizedLockAspect.aroundMethod--6" + ", flag=" + flag);
-                Long del = jedis.del(msLongString);
+                Long del = jedisCommands.del(msLongString);
                 if(del == 1){
                     logger.info(instanceId +"实例释放"+ msLongString +"锁成功。");
                 }else{
                     logger.info(instanceId +"实例释放"+ msLongString +"锁失败。");
-                    if(jedis.exists(msLongString)){
+                    if(jedisCommands.exists(msLongString)){
                         logger.error(instanceId +"实例释放"+ msLongString +"锁失败，锁依然存在于redis中。");
                     }else{
                         logger.error(instanceId +"实例释放"+ msLongString +"锁失败，锁已经不在redis中，可能由于持有锁时间超过最大持有锁时间("+ schedulerLockProperties.getSynchronizedLockHoldDurationInSeconds() +"秒)，锁被自动释放。");
@@ -133,9 +133,7 @@ public class SynchronizedLockAspect {
                 }
 //                System.out.println("SynchronizedLockAspect.aroundMethod--7" + ", flag=" + flag);
             }finally {
-                if(jedis != null){
-                    jedis.close();
-                }
+                RedisUtil.closeJedisCommandsQuietly(jedisCommands);
             }
         }
         //返回结果
