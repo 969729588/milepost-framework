@@ -1,6 +1,5 @@
 package com.milepost.api.util;
 
-import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
 import org.springframework.data.redis.core.RedisTemplate;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisCluster;
@@ -16,7 +15,7 @@ public class RedisUtil {
      */
     public static void closeJedisCommandsQuietly(JedisCommands jedisCommands) {
         if(jedisCommands!=null){
-            if(jedisCommands instanceof RedisProperties.Jedis){
+            if(jedisCommands instanceof Jedis){
                 ((Jedis) jedisCommands).close();
             }else if(jedisCommands instanceof JedisCluster){
                 //JedisCluster不需要关闭，从RedisTemplate中多次获取JedisCluster，都会得到同一个JedisCluster对象。
