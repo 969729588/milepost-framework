@@ -14,7 +14,8 @@ import org.springframework.stereotype.Component;
 import java.lang.reflect.Method;
 
 /**
- * Created by Ruifu Hua on 2019/12/23.
+ * Created by Ruifu Hua on 2019/12/23.<br>
+ * 分布式调度锁 切面，拦截所有标注了@SchedulerLock注解的方法。<br>
  */
 @Aspect
 @Component
@@ -24,6 +25,10 @@ public class SchedulerLockAspect {
 
     @Autowired
     private InstanceRoleService instanceRoleService;
+
+    @Autowired
+    private SchedulerLockProperties schedulerLockProperties;
+
 
     @Pointcut("@annotation(com.milepost.core.lock.SchedulerLock)")
     public void advice() {
@@ -38,52 +43,64 @@ public class SchedulerLockAspect {
     public Object aroundMethod(ProceedingJoinPoint proceedingJoinPoint) {
         Object result = null;
 
-        //参数
-        Object[] args = proceedingJoinPoint.getArgs();
-        //方法签名
-        MethodSignature methodSignature = (MethodSignature)proceedingJoinPoint.getSignature();
-        //方法
-        Method method = methodSignature.getMethod();
-        //方法名
-        String methodName = method.getName();
-        //注解
-        SchedulerLock schedulerLock = method.getAnnotation(SchedulerLock.class);
-
-        try {
-
-            //前置通知
-            // ...
-            switch(schedulerLock.model()){
-                case slave:
-                    if(!instanceRoleService.isMaster()){
-                        //执行方法
-                        result = proceedingJoinPoint.proceed();
-                    }else{
-                        logger.info("调度锁模式="+ InstanceRole.SLAVE.getValue() +"，当前实例是" + InstanceRole.MASTER.getValue() +"，忽略本次调度。");
-                    }
-                    break;
-                case master:
-                    if(instanceRoleService.isMaster()){
-                        //执行方法
-                        result = proceedingJoinPoint.proceed();
-                    }else{
-                        logger.info("调度锁模式="+ InstanceRole.MASTER.getValue() +"，当前实例是" + InstanceRole.SLAVE.getValue() +"，忽略本次调度。");
-                    }
-                    break;
+        if(!schedulerLockProperties.isEnabled()){
+            //未开启
+            logger.error("scheduler-lock.enabled=false，即关闭分布式调度锁功能，此时@SynchronizedLock注解无效，请关注。");
+            try {
+                result = proceedingJoinPoint.proceed();
+            }catch (Throwable e) {
+                logger.error(e.getMessage(), e);
             }
+            return result;
+        }else{
+            //开启
 
-            //返回通知
-            // ...
+            //参数
+            Object[] args = proceedingJoinPoint.getArgs();
+            //方法签名
+            MethodSignature methodSignature = (MethodSignature)proceedingJoinPoint.getSignature();
+            //方法
+            Method method = methodSignature.getMethod();
+            //方法名
+            String methodName = method.getName();
+            //注解
+            SchedulerLock schedulerLock = method.getAnnotation(SchedulerLock.class);
 
-        } catch (Throwable e) {
-            //异常通知
-            logger.error(e.getMessage(), e);
-        }finally {
-            //后置通知
-            // ...
+            try {
+
+                //前置通知
+                // ...
+                switch(schedulerLock.model()){
+                    case slave:
+                        if(!instanceRoleService.isMaster()){
+                            //执行方法
+                            result = proceedingJoinPoint.proceed();
+                        }else{
+                            logger.info("调度锁模式="+ InstanceRole.SLAVE.getValue() +"，当前实例是" + InstanceRole.MASTER.getValue() +"，忽略本次调度。");
+                        }
+                        break;
+                    case master:
+                        if(instanceRoleService.isMaster()){
+                            //执行方法
+                            result = proceedingJoinPoint.proceed();
+                        }else{
+                            logger.info("调度锁模式="+ InstanceRole.MASTER.getValue() +"，当前实例是" + InstanceRole.SLAVE.getValue() +"，忽略本次调度。");
+                        }
+                        break;
+                }
+
+                //返回通知
+                // ...
+
+            } catch (Throwable e) {
+                //异常通知
+                logger.error(e.getMessage(), e);
+            }finally {
+                //后置通知
+                // ...
+            }
+            //返回结果
+            return result;
         }
-        //返回结果
-        return result;
     }
-
 }

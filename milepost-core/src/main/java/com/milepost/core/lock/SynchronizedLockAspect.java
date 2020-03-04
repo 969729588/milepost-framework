@@ -18,7 +18,9 @@ import redis.clients.jedis.JedisCommands;
 import java.lang.reflect.Method;
 
 /**
- * Created by Ruifu Hua on 2019/12/24.
+ * Created by Ruifu Hua on 2019/12/24.<br>
+ * 分布式同步锁 切面，拦截所有标注了@SynchronizedLock注解的方法。<br>
+ *
  */
 @Aspect
 @Component
@@ -32,13 +34,11 @@ public class SynchronizedLockAspect {
     private EurekaClient eurekaClient;
 
     @Autowired
-    private SchedulerLockProperties schedulerLockProperties;
+    private SynchronizedLockProperties synchronizedLockProperties;
 
     @Pointcut("@annotation(com.milepost.core.lock.SynchronizedLock)")
     public void advice() {
     }
-
-
 
     /**
      * 环绕通知需要携带 ProceedingJoinPoint 类型的参数。
@@ -49,95 +49,108 @@ public class SynchronizedLockAspect {
      */
     @Around("advice()")
     public synchronized Object aroundMethod(ProceedingJoinPoint proceedingJoinPoint) {
-        JedisCommands jedisCommands = null;
         Object result = null;
 
-        //传入目标方法的参数
-        Object[] args = null;
-        //目标方法签名
-        MethodSignature methodSignature = null;
-        //目标方法签名长字符串，能够标识唯一一个方法，用这个字符串作为redis的key。
-        String msLongString = null;
-        //目标方法
-        Method method = null;
-        //目标方法名称
-        String methodName = null;
-        //目标方法上的注解
-        SynchronizedLock synchronizedLock = null;
-
-        //获取当前实例信息
-        InstanceInfo instanceInfo = null;
-        String instanceId = null;
-
-        //返回1表示设置成功，返回0表示失败
-        Long setnx = 0L;
-
-        String flag = null;
-        try {
-            //前置通知
-//            System.out.println("SynchronizedLockAspect.aroundMethod--1" + ", flag=" + flag);
-
-            jedisCommands = RedisUtil.getJedisCommands(redisTemplate);
-            args = proceedingJoinPoint.getArgs();
-            methodSignature = (MethodSignature)proceedingJoinPoint.getSignature();
-            msLongString = methodSignature.toLongString();
-            method = methodSignature.getMethod();
-//            methodName = method.getName();
-//            synchronizedLock = method.getAnnotation(SynchronizedLock.class);
-            instanceInfo = eurekaClient.getApplicationInfoManager().getInfo();
-            instanceId = instanceInfo.getInstanceId();
-            flag = (String) args[0];
-
-            //尝试获取锁
-            do{
-                setnx = jedisCommands.setnx(msLongString, instanceId);
-                if(setnx == 0){
-                    //如果获取锁失败，则等候MilepostConstant.SYNCHRONIZEDLOCK_RETRY_INTERVAL重试
-                    logger.info(instanceId +"实例获取"+ msLongString +"锁失败，实例"+ jedisCommands.get(msLongString) +"正占有锁，等待"+ schedulerLockProperties.getSynchronizedLockRetryIntervalInMilliseconds() +"ms后重试。");
-                    Thread.sleep(schedulerLockProperties.getSynchronizedLockRetryIntervalInMilliseconds());
-                }else{
-                    //获取锁成功后，设置过期时间，即设置占有锁的最长时间，防止死锁
-                    jedisCommands.expire(msLongString, schedulerLockProperties.getSynchronizedLockHoldDurationInSeconds());
-                    logger.info(instanceId +"实例获取"+ msLongString +"锁成功。");
-                }
-            }while(setnx == 0);
-
-            //执行目标方法
-//            System.out.println("SynchronizedLockAspect.aroundMethod--2" + ", flag=" + flag);
-            result = proceedingJoinPoint.proceed();
-//            System.out.println("SynchronizedLockAspect.aroundMethod--3" + ", flag=" + flag);
-
-            //返回通知
-            // ...
-
-        } catch (Throwable e) {
-            //异常通知
-//            System.out.println("SynchronizedLockAspect.aroundMethod--4" + ", flag=" + flag);
-            logger.error(e.getMessage(), e);
-//            System.out.println("SynchronizedLockAspect.aroundMethod--5" + ", flag=" + flag);
-        }finally {
+        if(!synchronizedLockProperties.isEnabled()){
+            //未开启
+            logger.error("synchronized-lock.enabled=false，即关闭分布式同步锁功能，此时@SynchronizedLock注解无效，请关注。");
             try {
-                //后置通知，无论目标方法正常返回还是遇到异常，后置通知都是要执行的，而且是最后执行的
-                //释放锁
-//                System.out.println("SynchronizedLockAspect.aroundMethod--6" + ", flag=" + flag);
-                Long del = jedisCommands.del(msLongString);
-                if(del == 1){
-                    logger.info(instanceId +"实例释放"+ msLongString +"锁成功。");
-                }else{
-                    logger.info(instanceId +"实例释放"+ msLongString +"锁失败。");
-                    if(jedisCommands.exists(msLongString)){
-                        logger.error(instanceId +"实例释放"+ msLongString +"锁失败，锁依然存在于redis中。");
-                    }else{
-                        logger.error(instanceId +"实例释放"+ msLongString +"锁失败，锁已经不在redis中，可能由于持有锁时间超过最大持有锁时间("+ schedulerLockProperties.getSynchronizedLockHoldDurationInSeconds() +"秒)，锁被自动释放。");
-                    }
-                }
-//                System.out.println("SynchronizedLockAspect.aroundMethod--7" + ", flag=" + flag);
-            }finally {
-                RedisUtil.closeJedisCommandsQuietly(jedisCommands);
+                result = proceedingJoinPoint.proceed();
+            }catch (Throwable e) {
+                logger.error(e.getMessage(), e);
             }
+            return result;
+        }else{
+            //开启
+
+            JedisCommands jedisCommands = null;
+            //传入目标方法的参数
+            Object[] args = null;
+            //目标方法签名
+            MethodSignature methodSignature = null;
+            //目标方法签名长字符串，能够标识唯一一个方法，用这个字符串作为redis的key。
+            String msLongString = null;
+            //目标方法
+            Method method = null;
+            //目标方法名称
+            String methodName = null;
+            //目标方法上的注解
+            SynchronizedLock synchronizedLock = null;
+
+            //获取当前实例信息
+            InstanceInfo instanceInfo = null;
+            String instanceId = null;
+
+            //返回1表示设置成功，返回0表示失败
+            Long setnx = 0L;
+
+            String flag = null;
+            try {
+                //前置通知
+//              System.out.println("SynchronizedLockAspect.aroundMethod--1" + ", flag=" + flag);
+
+                jedisCommands = RedisUtil.getJedisCommands(redisTemplate);
+                args = proceedingJoinPoint.getArgs();
+                methodSignature = (MethodSignature)proceedingJoinPoint.getSignature();
+                msLongString = methodSignature.toLongString();
+                method = methodSignature.getMethod();
+//              methodName = method.getName();
+//              synchronizedLock = method.getAnnotation(SynchronizedLock.class);
+                instanceInfo = eurekaClient.getApplicationInfoManager().getInfo();
+                instanceId = instanceInfo.getInstanceId();
+                flag = (String) args[0];
+
+                //尝试获取锁
+                do{
+                    setnx = jedisCommands.setnx(msLongString, instanceId);
+                    if(setnx == 0){
+                        //如果获取锁失败，则等候MilepostConstant.SYNCHRONIZEDLOCK_RETRY_INTERVAL重试
+                        logger.info(instanceId +"实例获取"+ msLongString +"锁失败，实例"+ jedisCommands.get(msLongString) +"正占有锁，等待"+ synchronizedLockProperties.getRetryIntervalInMilliseconds() +"ms后重试。");
+                        Thread.sleep(synchronizedLockProperties.getRetryIntervalInMilliseconds());
+                    }else{
+                        //获取锁成功后，设置过期时间，即设置占有锁的最长时间，防止死锁
+                        jedisCommands.expire(msLongString, synchronizedLockProperties.getHoldDurationInSeconds());
+                        logger.info(instanceId +"实例获取"+ msLongString +"锁成功。");
+                    }
+                }while(setnx == 0);
+
+                //执行目标方法
+//              System.out.println("SynchronizedLockAspect.aroundMethod--2" + ", flag=" + flag);
+                result = proceedingJoinPoint.proceed();
+//              System.out.println("SynchronizedLockAspect.aroundMethod--3" + ", flag=" + flag);
+
+                //返回通知
+                // ...
+
+            } catch (Throwable e) {
+                //异常通知
+//              System.out.println("SynchronizedLockAspect.aroundMethod--4" + ", flag=" + flag);
+                logger.error(e.getMessage(), e);
+//              System.out.println("SynchronizedLockAspect.aroundMethod--5" + ", flag=" + flag);
+            }finally {
+                try {
+                    //后置通知，无论目标方法正常返回还是遇到异常，后置通知都是要执行的，而且是最后执行的
+                    //释放锁
+//                  System.out.println("SynchronizedLockAspect.aroundMethod--6" + ", flag=" + flag);
+                    Long del = jedisCommands.del(msLongString);
+                    if(del == 1){
+                        logger.info(instanceId +"实例释放"+ msLongString +"锁成功。");
+                    }else{
+                        logger.info(instanceId +"实例释放"+ msLongString +"锁失败。");
+                        if(jedisCommands.exists(msLongString)){
+                            logger.error(instanceId +"实例释放"+ msLongString +"锁失败，锁依然存在于redis中。");
+                        }else{
+                            logger.error(instanceId +"实例释放"+ msLongString +"锁失败，锁已经不在redis中，可能由于持有锁时间超过最大持有锁时间("+ synchronizedLockProperties.getHoldDurationInSeconds() +"秒)，锁被自动释放。");
+                        }
+                    }
+//                  System.out.println("SynchronizedLockAspect.aroundMethod--7" + ", flag=" + flag);
+                }finally {
+                    RedisUtil.closeJedisCommandsQuietly(jedisCommands);
+                }
+            }
+            //返回结果
+//          System.out.println("SynchronizedLockAspect.aroundMethod--8" + ", flag=" + flag);
+            return result;
         }
-        //返回结果
-//        System.out.println("SynchronizedLockAspect.aroundMethod--8" + ", flag=" + flag);
-        return result;
     }
 }

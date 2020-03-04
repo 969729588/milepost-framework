@@ -17,11 +17,12 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 /**
- * 实例角色
- * 为了实现集群部署一个应用的多个实例的身份，
- * 一个应用的多个实例中，只有一个master，
- * 应用启动成功之后，把自己的身份(master/slave)放到redis中，
- * 之后通过保持心跳和抢占master的方式运行下去
+ * 应用启动之后，维护实例角色，目前只有两种（master/slave），<br>
+ * 一个服务的多个实例中，只有一个是master，其他都是slave），<br>
+ * 把一个服务的多个实例中的master的实例id（instanceId）放到redis中，key是服务名称（appName）。<br>
+ * 应用启动成功之后，把自己的身份(master/slave)放到redis中，<br>
+ * 之后通过保持心跳和抢占master的方式运行下去，<br>
+ * 此功能是分布式调度锁的基础。<br>
  */
 @Component
 public class InstanceRoleHandleRunner implements ApplicationRunner {
@@ -32,9 +33,9 @@ public class InstanceRoleHandleRunner implements ApplicationRunner {
     private RedisTemplate redisTemplate;
 
     /**
-     * 用于获取当前应用的appName和instance-id
+     * 用于获取当前应用的appName和instanceId
      * appName:spring.application.name
-     * instance-id:eureka.instance.instance-id
+     * instanceId:eureka.instance.instance-id
      */
     @Autowired
     private EurekaClient eurekaClient;
@@ -48,9 +49,9 @@ public class InstanceRoleHandleRunner implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) throws Exception {
         if(schedulerLockProperties.isEnabled()){
-            logger.info("分布式锁、分布式任务调度初始化...");
+            logger.info("分布式调度锁初始化...");
         }else{
-            logger.info("分布式锁、分布式任务调度未开启...");
+            logger.info("分布式调度锁未开启...");
             return;
         }
 
@@ -68,22 +69,22 @@ public class InstanceRoleHandleRunner implements ApplicationRunner {
             String currAppName = instanceInfo.getAppName();//注意，无论配置如何，这里都会获取到大写的，所以在DiscoveryClient中获取到小写的需要转换成大写的
             String currInstanceId = instanceInfo.getInstanceId();
 
-            //先获取redis中master的实例id，注意，这里的值是在应用启动之初获取的，不能用在timer中的循环中，因为master是浮动的，所以timer的循环中应该重新获取
-            String redisInstanceId = jedisCommands.get(currAppName);
+            //先获取redis中master的实例id，注意，这里的值必须在应用启动之初获取的，不能传入到timer中的循环中，因为master是浮动的，所以timer的循环中应该重新获取
+            String masterInstanceId = jedisCommands.get(currAppName);
 
             Long setnx = jedisCommands.setnx(currAppName, currInstanceId);//返回1表示设置成功，
             if (setnx == 1) {
                 //设置成功，设置过期时间
                 jedisCommands.expire(currAppName, schedulerLockProperties.getHeartbeatExpirationDurationInSeconds());
                 logger.info("服务名称=" + currAppName + "，实例ID=" + currInstanceId + "，实例角色初始化成功，实例角色=" + InstanceRole.MASTER.getValue() + "。");
-            } else if (setnx == 0 && currInstanceId.equals(redisInstanceId)) {
+            } else if (setnx == 0 && currInstanceId.equals(masterInstanceId)) {
                 //设置失败，但是redis中的master的实例id == 当前应用的实例id，(快速重启master就会发生这种情况)，只更新过期时间
                 jedisCommands.expire(currAppName, schedulerLockProperties.getHeartbeatExpirationDurationInSeconds());
                 logger.info("服务名称=" + currAppName + "，实例ID=" + currInstanceId + "，这个实例在redis中已经被标记为" + InstanceRole.MASTER.getValue() + "，此处只更新过期时间。");
                 logger.info("服务名称=" + currAppName + "，实例ID=" + currInstanceId + "，实例角色初始化成功，实例角色=" + InstanceRole.MASTER.getValue() + "。");
             } else {
                 //设置失败，并且redis中的master的实例id != 当前应用的实例id，(已经有运行良好的master了)，
-                logger.info("服务名称=" + currAppName + "，实例ID=" + currInstanceId + "，实例角色初始化成功，实例角色=" + InstanceRole.SLAVE.getValue() + "，" + InstanceRole.MASTER.getValue() + "的实例ID=" + redisInstanceId + "。");
+                logger.info("服务名称=" + currAppName + "，实例ID=" + currInstanceId + "，实例角色初始化成功，实例角色=" + InstanceRole.SLAVE.getValue() + "，" + InstanceRole.MASTER.getValue() + "的实例ID=" + masterInstanceId + "。");
             }
 
             //如果是当前是master，则保持自己的心跳，如果是slave，则尝试抢占master
@@ -100,8 +101,8 @@ public class InstanceRoleHandleRunner implements ApplicationRunner {
     }
 
     /**
-     * 如果当前实例是master，则保持自己的心跳，间隔touchHeartbeatIntervalInSeconds(s)，超过heartbeatExpirationDurationInSeconds(s)心跳失效，所以touchHeartbeatIntervalInSeconds一定要 小于 heartbeatExpirationDurationInSeconds，这正好符合这两个参数的原本含义。
-     * 如果当前实例是slave，则尝试抢占master，间隔touchHeartbeatIntervalInSeconds(s)，发现redis中不存在master时，立刻抢占，将自己设置为master
+     * 如果当前实例是master，则保持自己的心跳，间隔touchHeartbeatIntervalInSeconds(s)，超过heartbeatExpirationDurationInSeconds(s)心跳失效，所以touchHeartbeatIntervalInSeconds一定要 小于 heartbeatExpirationDurationInSeconds。
+     * 如果当前实例是slave，则尝试抢占master，间隔touchHeartbeatIntervalInSeconds(s)，在任何一次尝试中如发现redis中不存在master，则立刻抢占，将自己设置为master。
      *
      * @param currAppName    当前应用名称
      * @param currInstanceId 当前实例id
