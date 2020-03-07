@@ -34,6 +34,7 @@ public class PrintBanner {
     private static final String BANNER_LOCATION_PROPERTY = "spring.banner.location";
     private static final String DEFAULT_BANNER_LOCATION = "banner.txt";
     private static final String SPRING_PROFILES_ACTIVE_DEV = "dev";
+    private static final String SPRING_PROFILES_ACTIVE_TEST = "test";
     private static final String SPRING_PROFILES_ACTIVE_PROD = "prod";
 
 
@@ -73,7 +74,7 @@ public class PrintBanner {
             printStream = new PrintStream(baos);
             banner.printBanner(environment, application.getClass(), printStream);
             String charset = environment.getProperty("spring.banner.charset", "UTF-8");
-            if(SPRING_PROFILES_ACTIVE_PROD.equalsIgnoreCase(springProfilesActive)){
+            if(SPRING_PROFILES_ACTIVE_PROD.equalsIgnoreCase(springProfilesActive) || SPRING_PROFILES_ACTIVE_TEST.equalsIgnoreCase(springProfilesActive)){
                 applicationLogger.info(baos.toString(charset));
             }else if(SPRING_PROFILES_ACTIVE_DEV.equalsIgnoreCase(springProfilesActive)){
                 System.out.println(baos.toString(charset));

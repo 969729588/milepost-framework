@@ -65,6 +65,7 @@ public class MilepostApplication extends SpringApplication{
     /**
      * springboot加载配置项的顺序是  命令行参数   >   java系统属性(System.getProperties())    >   操作系统环境变量(System.getenv())   >   配置文件
      * 对于一些自己定义的属性，在逻辑处理过程中，要注意这个优先级。
+     * Linux环境变量名称中不能包含 .- 等字符，比如server.servlet.context-path=abc，要转换成server_servlet_contextPath=abc
      * @param args
      * @return
      */
@@ -213,7 +214,7 @@ public class MilepostApplication extends SpringApplication{
 
         //如果在java启动springboot的jar包时增加“-Dssl=true”参数，就可以让应用支持https请求，默认是不支持https
         Boolean supportSsl = Boolean.valueOf(System.getProperty("ssl", "false"));
-        logger.info("supportSsl=" + supportSsl);
+        //logger.info("supportSsl=" + supportSsl);
 
         //生成jwt和https相关文件，这几个文件都是事先放在当前jar包下的
         //1、生成jks文件
@@ -576,7 +577,7 @@ public class MilepostApplication extends SpringApplication{
 
         //进程信息
         String processinfo = ManagementFactory.getRuntimeMXBean().getName().split("@")[0];
-        logger.info("processinfo {}", processinfo);
+        //logger.info("processinfo {}", processinfo);
         defaultProperties.put("eureka.instance.metadata-map.pid", processinfo.split("@")[0]);
         defaultProperties.put("eureka.instance.metadata-map.processinfo", ManagementFactory.getRuntimeMXBean().getName());
 
@@ -827,7 +828,7 @@ public class MilepostApplication extends SpringApplication{
 //    }
 
     private void runBefore() {
-        printEnv();
+        //printEnv();
 //        Runtime.getRuntime().addShutdownHook(new Thread() {
 //            public void run() {
 //                //这里不知道什么时候能进来，我没发现能进来的时候
@@ -846,6 +847,16 @@ public class MilepostApplication extends SpringApplication{
 
     private void runAfter() {
         try {
+            //打印操作系统环境变量
+            printEnv();
+            //打印进程id
+            String processinfo = ManagementFactory.getRuntimeMXBean().getName().split("@")[0];
+            logger.info("processinfo {}", processinfo);
+
+            //打印是否支持ssl
+            Boolean supportSsl = Boolean.valueOf(System.getProperty("ssl", "false"));
+            logger.info("supportSsl=" + supportSsl);
+
             this.showEurekaInfo();
             started = Boolean.TRUE;
             logger.info("服务启动完毕。");
@@ -860,7 +871,7 @@ public class MilepostApplication extends SpringApplication{
     private static void printEnv() {
         Map<String, String> envs = System.getenv();
         if(envs.size() > 0) {
-            logger.info("----------system environment----------");
+            logger.info("----------操作系统环境变量----------");
             Iterator it = envs.keySet().iterator();
 
             while(it.hasNext()) {
@@ -869,7 +880,7 @@ public class MilepostApplication extends SpringApplication{
                 logger.info("{}={}", name, value);
             }
 
-            logger.info("----------system environment----------");
+            logger.info("----------操作系统环境变量----------");
         }
     }
 

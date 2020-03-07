@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
  * 资源服务器配置
  */
 @RestController
-@Api(description = "文本加密")
+@Api(tags="配置文件加密", description = "对配置文件加密功能的支持，传入明文，将返回的结果写到配置文件中即可。")
 
 @Configuration
 @EnableResourceServer
