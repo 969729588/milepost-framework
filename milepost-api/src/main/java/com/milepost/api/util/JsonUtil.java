@@ -1,6 +1,7 @@
 package com.milepost.api.util;
 
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.serializer.SerializeFilter;
 
 import java.util.List;
 import java.util.Map;
@@ -20,5 +21,7 @@ public class JsonUtil {
 		return list;
 	}
 
-
+	public static String object2JsonStr(Object object){
+		return JSONObject.toJSONString(object);
+	}
 }

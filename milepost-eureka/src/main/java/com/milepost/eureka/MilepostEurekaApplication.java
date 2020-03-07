@@ -42,6 +42,9 @@ public class MilepostEurekaApplication{
 
 	/**
 	 * 为了测试的，没有实际作用
+	 * EurekaServer端使用PeerAwareInstanceRegistry获取注册到注册中心的所有服务，获取的服务与Eureka Dashboard显示的一致。
+	 * EurekaClient端使用org.springframework.cloud.client.discovery.DiscoveryClient获取注册到注册中心的所有服务。
+	 * com.netflix.discovery.EurekaClient用来在客户端获取当前服务的InstanceInfo。
 	 */
 //	@Scheduled(initialDelay = 10000, fixedDelay = 5000)
 //	public void printAllServiceInstance() {

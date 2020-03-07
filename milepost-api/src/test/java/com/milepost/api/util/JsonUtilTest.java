@@ -2,6 +2,8 @@ package com.milepost.api.util;
 
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -33,5 +35,17 @@ public class JsonUtilTest {
         System.out.println(list.get(0));
         Map<String, Object> map2 = (Map<String, Object>)list.get(3);
         System.out.println(map2.get("1"));
+    }
+
+    @Test
+    public void test3(){
+        Map<String, String> map = new HashMap<>();
+        map.put("k1", "v1");
+        map.put("k2", "v2");
+        System.out.println(JsonUtil.object2JsonStr(map));
+
+        List<Map<String, String>> list = new ArrayList<>();
+        list.add(map);
+        System.out.println(JsonUtil.object2JsonStr(list));
     }
 }

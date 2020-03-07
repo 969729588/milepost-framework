@@ -23,8 +23,9 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
         http
             .csrf().disable()
             .authorizeRequests()
-            .antMatchers("/milepost-actuator/**",
-                    "/login").permitAll()
+            .antMatchers("/milepost-actuator/**",//监控
+                    "/**/*.css", "/**/*.js", "/**/*.jpg", "/**/*.png", "/**/*.gif", "/**/*.ico", "/**/*.woff", "/**/*.ttf")//静态资源
+                .permitAll()
             .antMatchers("/**").authenticated();
     }
 }
