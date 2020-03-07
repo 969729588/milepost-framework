@@ -21,7 +21,8 @@ import java.util.Map;
 		"com.milepost.core.mq",//mq
 		"com.milepost.core.restTemplate",//restTemplate
 		"com.milepost.core.redisTemplate",//redisTemplate
-		"com.milepost.core.exception"//全局异常处理
+		"com.milepost.core.exception",//全局异常处理
+		"com.milepost.ui.index.controller"//内置controller，接收认证参数，传给前端
 })
 public class MilepostUiApplication {
 
