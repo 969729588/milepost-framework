@@ -1,7 +1,7 @@
 info:
   app:
-    name: milepost-eureka-name
-    description: 注册中心-des
+    name: milepost-eureka
+    description: 注册中心
     version: 1.0.0.100
 
 server:

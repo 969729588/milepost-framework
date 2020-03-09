@@ -70,6 +70,36 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
+
+			<!--打包时候copy脚本，包括Linux启动脚本，docker相关脚本等-->
+			<plugin>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>3.1.0</version>
+				<executions>
+					<execution>
+						<id>copy-resources</id>
+						<!--打包时候复制文件-->
+						<phase>package</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<!--读取打包到target里-->
+							<outputDirectory>${basedir}/target</outputDirectory>
+							<resources>
+								<resource>
+									<!--指定目录-->
+									<directory>${basedir}</directory>
+									<includes>
+										<!--所有的sh文件。-->
+										<include>**/*.sh</include>
+									</includes>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 

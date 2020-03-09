@@ -3,16 +3,18 @@ JAR_NAME=milepost-eureka-1.0.0.100.jar
 start() {
     echo "start process...";
     rm -rf ./logs
-    nohup java -Xmx256m -Xms256m \
-	-jar ${JAR_NAME} \
+    nohup java -Xmx128m -Xms128m \
+    -jar ${JAR_NAME} \
     --spring.profiles.active=test \
     --server.port=8761 \
+    --info.app.description=注册中心-args \
+    --spring.application.name=milepost-eureka-args \
     --eureka.instance.ip-address=192.168.223.129 \
     >/dev/null 2>&1 &
 }
 
-#java后加“-Dssl=true”开启https，多个-D参数使用空格分离，如“-Dssl=false -Daa=11”
-#java后加“-Xmx256m -Xms256m”配置内存，支持的m、g单位。
+# java后加“-Dssl=true”开启https，多个-D参数使用空格分离，如“-Dssl=false -Daa=11”
+# java后加“-Xmx256m -Xms256m”配置内存，支持的m、g单位。
 
 stop() {    
     while true
