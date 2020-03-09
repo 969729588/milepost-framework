@@ -2,7 +2,6 @@ package com.milepost.service.config.dynamicDs;
 
 import com.alibaba.druid.spring.boot.autoconfigure.DruidDataSourceBuilder;
 import com.google.common.base.CaseFormat;
-import com.milepost.api.util.ReadAppYml;
 import org.apache.commons.beanutils.BeanUtils;
 import org.jasypt.encryption.StringEncryptor;
 import org.slf4j.Logger;
@@ -12,8 +11,11 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.boot.context.properties.bind.Bindable;
+import org.springframework.boot.context.properties.bind.Binder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
@@ -23,8 +25,11 @@ import java.util.Map;
 
 /**
  * Created by Ruifu Hua on 2020/2/13.
- * 根据配置文件创建主数据源，手动创建除主数据源之外的其他数据源并放入ioc容器中，
  * 创建动态数据源，即AbstractRoutingDataSource的子类。
+ *
+ * 读取Environment中的数据，手动创建主数据源和其他多数据源，并放入ioc容器中，
+ * 涉及到将Environment中的数据绑定到Map中，数据解密、命名方式转换、
+ *
  */
 @Component
 public class ManualCreateDataSource implements BeanDefinitionRegistryPostProcessor {
@@ -41,7 +46,7 @@ public class ManualCreateDataSource implements BeanDefinitionRegistryPostProcess
      */
     private ConfigurableListableBeanFactory beanFactory;
 
-    public static final String MAIN_SD = "mainDs";
+    public static final String MAIN_DS = "mainDs";
 
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
@@ -66,56 +71,91 @@ public class ManualCreateDataSource implements BeanDefinitionRegistryPostProcess
 
     /**
      * 初始化除主数据源之外的其他数据源
-     *
-     * 从yml中读取配置，不能识别命令行参数
+     * 从Environment中读取数据，能识别命令行和环境变量中的配置
+     * 涉及到将Environment中的数据绑定到Map中，数据解密等
      */
     private void initMultipleDs() {
         multipleDs = new HashMap<>();
         try {
             StringEncryptor stringEncryptor = this.beanFactory.getBean(StringEncryptor.class);
+            //此处不能读取yml，因为springboot的配置项有多处来源，只能读取Environment，读取yml要慎用
+            Environment environment = this.beanFactory.getBean(Environment.class);
+            String druidKey = "spring.datasource.druid";
+
+            //环境变量绑定到map
+            Map<String, Object> envMap = new LinkedHashMap<>();
+            final Bindable<? extends Map> bindable = Bindable.ofInstance(envMap);
+            final Binder binder = Binder.get(environment);
+            binder.bind(druidKey, bindable);
+
+            //存储多数据源，是原始的，key和value都没经过处理的
+            Map<String, Object> multipleDsOriginalEnvMaps = new LinkedHashMap<>();
+
+            //map中，连词符形式的key转换为驼峰形式，map中String类型值解密
+            Map<String, Object> mainDsEnvMap = new LinkedHashMap<>();
+            for(Map.Entry<String, Object> entry : envMap.entrySet()){
+                String key = entry.getKey();
+                Object value = entry.getValue();
+
+                //除了多数据源的key-value之外，都要转换和解密
+                if(!(value instanceof Map)){
+                    String newKey = CaseFormat.LOWER_HYPHEN.to(CaseFormat.LOWER_CAMEL, key);
+                    //yml中只有字符串类型的配置项才支持加密，
+                    Object newValue = null;
+                    if(value instanceof String && ((String)value).startsWith("ENC(") && ((String)value).endsWith(")")){
+                        //解密(配置文件中只有字符串类型的配置才支持加密)
+                        String valueStr = (String)value;
+                        valueStr = valueStr.substring(4, valueStr.length());
+                        newValue = stringEncryptor.decrypt(valueStr);
+                    }else{
+                        //不解密，
+                        newValue = value;
+                    }
+                    mainDsEnvMap.put(newKey, newValue);
+                }else{
+                    multipleDsOriginalEnvMaps.put(key, value);
+                }
+            }
 
             //创建主数据源
-            String druidKey = "spring.datasource.druid";
-            Map<String, Object> druidMap = ReadAppYml.getMap(druidKey);
-            Map<String, Object> druidMapFormat = new LinkedHashMap<>();
-            //将 key 的 小连词符 转 小驼峰， 解密value
-            for(Map.Entry<String, Object> entry : druidMap.entrySet()){
-                String key = entry.getKey();
-                String keyFormat = CaseFormat.LOWER_HYPHEN.to(CaseFormat.LOWER_CAMEL, key);
-
-                Object value = entry.getValue();
-                if(value instanceof String && ((String)value).startsWith("ENC(") && ((String)value).endsWith(")")){
-                    //解密(配置文件中之后字符串类型的配置才支持加密)
-                    String valueStr = (String)value;
-                    valueStr = valueStr.substring(4, valueStr.length());
-                    valueStr = stringEncryptor.decrypt(valueStr);
-                    druidMapFormat.put(keyFormat, valueStr);
-                }else{
-                    //不解密，
-                    druidMapFormat.put(keyFormat, value);
-                }
-            }
-
-            //填充数据源对象
             DataSource mainDataSource = DruidDataSourceBuilder.create().build();
-            BeanUtils.populate(mainDataSource, druidMapFormat);
+            BeanUtils.populate(mainDataSource, mainDsEnvMap);
+            multipleDs.put(MAIN_DS, mainDataSource);
 
-            //保存主数据源
-            multipleDs.put(MAIN_SD, mainDataSource);
+            //创建其他数据源
+            for(Map.Entry<String, Object> entry : multipleDsOriginalEnvMaps.entrySet()){
+                String multipleDsKey = entry.getKey();//多数据源的名称，一定不要将他改变
+                Map<String, Object> multipleDsOriginalEnvMap = (Map<String, Object>)entry.getValue();
+                //--------------------
+                //map中，连词符形式的key转换为驼峰形式，map中String类型值解密
+                Map<String, Object> multipleDsEnvMap = new LinkedHashMap<>();
+                for(Map.Entry<String, Object> mEntry : multipleDsOriginalEnvMap.entrySet()){
+                    String key = mEntry.getKey();
+                    Object value = mEntry.getValue();
 
-            //创建其他数据源，没有配置的属性继承主数据源
-            for(Map.Entry<String, Object> entry : druidMap.entrySet()){
-                String key = entry.getKey();
-                Object value = entry.getValue();
-                if(value instanceof Map){
-                    DataSource dataSource = DruidDataSourceBuilder.create().build();
-                    BeanUtils.populate(dataSource, druidMapFormat);
-                    BeanUtils.populate(dataSource, (Map)value);
-                    multipleDs.put(key, dataSource);
+                    String newKey = CaseFormat.LOWER_HYPHEN.to(CaseFormat.LOWER_CAMEL, key);
+                    //yml中只有字符串类型的配置项才支持加密，
+                    Object newValue = null;
+                    if(value instanceof String && ((String)value).startsWith("ENC(") && ((String)value).endsWith(")")){
+                        //解密(配置文件中只有字符串类型的配置才支持加密)
+                        String valueStr = (String)value;
+                        valueStr = valueStr.substring(4, valueStr.length());
+                        newValue = stringEncryptor.decrypt(valueStr);
+                    }else{
+                        //不解密，
+                        newValue = value;
+                    }
+
+                    multipleDsEnvMap.put(newKey, newValue);
                 }
+                //--------------------
+                DataSource multipleDataSource = DruidDataSourceBuilder.create().build();
+                BeanUtils.populate(multipleDataSource, mainDsEnvMap);//实现多数据源中未配置的属性继承主数据源
+                BeanUtils.populate(multipleDataSource, multipleDsEnvMap);
+                multipleDs.put(multipleDsKey, multipleDataSource);
             }
         }catch (Exception e){
-            logger.error("实例化多数据源异常。", e);
+            logger.error("创建数据源异常。", e);
         }
     }
 
@@ -136,7 +176,7 @@ public class ManualCreateDataSource implements BeanDefinitionRegistryPostProcess
         //DataSource mainDs = (DataSource)this.beanFactory.getBean("mainDs");
         targetDataSources.putAll(multipleDs);//其他数据源
         milepostRoutingDataSource.setTargetDataSources(targetDataSources);
-        milepostRoutingDataSource.setDefaultTargetDataSource(multipleDs.get(MAIN_SD));
+        milepostRoutingDataSource.setDefaultTargetDataSource(multipleDs.get(MAIN_DS));
         return milepostRoutingDataSource;
     }
 }
