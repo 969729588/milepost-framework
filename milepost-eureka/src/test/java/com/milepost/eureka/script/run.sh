@@ -11,7 +11,7 @@ start() {
     >/dev/null 2>&1 &
 }
 
-#java后加“-Dssl=true”开启https。
+#java后加“-Dssl=true”开启https，多个-D参数使用空格分离，如“-Dssl=false -Daa=11”
 #java后加“-Xmx256m -Xms256m”配置内存，支持的m、g单位。
 
 stop() {    

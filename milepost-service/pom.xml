@@ -76,6 +76,10 @@
 			<scope>runtime</scope>
 		</dependency>
 		<!-- oracle驱动包-->
+		<dependency>
+			<groupId>com.oracle</groupId>
+			<artifactId>my-ojdbc6</artifactId>
+		</dependency>
 		<!--druid，不是被springboot管理的-->
 		<dependency>
 			<groupId>com.alibaba</groupId>

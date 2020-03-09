@@ -262,6 +262,17 @@
                 <artifactId>spring-cloud-alibaba-seata</artifactId>
                 <version>2.2.0.RELEASE</version>
             </dependency>
+
+            <!--oracle-->
+            <!--
+            由于版权问题，在中央仓库是没有oracle的jdbc驱动的，可以手动下载到本地或者在oracle安装目录的jdbc目录中找到对应的jar，然后通过以下命令安装到本地仓库
+            mvn install:install-file -DgroupId=com.oracle -DartifactId=my-ojdbc6 -Dversion=12.1.0.2 -Dpackaging=jar -Dfile=F:\maven\repository\com\oracle\ojdbc6\12.1.0.2\ojdbc6-12.1.0.2.jar
+            -->
+            <dependency>
+                <groupId>com.oracle</groupId>
+                <artifactId>my-ojdbc6</artifactId>
+                <version>12.1.0.2</version>
+            </dependency>
        </dependencies>
     </dependencyManagement>
 

@@ -25,16 +25,19 @@
 
     <modules>
         <module>milepost-parent</module>
-        <module>milepost-eureka</module>
-        <module>milepost-auth</module>
-        <module>milepost-log</module>
+
         <module>milepost-api</module>
+        <module>milepost-log</module>
+        <module>milepost-mybatis-generator</module>
+        <module>milepost-dist-transaction</module>
+
         <module>milepost-core</module>
+        <module>milepost-test</module>
         <module>milepost-ui</module>
         <module>milepost-service</module>
-        <module>milepost-dist-transaction</module>
-        <module>milepost-mybatis-generator</module>
-        <module>milepost-test</module>
+
+        <module>milepost-eureka</module>
+        <module>milepost-auth</module>
     </modules>
 
 </project>
