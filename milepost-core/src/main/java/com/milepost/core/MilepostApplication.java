@@ -1,7 +1,6 @@
 package com.milepost.core;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.google.common.base.CaseFormat;
 import com.milepost.api.constant.MilepostConstant;
 import com.milepost.api.enums.MilepostApplicationType;
 import com.milepost.api.util.ReadAppYml;
@@ -14,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.ConfigurableEnvironment;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.util.ResourceUtils;
 
@@ -34,7 +32,7 @@ public class MilepostApplication extends SpringApplication{
 
     private static Logger logger = LoggerFactory.getLogger(MilepostApplication.class);
     private Map<String, Object> customProperties;
-    private Map<String, Object> argsMap;
+    private Map<String, String> argsMap;
     private static ConfigurableApplicationContext context;
     public static Boolean started;
     public static final String defaultPassword = "milepost";
@@ -57,15 +55,21 @@ public class MilepostApplication extends SpringApplication{
     }
 
     public static ConfigurableApplicationContext run(Map<String, Object> customProperties, Class<?> primarySource, String... args) {
+        //SpringBoot不能识别java系统属性和操作系统环境变量中的
+        // eureka.client.service-url.defaultZone=abc、eureka_client_serviceUrl={defaultZone: http://192.168.1.105:8761/eureka/}
+        //所以，如果命令行参数中没有此配置项，则将其放到命令行参数中，
+        String[] newArgs = handleEcsDefaultZone(args);
+
         MilepostApplication milepostApplication = new MilepostApplication(new Class[]{primarySource}, customProperties);
-        ConfigurableApplicationContext context = milepostApplication.run(args);
+        ConfigurableApplicationContext context = milepostApplication.run(newArgs);
         return context;
     }
 
     /**
-     * springboot加载配置项的顺序是  命令行参数   >   java系统属性(System.getProperties())    >   操作系统环境变量(System.getenv())   >   配置文件
+     * springboot加载配置项的优先级是  命令行参数   >   java系统属性(System.getProperties())    >   操作系统环境变量(System.getenv())   >   配置文件
      * 对于一些自己定义的属性，在逻辑处理过程中，要注意这个优先级。
-     * Linux环境变量名称中不能包含 .- 等字符，比如server.servlet.context-path=abc，要转换成server_servlet_contextPath=abc
+     * 框架必须要完美支持操作系统环境变量，因为在k8s中，容器创建时候可以指定环境变量，这是很重要的。
+     *
      * @param args
      * @return
      */
@@ -73,13 +77,15 @@ public class MilepostApplication extends SpringApplication{
         try {
             //启动之前
             this.runBefore();
-            //解析命令行参数，主要用于将应用发布到k8s集群中，获取浮动ip。
+            //解析命令行参数，主要用于将应用发布到k8s集群中，获取浮动ip。暂时不用关注
             List<String> argsArray = this.resolverArgs(args);
+
             //加载默认属性，加载时把this.customProperties  加载进去，并调用SpringApplications.setDefaultProperties方法设置进去
             Map<String, Object> defaultProperties = this.loadDefaultProperties();
 
             //设置默认属性
             this.setDefaultProperties(defaultProperties);
+
             //启动
             context = super.run((String[])argsArray.toArray(new String[0]));
 
@@ -101,6 +107,44 @@ public class MilepostApplication extends SpringApplication{
     }
 
     /**
+     * SpringBoot不能识别java系统属性和操作系统环境变量中的
+     * eureka.client.serviceUrl.defaultZone=abc、eureka_client_serviceUrl={defaultZone: http://192.168.1.105:8761/eureka/}
+     * 所以，如果操作系统环境变量中有此配置项，并且命令行参数中没有此配置项，则将其放到命令行参数中，
+     *
+     * 注意，key中的defaultZone必须驼峰式，因为他是一个map，
+     * @param args
+     * @return
+     */
+    private static String[] handleEcsDefaultZone(String[] args) {
+        List<String> argList = new ArrayList<>();
+		for(String arg : args){
+			argList.add(arg);
+		}
+
+        String envKey = "eureka_client_serviceUrl_defaultZone";
+        String argsKey = "eureka.client.service-url.defaultZone";
+
+        boolean argsContained = false;
+        for(String arg : argList){
+            if(arg.startsWith("--" + argsKey)){
+                argsContained = true;
+                break;
+            }
+        }
+
+        String envValue = System.getenv(envKey);
+        //envValue = "http://192.168.223.129:8761/eureka/";
+        if(StringUtils.isNotBlank(envValue) && !argsContained){
+            argList.add("--" + argsKey + "=" + envValue);
+        }
+
+        String[] newArgs = new String[argList.size()];
+		argList.toArray(newArgs);
+
+		return newArgs;
+    }
+
+    /**
      * 解析args(命令行参数)，主要用于将应用发布到k8s集群中，获取浮动ip。
      * 当应用被发布到k8s中时，具体被k8s调度到集群中的哪台机器上是不可确定的，
      * 所以这种情况下要求配置一个eureka.instance.ip-address.prefix命令行参数，其值如“192.168.55”，即去掉最后一个ip段，
@@ -110,14 +154,14 @@ public class MilepostApplication extends SpringApplication{
      */
     private List<String> resolverArgs(String... args) throws Exception {
         List<String> argsList = Arrays.asList(args);
-        logger.info("before:argsList -> " + String.valueOf(argsList));
-        List<String> newArgsList = new LinkedList();
+        //logger.info("before:argsList -> " + String.valueOf(argsList));
+        List<String> newArgsList = new LinkedList<>();
         newArgsList.addAll(argsList);
         this.argsMap = argsToMap(args);
-        logger.info("before:argsMap -> " + String.valueOf(this.argsMap));
+        //logger.info("before:argsMap -> " + String.valueOf(this.argsMap));
 
         Object eurekaInstanceIpAddressPrefix;
-        //以下获取eurekaInstanceIpAddressPrefix参数值的顺序必须符合springboot加载配置项的顺序，
+        //以下获取eurekaInstanceIpAddressPrefix参数值的顺序必须符合springboot加载配置项的优先级，
         // 即    命令行参数   >   java系统属性(System.getProperties())    >   操作系统环境变量(System.getenv())   >   配置文件
         if(this.argsMap.containsKey("eureka.instance.ip-address.prefix")) {
             //从命令行参数中取
@@ -170,8 +214,8 @@ public class MilepostApplication extends SpringApplication{
      * @param args
      * @return
      */
-    private static Map<String, Object> argsToMap(String[] args) {
-        LinkedHashMap<String, Object> map = new LinkedHashMap();
+    private static Map<String, String> argsToMap(String[] args) {
+        LinkedHashMap<String, String> map = new LinkedHashMap<>();
         String[] argsTemp = args;
         int argsLength = args.length;
 
@@ -238,15 +282,7 @@ public class MilepostApplication extends SpringApplication{
         FileCopyUtils.copy(ResourceUtils.getURL("classpath:public.key").openStream(), new FileOutputStream(new File("public.key")));
         FileCopyUtils.copy(ResourceUtils.getURL("classpath:license.dat").openStream(), new FileOutputStream(new File("license.dat")));
 
-
-        //读取application.yml中配置的属性，当向defaultProperties中put ${xxx}样子的值来引入application.yml中的内容时，
-        // 就可以先从appYmlMap中获取到xxx的值，然后put进入defaultProperties中，然后才能使用${xxx}引用
-        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-        ClassPathResource resource = new ClassPathResource("application.yml");
-        //最顶层的元素
-        HashMap appYmlMap = mapper.readValue(resource.getInputStream(), HashMap.class);
-
-        //获取当前应用的引用类型
+        //获取当前应用的应用类型
         String applicationType = "";
         if(customProperties != null){
             applicationType = (String)(customProperties.get(MilepostConstant.MILEPOST_APPLICATION_TYPE_KEY));
@@ -256,17 +292,14 @@ public class MilepostApplication extends SpringApplication{
         Map<String,Object> defaultProperties = new HashMap<>();
 
         //profiles
-        //String springProfilesActive = getStringByKeyFromAppYmlMap(appYmlMap, "spring.profiles.active");
-        String springProfilesActive = ReadAppYml.getValue("spring.profiles.active");
-        if(StringUtils.isNotBlank(springProfilesActive)){
-            defaultProperties.put("spring.profiles.active", springProfilesActive);
-        }else{
-            defaultProperties.put("spring.profiles.active", "dev");
-        }
+        defaultProperties.put("spring.profiles.active", "dev");
         defaultProperties.put("spring.main.banner-mode", "off");//关闭，使用自己写的com.milepost.core.banner.PrintBanner打印banner
 
         //允许多个接口上的@FeignClient(“相同服务名”)
         defaultProperties.put("spring.main.allow-bean-definition-overriding", true);
+
+        //这里的默认属性也支持加密。
+        //defaultProperties.put("info.app.description", "ENC(Cni63Asy/ryIyTshDZ6fdLtuiZB8ZRYTyxpiMXEUrvk=)");
 
         //xxs暂时不考虑，后续要加进来
 //        defaultProperties.put("iplatform.xss.enabled", "true");
@@ -287,28 +320,21 @@ public class MilepostApplication extends SpringApplication{
         //management监控相关，
         //监控相关端点的前缀，访问路径为https://localhost:port/${server.servlet.context-path}/milepost-actuator
         defaultProperties.put("management.endpoints.web.base-path", "/milepost-actuator");
-        //开启除了shutdown之外的所有端点，具体有哪些见《深入浅出Spring Boot 2.x-标注版.pdf》394页
-        defaultProperties.put("management.endpoints.web.exposure.include", "*");//在yml中要"*"，不能 *
-        Set<String> exclude = new LinkedHashSet();
-        exclude.add("shutdown");
-        exclude.add("beans");
-        defaultProperties.put("management.endpoints.web.exposure.exclude", exclude);
+        //只开启以下端点，具体有哪些见《深入浅出Spring Boot 2.x-标注版.pdf》394页
+        Set<String> include = new LinkedHashSet<>();
+        include.add("info");
+        include.add("env");
+        include.add("beans");//显示S pring loC 容器关于Bean 的信息
+        include.add("health");
+        include.add("configprops");//显示当前项目的属性配置信息（通过@ConfigurationProperties 配置）
+        include.add("loggers");//显示并修改应用程序中记录器的配置
+        defaultProperties.put("management.endpoints.web.exposure.include", include);//如开启全部，则在yml中要写"*"，不能 *
+
         //禁用以下组件的健康检查，每一个组件对应一个指示器，如redis的指示器是 RedisHealthIndicator
         defaultProperties.put("management.health.redis.enabled", "false");
         defaultProperties.put("management.health.mongo.enabled", "false");
         defaultProperties.put("management.health.elasticsearch.enabled", "false");
         defaultProperties.put("management.health.jms.enabled", "false");
-        //这个已经过期了，A global security auto-configuration is now provided. Provide your own WebSecurityConfigurer bean instead.
-        //defaultProperties.put("management.security.enabled", "false");
-
-        //endpoints
-        //defaultProperties.put("endpoints.restart.enabled", "false");
-        //defaultProperties.put("endpoints.shutdown.enabled", "true");
-        //变成了
-        defaultProperties.put("management.endpoint.restart.enabled", "false");
-        defaultProperties.put("management.endpoint.shutdown.enabled", "true");
-        //没有这个属性了，Endpoint sensitive flag is no longer customizable as Spring Boot no longer provides a customizable security auto-configuration\n. Create or adapt your security configuration accordingly.
-        //defaultProperties.put("endpoints.health.sensitive", "false");
 
         //redis，暂时不考虑，springboot2.x整合redis的配置变了，之前是spring.redis.pool.xxx
         //Maximum number of connections that can be allocated by the pool at a given time. Use a negative value for no limit.
@@ -343,7 +369,7 @@ public class MilepostApplication extends SpringApplication{
 //        defaultProperties.put("spring.datasource.initial-size", "5");
 
         //logapi开关
-        //defaultProperties.put("iplatform.logapi.enabled", "true");
+        //defaultProperties.put("milepost.logapi.enabled", "true");
 
         //Whether to dispatch OPTIONS requests to the FrameworkServlet doService method.
         defaultProperties.put("spring.mvc.dispatch-options-request", "true");
@@ -425,38 +451,26 @@ public class MilepostApplication extends SpringApplication{
         defaultProperties.put("server.server-header", "milepost-framework");
 
         //oauth2，后续处理
-//        defaultProperties.put("security.oauth2.resource.userInfoUri", "AUTH-SERVICE");
+        //defaultProperties.put("security.oauth2.resource.userInfoUri", "AUTH-SERVICE");
 
-        //eureka.instance相关页面地址，暂时不考虑ssl
-        String protocol = "http";
-        if(supportSsl.booleanValue()) {
-            //http通信端口是否启用，默认为true
-            defaultProperties.put("eureka.instance.non-secure-port-enabled", "false");
-            //https通信端口是否启用
-            defaultProperties.put("eureka.instance.secure-port-enabled", "true");
-            //https通信端口
-            defaultProperties.put("eureka.instance.secure-port", "${server.port}");
-            protocol = "https";
-        }
-
-        String tenant = ReadAppYml.getValue("multiple-tenant.tenant");
-        tenant = (tenant==null? "default":tenant);//默认为default。
+        String tenant = this.getConfigProByPriority("multiple-tenant.tenant", "default");//默认为default。
         //eureka，以下三个属性是必须配置的，eureka.instance.ip-address、spring.application.name、server.port
-        String eurekaInstanceIpAddress = ReadAppYml.getValue("eureka.instance.ip-address");
-        String springApplicationName = ReadAppYml.getValue("spring.application.name");
-        String serverPort = ReadAppYml.getValue("server.port");
+        String eurekaInstanceIpAddress = this.getConfigProByPriority("eureka.instance.ip-address", null);
+        String springApplicationName = this.getConfigProByPriority("spring.application.name", null);
+        String serverPort = this.getConfigProByPriority("server.port", "8080");
         defaultProperties.put("eureka.instance.ip-address", eurekaInstanceIpAddress);
         defaultProperties.put("spring.application.name", springApplicationName);
-        defaultProperties.put("server.port", (StringUtils.isBlank(serverPort)? "8080":serverPort));
+        defaultProperties.put("server.port", serverPort);
         //这三个属性必须设置，否则下面的eureka.instance.instance-id在没有加载到springboot配置文件时是无法解析的
         //所以，以上这三个配置项是必须要配置的，即loadDefaultProperties方法中设置的属性，如果是${xxx}形式，就必须能取到值，
+
         defaultProperties.put("eureka.instance.instance-id", "${eureka.instance.ip-address}:"+ tenant +":${spring.application.name}:${server.port}");
 
         defaultProperties.put("eureka.instance.prefer-ip-address", "true");
         //既然eureka.instance.prefer-ip-address=true，就不需要hostname了
         //defaultProperties.put("eureka.instance.hostname", "${eureka.instance.ip-address}");
 
-        String serverServletContextPath = ReadAppYml.getValue("server.servlet.context-path");
+        String serverServletContextPath = this.getConfigProByPriority("server.servlet.context-path", "");
 
         //在EurekaServer的启动类中将isEurekaServer属性设置进了java系统属性中，System.setProperty("isEurekaServer", "true");
         boolean isEurekaServer = this.isEurekaServer();
@@ -519,36 +533,44 @@ public class MilepostApplication extends SpringApplication{
 
             //healthcheck开关，默认值是true
             //https://www.jianshu.com/p/6dddcf873be2
+            //https://blog.csdn.net/chengqiuming/article/details/81052322
             defaultProperties.put("eureka.client.healthcheck.enabled", "true");
         }
 
-        String serverServletContextPathEmpty = (StringUtils.isBlank(serverServletContextPath)? "" : serverServletContextPath);
+        //eureka.instance相关页面地址
+        String protocol = "http";
+        if(supportSsl.booleanValue()) {
+            //http通信端口是否启用，默认为true
+            defaultProperties.put("eureka.instance.non-secure-port-enabled", "false");
+            //https通信端口是否启用
+            defaultProperties.put("eureka.instance.secure-port-enabled", "true");
+            //https通信端口
+            defaultProperties.put("eureka.instance.secure-port", "${server.port}");
+            protocol = "https";
+        }
 
-        defaultProperties.put("eureka.instance.home-page-url", protocol + "://${eureka.instance.ip-address}:${server.port}" + serverServletContextPathEmpty);
-        defaultProperties.put("eureka.instance.home-page-url-path", serverServletContextPathEmpty);
-        defaultProperties.put("eureka.instance.health-check-url", protocol + "://${eureka.instance.ip-address}:${server.port}"+ serverServletContextPathEmpty +"${management.endpoints.web.base-path}/health");
-        defaultProperties.put("eureka.instance.health-check-url-path",  serverServletContextPathEmpty +"${management.endpoints.web.base-path}/health");
-        defaultProperties.put("eureka.instance.secure-health-check-url", protocol + "://${eureka.instance.ip-address}:${server.port}"+ serverServletContextPathEmpty +"${management.endpoints.web.base-path}/health");
-        defaultProperties.put("eureka.instance.status-page-url", protocol + "://${eureka.instance.ip-address}:${server.port}"+ serverServletContextPathEmpty +"${management.endpoints.web.base-path}/info");
-        defaultProperties.put("eureka.instance.status-page-url-path",  serverServletContextPathEmpty +"${management.endpoints.web.base-path}/info");
+        defaultProperties.put("eureka.instance.home-page-url", protocol + "://${eureka.instance.ip-address}:${server.port}" + serverServletContextPath);
+        defaultProperties.put("eureka.instance.home-page-url-path", serverServletContextPath);
+        defaultProperties.put("eureka.instance.health-check-url", protocol + "://${eureka.instance.ip-address}:${server.port}"+ serverServletContextPath +"${management.endpoints.web.base-path}/health");
+        defaultProperties.put("eureka.instance.health-check-url-path",  serverServletContextPath +"${management.endpoints.web.base-path}/health");
+        defaultProperties.put("eureka.instance.secure-health-check-url", protocol + "://${eureka.instance.ip-address}:${server.port}"+ serverServletContextPath +"${management.endpoints.web.base-path}/health");
+        defaultProperties.put("eureka.instance.status-page-url", protocol + "://${eureka.instance.ip-address}:${server.port}"+ serverServletContextPath +"${management.endpoints.web.base-path}/info");
+        defaultProperties.put("eureka.instance.status-page-url-path",  serverServletContextPath +"${management.endpoints.web.base-path}/info");
 
         //eureka.instance.metadata-map
         String infoAppVersion = ReadAppYml.getValue("info.app.version");
         infoAppVersion = StringUtils.isBlank(infoAppVersion)? MilepostConstant.APPLICATION_VERSION : infoAppVersion;//应用版本
-        defaultProperties.put("eureka.instance.metadata-map.management.context-path", serverServletContextPathEmpty +"${management.endpoints.web.base-path}");
+        defaultProperties.put("eureka.instance.metadata-map.management.context-path", serverServletContextPath +"${management.endpoints.web.base-path}");
 
         //从配置文件中读取权重和跟踪采样率，设置默认值，
         // 默认值写在pojo的属性中了，但是这里无法注入，所以只能判断一下，写在pojo中的默认值当作编写yml时的提示，
-        String weight = ReadAppYml.getValue("multiple-tenant.weight");
-        weight = (StringUtils.isNotBlank(weight)? weight : "1");//默认值为1
-        String trackSampling = ReadAppYml.getValue("multiple-tenant.track-sampling");
-        trackSampling = (StringUtils.isNotBlank(trackSampling)? trackSampling : "0.1");//默认值为0.1
+        String weight = getConfigProByPriority("multiple-tenant.weight", "1");//默认值为1
+        String trackSampling = getConfigProByPriority("multiple-tenant.track-sampling", "0.1");//默认值为0.1
         defaultProperties.put("eureka.instance.metadata-map.weight", weight);//权重
         defaultProperties.put("eureka.instance.metadata-map.track-sampling", trackSampling);//应用的跟中采样率
         //如果配置文件中设置了租户、标签则读取出来设置到eureka.instance.metadata-map中，
-        //String tenant = getStringByKeyFromAppYmlMap(appYmlMap, "multiple-tenant.tenant");//在前面读取，因为设置默认的实例id要用到租户
-        String labelAnd = ReadAppYml.getValue("multiple-tenant.label-and");
-        String labelOr = ReadAppYml.getValue("multiple-tenant.label-or");
+        String labelAnd = getConfigProByPriority("multiple-tenant.label-and", null);
+        String labelOr = getConfigProByPriority("multiple-tenant.label-or", null);
         if(StringUtils.isNotBlank(tenant)) defaultProperties.put("eureka.instance.metadata-map.tenant", tenant);//租户
         if(StringUtils.isNotBlank(labelAnd)) defaultProperties.put("eureka.instance.metadata-map.label-and", labelAnd);//与标签
         if(StringUtils.isNotBlank(labelOr)) defaultProperties.put("eureka.instance.metadata-map.label-or", labelOr);//或标签
@@ -598,11 +620,8 @@ public class MilepostApplication extends SpringApplication{
 
         if(MilepostApplicationType.SERVICE.getValue().equalsIgnoreCase(applicationType)
                 || MilepostApplicationType.AUTH.getValue().equalsIgnoreCase(applicationType)){
-            //flyway，数据库脚本名为“V1__xxx.sql”，当有表结构更新时，新增脚本，版本号增加即可，
-            String springDatasourceDruidDbType = ReadAppYml.getValue("spring.datasource.druid.db-type");
-            if(StringUtils.isBlank(springDatasourceDruidDbType)){
-                springDatasourceDruidDbType = "";
-            }
+            //flyway，使用这个属性
+            String springDatasourceDruidDbType = getConfigProByPriority("spring.datasource.druid.db-type", "mysql");
             defaultProperties.put("spring.datasource.initialize", "false");//禁止spring使用data.sql来初始化。
             defaultProperties.put("spring.flyway.enabled", "true");//默认开启
             defaultProperties.put("spring.flyway.baseline-on-migrate", "true");//当迁移时发现目标schema非空，而且带有没有元数据的表时，是否自动执行基准迁移，默认false.
@@ -618,6 +637,8 @@ public class MilepostApplication extends SpringApplication{
             defaultProperties.put("mybatis.mapper-locations", "classpath:com/milepost/**/**/dao/*.xml");
 
             if(MilepostApplicationType.SERVICE.getValue().equalsIgnoreCase(applicationType)){
+                //生产环境中，关闭swagger
+
                 defaultProperties.put("swagger.authorization.key-name", "Authorization");//swagger-ui调用接口时传入的token请求头名称，值为“Bearer {token}”
 
                 defaultProperties.put("swagger.title", springApplicationName + " swagger");//swagger-ui调用接口时传入的token请求头名称，值为“Bearer {token}”
@@ -663,6 +684,60 @@ public class MilepostApplication extends SpringApplication{
     }
 
     /**
+     * 按照SpringBoot读取配置属性的优先级来读取指定属性名的属性值<br>
+     * springboot加载配置项的优先级是  命令行参数   >   java系统属性(System.getProperties())    >   操作系统环境变量(System.getenv())   >   配置文件
+     *
+     * @param key 属性名
+     * @param defaultVal 默认值
+     * @return
+     */
+    private String getConfigProByPriority(String key, String defaultVal) {
+        String envKey = key.replace(".", "_");
+        envKey = CaseFormat.LOWER_HYPHEN.to(CaseFormat.LOWER_CAMEL, envKey);
+        if(this.argsMap.containsKey(key)){
+            return this.argsMap.get(key);
+        }else if(System.getenv().containsKey(envKey)){
+            return System.getenv().get(envKey);
+        }else {
+            String value = ReadAppYml.getValue(key);
+            if(StringUtils.isBlank(value)){
+                return defaultVal;
+            }else {
+                return value;
+            }
+        }
+    }
+
+    /**
+     * 打印seata配置日志
+     */
+    private void printSeataConfigurationLog(){
+        //根据是否存在com.milepost.distTransaction.config.DistTransactionProperties类，来确定是否引入了milepost-dist-transaction依赖
+        Boolean dependencyMilepostDistTransaction = false;
+        try {
+            dependencyMilepostDistTransaction = null != Class.forName("com.milepost.distTransaction.config.DistTransactionProperties");
+        } catch (Throwable t) {
+            dependencyMilepostDistTransaction = false;
+        }
+
+        //只有Boolean.valueOf("true")返回true，其他都返回false，
+        Boolean distTransactionEnabled = Boolean.valueOf(this.getConfigProByPriority("dist-transaction.enabled", "false"));
+        if(!distTransactionEnabled){
+            //关闭
+            if(dependencyMilepostDistTransaction){
+                //警告，移除milepost-dist-transaction依赖
+                logger.warn("dist-transaction.enabled默认值为false，即关闭分布式事务，建议移除milepost-dist-transaction依赖。");
+            }
+        }else{
+            //开启
+            if(!dependencyMilepostDistTransaction){
+                //错误，请加入milepost-dist-transaction依赖
+                logger.error("dist-transaction.enabled=true，即开启分布式事务，请加入milepost-dist-transaction依赖，否则不能支持分布式事务。");
+            }
+        }
+    }
+
+    /**
      * 分布式事务， seata，
      *  使用yml配置seata有一下两个bug
      *  1、undo相关配置不生效（估计seata.client.rm.lock相关属性也有类似问题），解决：我们不更改这些配置就可以了，
@@ -678,30 +753,23 @@ public class MilepostApplication extends SpringApplication{
             dependencyMilepostDistTransaction = false;
         }
 
-        Boolean distTransactionEnabled = Boolean.valueOf(ReadAppYml.getValue("dist-transaction.enabled"));
+        //只有Boolean.valueOf("true")返回true，其他都返回false，
+        Boolean distTransactionEnabled = Boolean.valueOf(this.getConfigProByPriority("dist-transaction.enabled", "false"));
         if(!distTransactionEnabled){
             //关闭
             defaultPro.put("seata.enabled", false);
-            if(dependencyMilepostDistTransaction){
-                //警告，移除milepost-dist-transaction依赖
-                logger.warn("dist-transaction.enabled默认值为false，即关闭分布式事务，建议移除milepost-dist-transaction依赖。");
-            }
         }else{
             //开启
             defaultPro.put("seata.enabled", true);
+            //如果没有jar包，则关闭，并在启动完成后给出error报错。
             if(!dependencyMilepostDistTransaction){
                 defaultPro.put("seata.enabled", false);
-                //错误，请加入milepost-dist-transaction依赖
-                logger.error("dist-transaction.enabled=true，即开启分布式事务，请加入milepost-dist-transaction依赖，否则不能支持分布式事务。");
                 return;
             }
 
             //defaultPro.put("seata.application-id", "xxx");
             //事务群组（可以每个应用独立取名，也可以使用相同的名字），默认default
-            String txServiceGroup = ReadAppYml.getValue("dist-transaction.tx-service-group");
-            if(StringUtils.isBlank(txServiceGroup)){
-                txServiceGroup = "default";
-            }
+            String txServiceGroup = getConfigProByPriority("dist-transaction.tx-service-group", "default");
             defaultPro.put("seata.tx-service-group", txServiceGroup);
 
             //client
@@ -735,10 +803,7 @@ public class MilepostApplication extends SpringApplication{
 
             //service
             //TC 集群（必须与seata-server保持一致），默认tx-server
-            String txServerAppName = ReadAppYml.getValue("dist-transaction.tx-server-app-name");
-            if(StringUtils.isBlank(txServerAppName)){
-                txServerAppName = "tx-server";
-            }
+            String txServerAppName = getConfigProByPriority("dist-transaction.tx-server-app-name", "tx-server");
             defaultPro.put("seata.service.vgroup-mapping", txServerAppName);
             //降级开关
             defaultPro.put("seata.service.enable-degrade", false);
@@ -777,55 +842,10 @@ public class MilepostApplication extends SpringApplication{
 
             //registry
             defaultPro.put("seata.registry.type", "eureka");
-            String eurekaServiceUrl = ReadAppYml.getValue("eureka.client.service-url.defaultZone");
+            String eurekaServiceUrl = getConfigProByPriority("eureka.client.service-url.defaultZone", null);
             defaultPro.put("seata.registry.eureka.service-url", eurekaServiceUrl);
         }
     }
-
-//    /**
-//     * @param appYmlMap
-//     * @param key
-//     * @return
-//     */
-//    private Map<String, Object> getMapByKeyFromAppYmlMap(HashMap appYmlMap, String key) {
-//        String[] keyArray = key.split("\\.");
-//        Map<String, Object> mapTemp = appYmlMap;
-//        for(int i=0; i<(keyArray.length); i++){
-//            if(mapTemp != null){
-//                mapTemp = (HashMap<String, Object>)mapTemp.get(keyArray[i]);
-//            }else{
-//                return null;
-//            }
-//        }
-//        return mapTemp;
-//    }
-//
-//    /**
-//     * 如果没有配置则返回null
-//     * @param appYmlMap
-//     * @param key
-//     * @return
-//     */
-//    private String getStringByKeyFromAppYmlMap(HashMap appYmlMap, String key) {
-//        String[] keyArray = key.split("\\.");
-//        String mapKey = key.substring(0, (key.lastIndexOf(".")));
-//        Map<String, Object> map = getMapByKeyFromAppYmlMap(appYmlMap, mapKey);
-//        if(map != null){
-//            Object value = map.get(keyArray[keyArray.length-1]);
-//            if(value == null){
-//                return null;
-//            }
-//            //读取到那些在yml中引用其他属性的属性值
-//            String valurString = String.valueOf(value);
-//            if(valurString.startsWith("${") && valurString.endsWith("}")){
-//                return getStringByKeyFromAppYmlMap(appYmlMap, valurString);
-//            }else{
-//                return valurString;
-//            }
-//        }else{
-//            return null;
-//        }
-//    }
 
     private void runBefore() {
         //printEnv();
@@ -847,6 +867,12 @@ public class MilepostApplication extends SpringApplication{
 
     private void runAfter() {
         try {
+            //打印seata配置日志
+            printSeataConfigurationLog();
+            //打印命令行参数
+            this.printArgs();
+            //打印Java系统属性
+            printJavaProperty();
             //打印操作系统环境变量
             printEnv();
             //打印进程id
@@ -866,12 +892,14 @@ public class MilepostApplication extends SpringApplication{
     }
 
     /**
-     * 打印操作系统的环境变量
+     * 打印操作系统的环境变量，<br>
+     * Linux环境变量名称中不能包含 .- 等字符，比如server.servlet.context-path=abc等价于server_servlet_contextPath=abc
      */
     private static void printEnv() {
         Map<String, String> envs = System.getenv();
+        logger.info("----------操作系统环境变量----------");
         if(envs.size() > 0) {
-            logger.info("----------操作系统环境变量----------");
+
             Iterator it = envs.keySet().iterator();
 
             while(it.hasNext()) {
@@ -879,9 +907,58 @@ public class MilepostApplication extends SpringApplication{
                 String value = (String)envs.get(name);
                 logger.info("{}={}", name, value);
             }
-
-            logger.info("----------操作系统环境变量----------");
         }
+        logger.info("----------操作系统环境变量----------");
+    }
+
+    /**
+     * 打印java属性，即-D参数，也叫做VM options。<br>
+     *
+     * nohup java -Xmx256m -Xms256m \
+     *   -Dssl=true -Daa=11 \
+     *   -jar ${JAR_NAME} \
+     *   --spring.profiles.active=test \
+     *   --server.port=8761 \
+     *   --eureka.instance.ip-address=192.168.223.129 \
+     *   >/dev/null 2>&1 &
+     *
+     * --参数是命行参数，也叫Program arguments，进入启动类的入参中。
+     *
+     */
+    private static void printJavaProperty(){
+        Properties properties = System.getProperties();
+        logger.info("----------Java系统属性----------");
+        if(properties.size() > 0){
+
+            Iterator<Map.Entry<Object, Object>> it = properties.entrySet().iterator();
+
+            while (it.hasNext()) {
+                Map.Entry<Object, Object> entry = it.next();
+                Object key = entry.getKey();
+                Object value = entry.getValue();
+                logger.info("{}={}", key, value);
+            }
+        }
+        logger.info("----------Java系统属性----------");
+    }
+
+    /**
+     * 打印命令行参数
+     * --参数是命行参数，也叫Program arguments，进入启动类的入参中。
+     */
+    private void printArgs(){
+        logger.info("----------命令行参数----------");
+        if(this.argsMap.size() > 0) {
+
+            Iterator it = this.argsMap.keySet().iterator();
+
+            while(it.hasNext()) {
+                String name = (String)it.next();
+                String value = (String)this.argsMap.get(name);
+                logger.info("{}={}", name, value);
+            }
+        }
+        logger.info("----------命令行参数----------");
     }
 
     /**
@@ -908,13 +985,13 @@ public class MilepostApplication extends SpringApplication{
             logger.info("eureka.instance.metadata-map.milepostversion=" + environment.getProperty("eureka.instance.metadata-map.milepostversion"));
 
             /*
-            * defaultProperties.put("eureka.instance.home-page-url", protocol + "://${eureka.instance.ip-address}:${server.port}" + serverServletContextPathEmpty);
-            defaultProperties.put("eureka.instance.home-page-url-path", serverServletContextPathEmpty);
-            defaultProperties.put("eureka.instance.health-check-url", protocol + "://${eureka.instance.ip-address}:${server.port}"+ serverServletContextPathEmpty +"${management.endpoints.web.base-path}/health");
-            defaultProperties.put("eureka.instance.health-check-url-path",  serverServletContextPathEmpty +"${management.endpoints.web.base-path}/health");
-            defaultProperties.put("eureka.instance.secure-health-check-url", protocol + "://${eureka.instance.ip-address}:${server.port}"+ serverServletContextPathEmpty +"${management.endpoints.web.base-path}/health");
-            defaultProperties.put("eureka.instance.status-page-url", protocol + "://${eureka.instance.ip-address}:${server.port}"+ serverServletContextPathEmpty +"${management.endpoints.web.base-path}/info");
-            defaultProperties.put("eureka.instance.status-page-url-path",  serverServletContextPathEmpty +"${management.endpoints.web.base-path}/info");
+            * defaultProperties.put("eureka.instance.home-page-url", protocol + "://${eureka.instance.ip-address}:${server.port}" + serverServletContextPath);
+            defaultProperties.put("eureka.instance.home-page-url-path", serverServletContextPath);
+            defaultProperties.put("eureka.instance.health-check-url", protocol + "://${eureka.instance.ip-address}:${server.port}"+ serverServletContextPath +"${management.endpoints.web.base-path}/health");
+            defaultProperties.put("eureka.instance.health-check-url-path",  serverServletContextPath +"${management.endpoints.web.base-path}/health");
+            defaultProperties.put("eureka.instance.secure-health-check-url", protocol + "://${eureka.instance.ip-address}:${server.port}"+ serverServletContextPath +"${management.endpoints.web.base-path}/health");
+            defaultProperties.put("eureka.instance.status-page-url", protocol + "://${eureka.instance.ip-address}:${server.port}"+ serverServletContextPath +"${management.endpoints.web.base-path}/info");
+            defaultProperties.put("eureka.instance.status-page-url-path",  serverServletContextPath +"${management.endpoints.web.base-path}/info");
 
             * */
 
@@ -923,7 +1000,7 @@ public class MilepostApplication extends SpringApplication{
 
     /**
      * 当前应用是否是EurekaServer，
-     * @return 是则返回tyue
+     * @return 是则返回true
      */
     public boolean isEurekaServer() {
         String appType = (String)(this.customProperties.get(MilepostConstant.MILEPOST_APPLICATION_TYPE_KEY));
