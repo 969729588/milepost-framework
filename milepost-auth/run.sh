@@ -7,7 +7,7 @@ start() {
     -jar ${JAR_NAME} \
     --spring.profiles.active=test \
     --server.port=9999 \
-    --info.app.description=JWT服务-args \
+    --info.app.description=JWT服务 \
     --spring.datasource.druid.driver-class-name=com.mysql.cj.jdbc.Driver \
     --spring.datasource.druid.url='jdbc:mysql://localhost:3306/milepost_auth?useUnicode=true&characterEncoding=utf8&characterSetResults=utf8&serverTimezone=GMT%2B8' \
     --spring.datasource.druid.username=root \
