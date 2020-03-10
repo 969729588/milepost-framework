@@ -3,6 +3,7 @@ package com.milepost.ui.config.openfeign;
 
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -18,7 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 public class FeignClientInterceptor implements RequestInterceptor {
 
     /**
-     * token放在请求头.
+     * token放在请求头.优先使用请求头中的token
      *
      * @param requestTemplate 请求参数
      */
@@ -27,9 +28,12 @@ public class FeignClientInterceptor implements RequestInterceptor {
         RequestAttributes requestAttributes = RequestContextHolder.currentRequestAttributes();
         if (requestAttributes != null) {
             HttpServletRequest request = ((ServletRequestAttributes) requestAttributes).getRequest();
-            String token = request.getHeader("Authorization");
-            if(token !=null && !token.equals("")){
-                requestTemplate.header("Authorization", new String[]{token});
+            String tokenHeader = request.getHeader("Authorization");
+            String tokenParameter = request.getParameter("access_token");
+            if(StringUtils.isNotBlank(tokenHeader)){
+                requestTemplate.header("Authorization", new String[]{tokenHeader});
+            }else if(StringUtils.isNotBlank(tokenParameter)){
+                requestTemplate.header("Authorization", new String[]{"Bearer " + tokenParameter});
             }
         }
     }
