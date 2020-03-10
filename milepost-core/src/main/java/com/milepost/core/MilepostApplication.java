@@ -243,6 +243,10 @@ public class MilepostApplication extends SpringApplication{
      */
     private Map<String,Object> loadDefaultProperties() throws IOException {
 
+        String springProfilesActiveDev = "dev";
+        String springProfilesActiveTest = "test";
+        String springProfilesActiveProd = "prod";
+
         //System.setProperty是获取java系统属性
         //在java代码中的System.setProperty("java.security.egd", "file:/dev/./urandom");
         //就等价于在java启动springboot的jar包是的“-Djava.security.egd=file:/dev/./urandom”参数
@@ -292,7 +296,7 @@ public class MilepostApplication extends SpringApplication{
         Map<String,Object> defaultProperties = new HashMap<>();
 
         //profiles
-        defaultProperties.put("spring.profiles.active", "dev");
+        defaultProperties.put("spring.profiles.active", springProfilesActiveDev);
         defaultProperties.put("spring.main.banner-mode", "off");//关闭，使用自己写的com.milepost.core.banner.PrintBanner打印banner
 
         //允许多个接口上的@FeignClient(“相同服务名”)
@@ -637,12 +641,20 @@ public class MilepostApplication extends SpringApplication{
             defaultProperties.put("mybatis.mapper-locations", "classpath:com/milepost/**/**/dao/*.xml");
 
             if(MilepostApplicationType.SERVICE.getValue().equalsIgnoreCase(applicationType)){
-                //生产环境中，关闭swagger
+                String springProfilesActive = getConfigProByPriority("spring.profiles.active", springProfilesActiveDev);
+                if(springProfilesActiveDev.equalsIgnoreCase(springProfilesActive)){
+                    //开发(dev)环境中，开启swagger，
+                    defaultProperties.put("swagger.enabled", true);
+                }else{
+                    //生产(prod)环境和测试(test)环境中，关闭swagger，
+                    defaultProperties.put("swagger.enabled", false);
+                }
 
+                //无论默认值是开启还是关闭，这里都必须要设置默认值，否则当开发者在配置文件中只配置开关时候，没有下面的配置是不行的。
                 defaultProperties.put("swagger.authorization.key-name", "Authorization");//swagger-ui调用接口时传入的token请求头名称，值为“Bearer {token}”
-
                 defaultProperties.put("swagger.title", springApplicationName + " swagger");//swagger-ui调用接口时传入的token请求头名称，值为“Bearer {token}”
                 defaultProperties.put("swagger.description", springApplicationName + " swagger");//swagger-ui调用接口时传入的token请求头名称，值为“Bearer {token}”
+
 
                 //分布式事务， seata
                 seataConfiguration(defaultProperties);
