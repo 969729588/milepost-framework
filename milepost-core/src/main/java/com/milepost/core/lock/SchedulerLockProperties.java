@@ -17,9 +17,9 @@ public class SchedulerLockProperties {
      */
     private boolean enabled = true;
     /**
-     * 更新心跳时间间隔，单位s，默认15s
+     * 更新心跳时间间隔，单位ms，默认15 * 1000 ms，即15s
      */
-    private int touchHeartbeatIntervalInSeconds = 15;
+    private int touchHeartbeatIntervalInMilliseconds = 15 * 1000;
     /**
      * 心跳过期时长，单位s，默认45s
      */
@@ -33,12 +33,12 @@ public class SchedulerLockProperties {
         this.enabled = enabled;
     }
 
-    public int getTouchHeartbeatIntervalInSeconds() {
-        return touchHeartbeatIntervalInSeconds;
+    public int getTouchHeartbeatIntervalInMilliseconds() {
+        return touchHeartbeatIntervalInMilliseconds;
     }
 
-    public void setTouchHeartbeatIntervalInSeconds(int touchHeartbeatIntervalInSeconds) {
-        this.touchHeartbeatIntervalInSeconds = touchHeartbeatIntervalInSeconds;
+    public void setTouchHeartbeatIntervalInMilliseconds(int touchHeartbeatIntervalInMilliseconds) {
+        this.touchHeartbeatIntervalInMilliseconds = touchHeartbeatIntervalInMilliseconds;
     }
 
     public int getHeartbeatExpirationDurationInSeconds() {
@@ -53,7 +53,7 @@ public class SchedulerLockProperties {
     public String toString() {
         return "SchedulerLockProperties{" +
                 "enabled=" + enabled +
-                ", touchHeartbeatIntervalInSeconds=" + touchHeartbeatIntervalInSeconds +
+                ", touchHeartbeatIntervalInMilliseconds=" + touchHeartbeatIntervalInMilliseconds +
                 ", heartbeatExpirationDurationInSeconds=" + heartbeatExpirationDurationInSeconds +
                 '}';
     }

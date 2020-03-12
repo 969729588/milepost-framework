@@ -16,7 +16,10 @@ start() {
 # java后加“-Dssl=true”开启https，多个-D参数使用空格分离，如“-Dssl=false -Daa=11”
 # java后加“-Xmx256m -Xms256m”配置内存，支持的m、g单位。
 
-stop() {    
+
+
+
+stop() {
     while true
     do
         process=`ps aux | grep ${JAR_NAME} | grep -v grep`;
@@ -25,18 +28,22 @@ stop() {
             break;
         else
             echo "kill process...";
-            ps -ef | grep ${JAR_NAME} | grep -v grep | awk '{print $2}' | xargs kill -9
+            ps -ef | grep ${JAR_NAME} | grep -v grep | awk '{print $2}' | xargs kill -15
             sleep 3
         fi
-    done    
+    done
 
 }
 
 restart() {
     stop;
     start;
-
 }
+
+status() {
+    ps -ef | grep ${JAR_NAME}
+}
+
 case "$1" in
     'start')
         start
@@ -51,7 +58,7 @@ case "$1" in
         restart
         ;;
     *)
-    echo "usage: $0 {start|stop|restart}"
+    echo "usage: $0 {start|stop|restart|status}"
     exit 1
         ;;
     esac

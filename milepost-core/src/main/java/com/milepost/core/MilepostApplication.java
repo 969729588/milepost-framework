@@ -117,9 +117,9 @@ public class MilepostApplication extends SpringApplication{
      */
     private static String[] handleEcsDefaultZone(String[] args) {
         List<String> argList = new ArrayList<>();
-		for(String arg : args){
-			argList.add(arg);
-		}
+        for(String arg : args){
+            argList.add(arg);
+        }
 
         String envKey = "eureka_client_serviceUrl_defaultZone";
         String argsKey = "eureka.client.service-url.defaultZone";
@@ -139,9 +139,9 @@ public class MilepostApplication extends SpringApplication{
         }
 
         String[] newArgs = new String[argList.size()];
-		argList.toArray(newArgs);
+        argList.toArray(newArgs);
 
-		return newArgs;
+        return newArgs;
     }
 
     /**
@@ -481,20 +481,20 @@ public class MilepostApplication extends SpringApplication{
         if(isEurekaServer) {
             //defaultProperties.put("eureka.client.service-url.defaultZone", "${discovery.server.address}");
             //EurekaServer两个false，注意，当集群部署时候要开启，否则EurekaServer控制台的基本信息中显示副本不可达，
-            //当abc集群时，a向bc注册，b向ac注册，c向ab注册，本质上还是非自注册的。
+            //当abc集群时，a向bc注册，b向ac注册，c向ab注册，所以EurekaServer本质上还是非自注册的。
             //此时也可以配置EurekaServer的续约过期时长、续约间隔时间等参数
             defaultProperties.put("eureka.client.register-with-eureka", "false");
             defaultProperties.put("eureka.client.fetch-registry", "false");
             //开启EurekaServer的自我保护机制
             defaultProperties.put("eureka.server.enable-self-preservation", "true");
             //EurekaServer每隔多长时间剔除一次服务，默认60 * 1000
-            defaultProperties.put("eureka.server.eviction-interval-timer-in-ms", "5000");
+            //defaultProperties.put("eureka.server.eviction-interval-timer-in-ms", "5000");
             //响应缓存更新时间，默认30 * 1000
-            defaultProperties.put("eureka.server.response-cache-update-interval-ms", "5000");
+            //defaultProperties.put("eureka.server.response-cache-update-interval-ms", "5000");
             //续约阈值百分比
-            defaultProperties.put("eureka.server.renewal-percent-threshold",0.85);
+            //defaultProperties.put("eureka.server.renewal-percent-threshold",0.85);
             //EurekaServer期望EurekaClient多长时间续约一次
-            defaultProperties.put("eureka.server.expected-client-renewal-interval-seconds",30);
+            //defaultProperties.put("eureka.server.expected-client-renewal-interval-seconds",30);
             //EurekaServer页面上的Renews threshold表示续约阈值，即EurekaServer每分钟最少需要收到的续约次数，
             //Renews threshold = n * (60/expected-client-renewal-interval-seconds) * renewal-percent-threshold，
             //其中n为注册到EurekaServer的EurekaClient个数，
@@ -506,11 +506,11 @@ public class MilepostApplication extends SpringApplication{
             //如何计算不太重要，重要的是保证系统稳定之后，不要进入自我保护状态即可
 
             //更新控制台页面上续约阈值的时间间隔，
-            defaultProperties.put("eureka.server.renewal-threshold-update-interval-ms",15*60*1000);
+            //defaultProperties.put("eureka.server.renewal-threshold-update-interval-ms",15*60*1000);
         } else {
             //defaultProperties.put("eureka.client.service-url.defaultZone", "${discovery.server.address}");
             //Indicates how often(in seconds) to fetch the registry information from the eureka server. 默认是30，这里改成5
-            defaultProperties.put("eureka.client.registry-fetch-interval-seconds", "10");
+            //defaultProperties.put("eureka.client.registry-fetch-interval-seconds", "10");
             /**
              * Indicates how often (in seconds) the eureka client needs to send heartbeats to
              * eureka server to indicate that it is still alive. If the heartbeats are not
@@ -519,7 +519,7 @@ public class MilepostApplication extends SpringApplication{
              * instance. default=30
              * EurekaClient向EurekaServer的续约间隔时间，默认30，这里改成10
              */
-            defaultProperties.put("eureka.instance.lease-renewal-interval-in-seconds", "4");//10
+            //defaultProperties.put("eureka.instance.lease-renewal-interval-in-seconds", "4");//10
             /**
              * Indicates the time in seconds that the eureka server waits since it received the
              * last heartbeat before it can remove this instance from its view and there by
@@ -533,12 +533,12 @@ public class MilepostApplication extends SpringApplication{
              *
              * EurekaClient向EurekaServer的续约过期时长，默认90，iplatform的这里没做改变，我把他改成15
              */
-            defaultProperties.put("eureka.instance.lease-expiration-duration-in-seconds", "6");//15
+            //defaultProperties.put("eureka.instance.lease-expiration-duration-in-seconds", "6");//15
 
             //healthcheck开关，默认值是true
             //https://www.jianshu.com/p/6dddcf873be2
             //https://blog.csdn.net/chengqiuming/article/details/81052322
-            defaultProperties.put("eureka.client.healthcheck.enabled", "true");
+            //defaultProperties.put("eureka.client.healthcheck.enabled", "true");
         }
 
         //eureka.instance相关页面地址
@@ -585,6 +585,9 @@ public class MilepostApplication extends SpringApplication{
         defaultProperties.put("eureka.instance.metadata-map.version", infoAppVersion);
         defaultProperties.put("eureka.instance.metadata-map.name", "${info.app.name}");
         defaultProperties.put("eureka.instance.metadata-map.instance-id", "${eureka.instance.ip-address}:"+ tenant +":${spring.application.name}:${server.port}");
+
+        //维护实例角色
+        defaultProperties.put("scheduler-lock.touch-heartbeat-interval-in-milliseconds", 15 * 1000);
 
         //deploytype
         if(Paths.get("/.dockerenv", new String[0]).toFile().exists()) {
@@ -875,6 +878,12 @@ public class MilepostApplication extends SpringApplication{
 //                }
 //            }
 //        });
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            //使用SpringBoot的shutdown端点和 kill -15 pid 关闭应用时，如果成功的正常关闭了，就会进入这里，
+            public void run() {
+                logger.info("------服务关闭成功------");
+            }
+        });
     }
 
     private void runAfter() {
