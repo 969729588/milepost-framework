@@ -1,6 +1,8 @@
 package com.milepost.ui.index.controller;
 
 import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,6 +20,8 @@ import java.security.Principal;
  */
 @Controller("_milepost_index_")
 public class IndexController {
+
+    private Logger logger = LoggerFactory.getLogger(IndexController.class);
 
     /**
      * 写在static/index.html中的占位符，
@@ -58,7 +62,7 @@ public class IndexController {
             PrintWriter out = response.getWriter();
             out.println(indexStr);
         }catch (Exception e){
-            e.printStackTrace();
+            logger.error(e.getMessage(), e);
         }finally {
             IOUtils.closeQuietly(inputStream);
         }

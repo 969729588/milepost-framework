@@ -62,7 +62,7 @@ public class OAuth2Config extends AuthorizationServerConfigurerAdapter {
     public void configure(AuthorizationServerSecurityConfigurer oauthServer) throws Exception {
         oauthServer
                 .tokenKeyAccess("permitAll()")
-                .checkTokenAccess("isAuthenticated()")
+                .checkTokenAccess("permitAll()")
 //                .allowFormAuthenticationForClients()
                 .passwordEncoder(NoOpPasswordEncoder.getInstance());
 

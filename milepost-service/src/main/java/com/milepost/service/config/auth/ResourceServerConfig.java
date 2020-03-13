@@ -40,7 +40,6 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
             .antMatchers("/milepost-actuator/**",//监控
                     "/swagger-resources/**", "/v2/**", "/swagger-ui.html/**", "/webjars/**",//swagger
                     "/enc"//文本加密
-
             ).permitAll()
             .antMatchers("/**").authenticated();
     }

@@ -26,9 +26,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
             .csrf().disable()
-                .exceptionHandling()
-                .authenticationEntryPoint((request, response, authException) -> response.sendError(HttpServletResponse.SC_UNAUTHORIZED))
-            .and()
+                //保留Oauth原始的机制
+//                .exceptionHandling()
+//                .authenticationEntryPoint((request, response, authException) -> response.sendError(HttpServletResponse.SC_UNAUTHORIZED))
+//            .and()
                 .authorizeRequests()
                 .antMatchers("/milepost-actuator/**").permitAll()
                 .antMatchers("/**").authenticated()
