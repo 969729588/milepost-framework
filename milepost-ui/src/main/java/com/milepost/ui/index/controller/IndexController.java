@@ -1,18 +1,18 @@
 package com.milepost.ui.index.controller;
 
-import org.apache.commons.io.IOUtils;
+import com.milepost.api.util.ClassPathResourceUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.InputStream;
 import java.io.PrintWriter;
 import java.security.Principal;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by Ruifu Hua on 2020/3/7.<br>
@@ -26,8 +26,8 @@ public class IndexController {
     /**
      * 写在static/index.html中的占位符，
      */
-    public static final String METADATA_PLACEHOLDER = "'${metadata}'";
-    public static final String AUTH_DATA_PLACEHOLDER = "'${authData}'";
+    public static final String METADATA_PLACEHOLDER = "metadata";
+    public static final String AUTH_DATA_PLACEHOLDER = "authData";
 
     /**
      * 前端要存在这个文件
@@ -46,25 +46,22 @@ public class IndexController {
     @PostMapping("/index")
     public void index(Principal principal, HttpServletRequest request, HttpServletResponse response,
                       @RequestParam("metadata") String metadata, @RequestParam("authData") String authData){
-        InputStream inputStream = null;
         try {
             response.setContentType("text/html;charset=utf-8");
             //读取类类路径下static/index.html文件内容，
-            ClassPathResource resource = new ClassPathResource(INDEX);
-            inputStream = resource.getInputStream();
-            String indexStr = IOUtils.toString(inputStream, "UTF-8");
+            String indexStr = ClassPathResourceUtil.read(INDEX);
 
             //替换掉占位符
-            indexStr = indexStr.replace(METADATA_PLACEHOLDER, metadata);
-            indexStr = indexStr.replace(AUTH_DATA_PLACEHOLDER, authData);
+            Map<String, String> map = new HashMap<>();
+            map.put(METADATA_PLACEHOLDER, metadata);
+            map.put(AUTH_DATA_PLACEHOLDER, authData);
+            indexStr = ClassPathResourceUtil.replaceMap(indexStr, map);
 
             //写入到客户端
             PrintWriter out = response.getWriter();
             out.println(indexStr);
         }catch (Exception e){
             logger.error(e.getMessage(), e);
-        }finally {
-            IOUtils.closeQuietly(inputStream);
         }
     }
 

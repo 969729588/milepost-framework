@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="icon" href="images/favicon-icon/favicon_16.ico" type="image/x-icon"/>
+    <link rel="shortcut icon" href="images/favicon-icon/favicon_16.ico" type="image/x-icon"/>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>认证错误</title>
+
+    <!--jquery-->
+    <!--<script type="text/javascript" src="js/jquery-1.11.3/jquery.min.js"></script>-->
+
+    <!--util-->
+    <!--<script type="text/javascript" src="js/util/constant.js"></script>
+    <script type="text/javascript" src="js/util/base64.js"></script>
+    <script type="text/javascript" src="js/util/commonUtil.js"></script>
+    <script type="text/javascript" src="js/util/ajaxUtil.js"></script>-->
+
+    <script type="text/javascript">
+
+        //前端用来接收实例元数据和认证数据的
+        var metadata = '${metadata}';
+        var authData = '${authData}';
+
+        $(function () {
+
+        });
+
+        function printData() {
+            console.log(JSON.stringify(metadata));
+            console.log(JSON.stringify(authData));
+        }
+
+    </script>
+</head>
+<body>
+<h3>认证错误</h3>
+<span>${exception_message}</span><br>
+<span><a href="${auth_login_url}" target="_blank">重新登录</a></span><br>
+</body>
+</html>

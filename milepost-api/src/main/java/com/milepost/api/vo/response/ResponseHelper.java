@@ -44,27 +44,27 @@ public class ResponseHelper {
 		return createResponse(ReturnCode.EXCEPTION, msg);
 	}
 
-	public static <T> Response<T> createBindErrorResponse(String description) {
-		return createResponse(ReturnCode.BIND_ERROR, description);
-	}
+//	public static <T> Response<T> createBindErrorResponse(String description) {
+//		return createResponse(ReturnCode.BIND_ERROR, description);
+//	}
 
-	public static <T> Response<T> createNotFoundResponse() {
-		return createResponse(ReturnCode.NOT_FOUND, "Data not found!");
-	}
+//	public static <T> Response<T> createNotFoundResponse() {
+//		return createResponse(ReturnCode.NOT_FOUND, "Data not found!");
+//	}
 
-	public static <T> Response<T> createParameterErrorResponse() {
-		return createResponse(ReturnCode.PARAM_ERROR, "Error parameter!");
-	}
+//	public static <T> Response<T> createParameterErrorResponse() {
+//		return createResponse(ReturnCode.PARAM_ERROR, "Error parameter!");
+//	}
 
-	public static <T> Response<T> createRemoteCallErrorResponse() {
-		return createResponse(ReturnCode.REMOTE_CALL_ERROR, "Remote call error!");
+	public static <T> Response<T> createFeignErrorResponse() {
+		return createResponse(ReturnCode.FEIGN_ERROR, "Feign error!");
 	}
 	
-	public static <T> Response<T> createSessionKickedResponse() {
-		return createResponse(ReturnCode.SESSION_KICKED, "Session kicked!");
-	}
+//	public static <T> Response<T> createAccessTokenExpiredResponse() {
+//		return createResponse(ReturnCode.ACCESS_TOKEN_EXPIRED, "Access token expired!");
+//	}
 	
-	public static <T> Response<T> createSessionExpiredResponse() {
-		return createResponse(ReturnCode.SESSION_EXPIRED, "Session expired!");
+	public static <T> Response<T> createAccessTokenExceptionResponse() {
+		return createResponse(ReturnCode.ACCESS_TOKEN_EXCEPTION, "Access token exception!");
 	}
 }
