@@ -54,7 +54,7 @@ public class ThreadPoolTaskExecutorConfig implements AsyncConfigurer {
                 "核心线程="+ threadPoolProperties.getCorePoolSize() +"，" +
                 "最大线程="+ threadPoolProperties.getMaxPoolSize() +"，" +
                 "队列线程="+ threadPoolProperties.getQueueCapacity() +"，" +
-                "线程存活时间(="+ threadPoolProperties.getKeepAliveSeconds() +"秒。");
+                "线程存活时间="+ threadPoolProperties.getKeepAliveSeconds() +"秒。");
 
         // 核心(最小)线程数，默认值1
         threadPoolTaskExecutor.setCorePoolSize(threadPoolProperties.getCorePoolSize());
@@ -106,6 +106,17 @@ public class ThreadPoolTaskExecutorConfig implements AsyncConfigurer {
         int residuePoolSize = 0;
         residuePoolSize = threadPoolTaskExecutor.getMaxPoolSize() - threadPoolTaskExecutor.getActiveCount();
         return residuePoolSize;
+    }
+
+    /**
+     * 打印线程池信息
+     */
+    public static void printThreadPoolInfo(){
+        logger.info(
+            "核心线程="+ ThreadPoolTaskExecutorConfig.getThreadPoolTaskExecutor().getCorePoolSize() +"，" +
+            "最大线程="+ ThreadPoolTaskExecutorConfig.getThreadPoolTaskExecutor().getMaxPoolSize() +"，" +
+            "活跃线程="+ ThreadPoolTaskExecutorConfig.getThreadPoolTaskExecutor().getActiveCount() +"，" +
+            "剩余线程="+ ThreadPoolTaskExecutorConfig.getResiduePoolSize() +"。");
     }
 
     /**

@@ -135,12 +135,9 @@ public class InstanceRoleHandleScheduler {
      * 如果当前实例是slave，则尝试抢占master，间隔touchHeartbeatIntervalInSeconds(s)，在任何一次尝试中如发现redis中不存在master，则立刻抢占，将自己设置为master。
      */
     private void keepHeartbeatAndGrabMaster() {
-        logger.info("维护实例角色，" +
-                "线程名=" + Thread.currentThread().getName() + "，" +
-                "核心线程="+ ThreadPoolTaskExecutorConfig.getThreadPoolTaskExecutor().getCorePoolSize() +"，" +
-                "最大线程="+ ThreadPoolTaskExecutorConfig.getThreadPoolTaskExecutor().getMaxPoolSize() +"，" +
-                "活跃线程="+ ThreadPoolTaskExecutorConfig.getThreadPoolTaskExecutor().getActiveCount() +"，" +
-                "剩余线程="+ ThreadPoolTaskExecutorConfig.getResiduePoolSize() +"。");
+        //打印线程池信息
+        ThreadPoolTaskExecutorConfig.printThreadPoolInfo();
+        logger.info("维护实例角色，线程名=" + Thread.currentThread().getName() +"。");
 
         //这里最好不要使用@Value读取配置文件，因为在不配置这个属性时，@Value注解报错，而这个方法返回UNKNOWN
         String currAppName = this.instanceInfo.getAppName();//注意，无论配置如何，这里都会获取到大写的，所以在DiscoveryClient中获取到小写的需要转换成大写的
