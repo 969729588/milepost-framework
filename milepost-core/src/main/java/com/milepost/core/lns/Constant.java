@@ -1,7 +1,5 @@
 package com.milepost.core.lns;
 
-import com.milepost.api.util.EncryptionUtil;
-
 /**
  * Created by Ruifu Hua on 2020/2/3.
  */
