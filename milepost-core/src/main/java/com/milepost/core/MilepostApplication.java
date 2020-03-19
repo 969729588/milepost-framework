@@ -565,6 +565,7 @@ public class MilepostApplication extends SpringApplication{
         String infoAppVersion = ReadAppYml.getValue("info.app.version");
         infoAppVersion = StringUtils.isBlank(infoAppVersion)? MilepostConstant.APPLICATION_VERSION : infoAppVersion;//应用版本
         defaultProperties.put("eureka.instance.metadata-map.management.context-path", serverServletContextPath +"${management.endpoints.web.base-path}");
+        defaultProperties.put("eureka.instance.metadata-map.context-path", serverServletContextPath);
 
         //从配置文件中读取权重和跟踪采样率，设置默认值，
         // 默认值写在pojo的属性中了，但是这里无法注入，所以只能判断一下，写在pojo中的默认值当作编写yml时的提示，
@@ -584,6 +585,7 @@ public class MilepostApplication extends SpringApplication{
         defaultProperties.put("eureka.instance.metadata-map.milepostversion", MilepostConstant.MILEPOST_VERSION);//框架版本
         defaultProperties.put("eureka.instance.metadata-map.version", infoAppVersion);
         defaultProperties.put("eureka.instance.metadata-map.name", "${info.app.name}");
+        defaultProperties.put("eureka.instance.metadata-map.description", "${info.app.description}");
         defaultProperties.put("eureka.instance.metadata-map.instance-id", "${eureka.instance.ip-address}:"+ tenant +":${spring.application.name}:${server.port}");
 
         //维护实例角色
@@ -663,6 +665,11 @@ public class MilepostApplication extends SpringApplication{
                 seataConfiguration(defaultProperties);
             }
         }else{
+            //设置UI类服务调用的JWT
+            defaultProperties.put("info.app.auth-service.name", "milepost-auth");
+            defaultProperties.put("info.app.auth-service.prefix", "milepost-auth");
+
+            //UI不使用flyway
             defaultProperties.put("spring.flyway.enabled", "false");
         }
 

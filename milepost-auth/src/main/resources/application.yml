@@ -1,7 +1,7 @@
 info:
   app:
-    name: milepost-auth
-    description: JWT服务
+    name: JWT服务
+    description: 发放JWT
     version: 1.0.0.100
 
 server:
