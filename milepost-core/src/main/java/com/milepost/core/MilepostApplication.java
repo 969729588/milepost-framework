@@ -490,7 +490,10 @@ public class MilepostApplication extends SpringApplication{
             //EurekaServer每隔多长时间剔除一次服务，默认60 * 1000
             //defaultProperties.put("eureka.server.eviction-interval-timer-in-ms", "5000");
             //响应缓存更新时间，默认30 * 1000
-            //defaultProperties.put("eureka.server.response-cache-update-interval-ms", "5000");
+            defaultProperties.put("eureka.server.response-cache-update-interval-ms", "5000");
+            //是否使用只读的缓存服务清单，默认true
+            //defaultProperties.put("eureka.server.use-read-only-response-cache", false);
+
             //续约阈值百分比
             //defaultProperties.put("eureka.server.renewal-percent-threshold",0.85);
             //EurekaServer期望EurekaClient多长时间续约一次
@@ -509,8 +512,9 @@ public class MilepostApplication extends SpringApplication{
             //defaultProperties.put("eureka.server.renewal-threshold-update-interval-ms",15*60*1000);
         } else {
             //defaultProperties.put("eureka.client.service-url.defaultZone", "${discovery.server.address}");
-            //Indicates how often(in seconds) to fetch the registry information from the eureka server. 默认是30，这里改成5
-            //defaultProperties.put("eureka.client.registry-fetch-interval-seconds", "10");
+            //Indicates how often(in seconds) to fetch the registry information from the eureka server. 默认是30，这里改成5，
+            //这里最好与EurekaServer端的eureka.server.response-cache-update-interval-ms一致
+            defaultProperties.put("eureka.client.registry-fetch-interval-seconds", "5");
             /**
              * Indicates how often (in seconds) the eureka client needs to send heartbeats to
              * eureka server to indicate that it is still alive. If the heartbeats are not
