@@ -2,7 +2,7 @@
 <ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="../config/ehcache.xsd">
  	<!-- 磁盘保存路径，由于这里使用的是MyBatis整合Ehcache，配置文件还不能被springboot整合。 -->
- 	<diskStore path="./mybatis-ehcache" />
+ 	<diskStore path="./tmp/mybatis-ehcache" />
  
  	<defaultCache 
    		maxElementsInMemory="10000" 
