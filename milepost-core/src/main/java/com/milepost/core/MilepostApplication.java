@@ -634,13 +634,13 @@ public class MilepostApplication extends SpringApplication{
         if(MilepostApplicationType.SERVICE.getValue().equalsIgnoreCase(applicationType)
                 || MilepostApplicationType.AUTH.getValue().equalsIgnoreCase(applicationType)){
             //flyway，使用这个属性
-            String springDatasourceDruidDbType = getConfigProByPriority("spring.datasource.druid.db-type", "mysql");
+            String springDatasourcePlatform = getConfigProByPriority("spring.datasource.platform", "mysql");
             defaultProperties.put("spring.datasource.initialize", "false");//禁止spring使用data.sql来初始化。
             defaultProperties.put("spring.flyway.enabled", "true");//默认开启
             defaultProperties.put("spring.flyway.baseline-on-migrate", "true");//当迁移时发现目标schema非空，而且带有没有元数据的表时，是否自动执行基准迁移，默认false.
             //defaultProperties.put("spring.flyway.baseline-description", "init");//对执行迁移时基准版本的描述.
             defaultProperties.put("spring.flyway.baseline-version", "0");//执行基线时用来标记已有Schema的版本，默认值为1.
-            defaultProperties.put("spring.flyway.locations", "classpath:db/" + springDatasourceDruidDbType);//sql脚本存放位置，按照数据库类型区分
+            defaultProperties.put("spring.flyway.locations", "classpath:db/" + springDatasourcePlatform);//sql脚本存放位置，按照数据库类型区分
             defaultProperties.put("spring.flyway.clean-on-validation-error", "true");//Whether to automatically call clean when a validation error occurs.
             defaultProperties.put("spring.flyway.clean-disabled", "true");//Whether to disable cleaning of the database.
             defaultProperties.put("spring.flyway.table", "flyway_md_" + springApplicationName);//flyway元数据表名称
@@ -665,8 +665,7 @@ public class MilepostApplication extends SpringApplication{
                 defaultProperties.put("swagger.description", springApplicationName + " swagger");//swagger-ui调用接口时传入的token请求头名称，值为“Bearer {token}”
 
 
-                //分布式事务， seata
-                seataConfiguration(defaultProperties);
+                //分布式事务，
             }
         }else{
             //设置UI类服务调用的JWT
@@ -734,144 +733,6 @@ public class MilepostApplication extends SpringApplication{
         }
     }
 
-    /**
-     * 打印seata配置日志
-     */
-    private void printSeataConfigurationLog(){
-        //根据是否存在com.milepost.distTransaction.config.DistTransactionProperties类，来确定是否引入了milepost-dist-transaction依赖
-        Boolean dependencyMilepostDistTransaction = false;
-        try {
-            dependencyMilepostDistTransaction = null != Class.forName("com.milepost.distTransaction.config.DistTransactionProperties");
-        } catch (Throwable t) {
-            dependencyMilepostDistTransaction = false;
-        }
-
-        //只有Boolean.valueOf("true")返回true，其他都返回false，
-        Boolean distTransactionEnabled = Boolean.valueOf(this.getConfigProByPriority("dist-transaction.enabled", "false"));
-        if(!distTransactionEnabled){
-            //关闭
-            if(dependencyMilepostDistTransaction){
-                //警告，移除milepost-dist-transaction依赖
-                logger.warn("dist-transaction.enabled默认值为false，即关闭分布式事务，建议移除milepost-dist-transaction依赖。");
-            }
-        }else{
-            //开启
-            if(!dependencyMilepostDistTransaction){
-                //错误，请加入milepost-dist-transaction依赖
-                logger.error("dist-transaction.enabled=true，即开启分布式事务，请加入milepost-dist-transaction依赖，否则不能支持分布式事务。");
-            }
-        }
-    }
-
-    /**
-     * 分布式事务， seata，
-     *  使用yml配置seata有一下两个bug
-     *  1、undo相关配置不生效（估计seata.client.rm.lock相关属性也有类似问题），解决：我们不更改这些配置就可以了，
-     *  2、service.disable-global-transaction不生效，解决：在类路径下放一个file.conf，里面只配置service.disable-global-transaction。
-     * @param defaultPro
-     */
-    private void seataConfiguration(Map<String, Object> defaultPro) {
-        //根据是否存在com.milepost.distTransaction.config.DistTransactionProperties类，来确定是否引入了milepost-dist-transaction依赖
-        Boolean dependencyMilepostDistTransaction = false;
-        try {
-            dependencyMilepostDistTransaction = null != Class.forName("com.milepost.distTransaction.config.DistTransactionProperties");
-        } catch (Throwable t) {
-            dependencyMilepostDistTransaction = false;
-        }
-
-        //只有Boolean.valueOf("true")返回true，其他都返回false，
-        Boolean distTransactionEnabled = Boolean.valueOf(this.getConfigProByPriority("dist-transaction.enabled", "false"));
-        if(!distTransactionEnabled){
-            //关闭
-            defaultPro.put("seata.enabled", false);
-        }else{
-            //开启
-            defaultPro.put("seata.enabled", true);
-            //如果没有jar包，则关闭，并在启动完成后给出error报错。
-            if(!dependencyMilepostDistTransaction){
-                defaultPro.put("seata.enabled", false);
-                return;
-            }
-
-            //defaultPro.put("seata.application-id", "xxx");
-            //事务群组（可以每个应用独立取名，也可以使用相同的名字），默认default
-            String txServiceGroup = getConfigProByPriority("dist-transaction.tx-service-group", "default");
-            defaultPro.put("seata.tx-service-group", txServiceGroup);
-
-            //client
-            defaultPro.put("seata.client.rm-report-success-enable", true);
-            //自动刷新缓存中的表结构（默认false）
-            defaultPro.put("seata.client.rm-table-meta-check-enable", false);
-            //一阶段结果上报TC重试次数（默认5）
-            defaultPro.put("seata.client.rm-report-retry-count", 5);
-            //异步提交缓存队列长度（默认10000）
-            defaultPro.put("seata.client.rm-async-commit-buffer-limit", 10000);
-            //校验或占用全局锁重试间隔（默认10ms）
-            defaultPro.put("seata.client.rm.lock.lock-retry-interval", 10);
-            //校验或占用全局锁重试次数（默认30）
-            defaultPro.put("seata.client.rm.lock.lock-retry-times", 30);
-            //分支事务与其它全局回滚事务冲突时锁策略（优先释放本地锁让回滚成功）
-            defaultPro.put("seata.client.rm.lock.lock-retry-policy-branch-rollback-on-conflict", true);
-            //一阶段全局提交结果上报TC重试次数（默认1次，建议大于1）
-            defaultPro.put("seata.client.tm-commit-retry-count", 5);
-            //一阶段全局回滚结果上报TC重试次数（默认1次，建议大于1）
-            defaultPro.put("seata.client.tm-rollback-retry-count", 5);
-            //二阶段回滚镜像校验（默认true开启）
-            defaultPro.put("seata.client.undo.undo-data-validation", true);
-            //undo序列化方式（默认jackson）
-            defaultPro.put("seata.client.undo.undo-log-serialization", "jackson");
-            //自定义undo表名（默认undo_log）
-            defaultPro.put("seata.client.undo.undo-log-table", "undo_log");
-            //日志异常输出概率（默认100）
-            defaultPro.put("seata.client.log.exceptionRate", 100);
-            //auto proxy the DataSource bean，必须设置成true，否则不能生成undo_log，也不能回滚，
-            defaultPro.put("seata.client.support.spring.datasource-autoproxy", true);
-
-            //service
-            //TC 集群（必须与seata-server保持一致），默认tx-server
-            String txServerAppName = getConfigProByPriority("dist-transaction.tx-server-app-name", "tx-server");
-            defaultPro.put("seata.service.vgroup-mapping", txServerAppName);
-            //降级开关
-            defaultPro.put("seata.service.enable-degrade", false);
-            //禁用全局事务（默认false）
-            defaultPro.put("seata.service.disable-global-transaction", false);
-            //only support when registry.type=file, please don't set multiple addresses
-            //defaultPro.put("seata.service.grouplist", "127.0.0.1:8091");
-
-            //transport
-            //when destroy server, wait seconds
-            defaultPro.put("seata.transport.shutdown.wait", 3);
-
-            //thread factory for netty
-            defaultPro.put("seata.transport.thread-factory.boss-thread-prefix", "NettyBoss");
-            defaultPro.put("seata.transport.thread-factory.worker-thread-prefix", "NettyServerNIOWorker");
-            defaultPro.put("seata.transport.thread-factory.server-executor-thread-prefix", "NettyServerBizHandler");
-            defaultPro.put("seata.transport.thread-factory.share-boss-worker", false);
-            defaultPro.put("seata.transport.thread-factory.client-selector-thread-prefix", "NettyClientSelector");
-            defaultPro.put("seata.transport.thread-factory.client-selector-thread-size", 1);
-            defaultPro.put("seata.transport.thread-factory.client-worker-thread-prefix", "NettyClientWorkerThread");
-            //netty boss thread size,will not be used for UDT
-            defaultPro.put("seata.transport.thread-factory.boss-thread-size", 1);
-            //auto default pin or 8
-            defaultPro.put("seata.transport.thread-factory.worker-thread-size", 8);
-            //tcp udt unix-domain-socket
-            defaultPro.put("seata.transport.type", "TCP");
-            //NIO NATIVE
-            defaultPro.put("seata.transport.server", "NIO");
-            //enable heartbeat
-            defaultPro.put("seata.transport.heartbeat", true);
-
-            defaultPro.put("seata.transport.serialization", "seata");
-            defaultPro.put("seata.transport.compressor", "none");
-            //the client batch send request enable
-            defaultPro.put("seata.transport.enable-client-batch-send-request", true);
-
-            //registry
-            defaultPro.put("seata.registry.type", "eureka");
-            String eurekaServiceUrl = getConfigProByPriority("eureka.client.service-url.defaultZone", null);
-            defaultPro.put("seata.registry.eureka.service-url", eurekaServiceUrl);
-        }
-    }
 
     private void runBefore() {
         //printEnv();
@@ -899,8 +760,6 @@ public class MilepostApplication extends SpringApplication{
 
     private void runAfter() {
         try {
-            //打印seata配置日志
-            printSeataConfigurationLog();
             //打印命令行参数
             this.printArgs();
             //打印Java系统属性

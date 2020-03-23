@@ -7,7 +7,12 @@ package com.milepost.service.config.dynamicDs;
  */
 public class DataSourceContextHolder {
 	// 线程本地环境
-	private static final ThreadLocal<String> contextHolder = new ThreadLocal<String>(); 
+	private static final ThreadLocal<String> contextHolder = new ThreadLocal<String>();
+
+	// 设置默认数据源
+	public static void setDefaultDataSource() {
+		contextHolder.set(ManualCreateDataSource.DEFAULT_DS_KEY);
+	}
 
 	// 设置数据源
 	public static void setDataSource(String dataSource) {

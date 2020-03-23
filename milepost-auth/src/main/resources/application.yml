@@ -15,53 +15,20 @@ spring:
   profiles:
     active: dev
   datasource:
-    druid:
-      #flyway使用这个参数,mysql/oracle
-      db-type: mysql
-      driver-class-name: com.mysql.cj.jdbc.Driver
-      url: jdbc:mysql://192.168.223.129:3306/milepost_auth?useUnicode=true&characterEncoding=utf8&characterSetResults=utf8&serverTimezone=GMT%2B8
-      username: root
-      #password: admin123
-      password: ENC(tXVsX2fiUQfrNM9Gqey3pmRiLgw+Znp/ISEaZCOMDo0=)
-
-      initial-size: 5
-      max-active: 20
-      min-idle: 5
-      max-wait: 60000
-      pool-prepared-statements: true
-      max-pool-prepared-statement-per-connection-size: 20
-      #和上面的等价
-      #max-open-prepared-statements:
-      validation-query: SELECT 1 FROM DUAL
-      #validation-query-timeout:
-      test-on-borrow: false
-      test-on-return: false
-      test-while-idle: true
-      time-between-eviction-runs-millis: 60000
-      min-evictable-idle-time-millis: 300000
-      #max-evictable-idle-time-millis:
-      #配置多个英文逗号分隔
-      #filters:
-
-#  redis:
-#    jedis:
-#      pool:
-#        #配置连接池属性
-#        min-idle: 5
-#        max-active: 10
-#        max-idle: 10
-#        max-wait: 2000
-#    #配置redis服务器属性
-#    host: 192.168.223.129
-#    port: 6379
-#    database: 1
-#    #password: bomc
-#    #redis连接超时时间，单位毫秒
-#    timeout: 2000
+    platform: mysql
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://192.168.223.10:3306/milepost_auth?useUnicode=true&characterEncoding=utf8&characterSetResults=utf8&serverTimezone=GMT%2B8
+    username: root1
+    password: admin1231
+    hikari:
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      maximum-pool-size: 10
+      minimum-idle: 10
 eureka:
   client:
     service-url:
-      #defaultZone: http://172.16.1.208:8761/eureka/
       defaultZone: http://192.168.1.105:8761/eureka/
   instance:
     ip-address: 192.168.223.1

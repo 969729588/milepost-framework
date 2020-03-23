@@ -70,7 +70,6 @@ spring:
     password: admin123
     url: jdbc:mysql://localhost:3306/milepost_auth?useUnicode=true&characterEncoding=utf8&characterSetResults=utf8&serverTimezone=GMT%2B8
     driver-class-name: com.mysql.jdbc.Driver
-    #type: com.alibaba.druid.pool.DruidDataSource
     #   数据源其他配置，这些黄颜色的属性是没有与任何类绑定的
     test-while-idle: true
     time-between-eviction-runs-millis: 300000

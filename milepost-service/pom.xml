@@ -50,6 +50,22 @@
 			<artifactId>spring-cloud-starter-openfeign</artifactId>
 		</dependency>
 
+		<!--hystrix-->
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-netflix-hystrix</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-netflix-hystrix-dashboard</artifactId>
+		</dependency>
+		<!--hystrix使用的15.0的guava，swagger使用20.0的guava，这里升级成20.0-->
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>20.0</version>
+		</dependency>
+
 		<!--actuator-->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -79,11 +95,6 @@
 		<dependency>
 			<groupId>com.oracle</groupId>
 			<artifactId>my-ojdbc6</artifactId>
-		</dependency>
-		<!--druid，不是被springboot管理的-->
-		<dependency>
-			<groupId>com.alibaba</groupId>
-			<artifactId>druid-spring-boot-starter</artifactId>
 		</dependency>
 		<!--MyBatis，这个starter是mybatis自己写的，不是springboot提供的-->
 		<dependency>

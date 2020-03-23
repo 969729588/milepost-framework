@@ -29,7 +29,6 @@
         <module>milepost-api</module>
         <module>milepost-log</module>
         <module>milepost-mybatis-generator</module>
-        <module>milepost-dist-transaction</module>
 
         <module>milepost-core</module>
         <module>milepost-test</module>

@@ -21,8 +21,6 @@
 	<logger name="org.springframework" level="debug"/>
 	&lt;!&ndash; mybatis 日志 &ndash;&gt;
 	<logger name="org.mybatis" level="debug"/>
-	&lt;!&ndash; druid 日志 &ndash;&gt;
-	<logger name="com.alibaba.druid" level="debug"/>
 	&lt;!&ndash;ehcache 日志&ndash;&gt;
 	<logger name="net.sf.ehcache" level="debug"/>-->
 
