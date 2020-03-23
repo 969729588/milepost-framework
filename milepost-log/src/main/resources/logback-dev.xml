@@ -15,7 +15,7 @@
         <logger>可以包含零个或多个<appender-ref>元素，表示这个appender将会添加到这个logger。
      -->
 	<!-- 没有指定相关数据，继承自root的 -->
-	<!-- 所有的calss -->
+	<!-- 所有的class -->
 	<logger name="com.milepost" level="debug"/>
 	<!--&lt;!&ndash; spring 日志 &ndash;&gt;
 	<logger name="org.springframework" level="debug"/>

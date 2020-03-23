@@ -2,7 +2,7 @@
 <included>
 	<include resource="file-appender.xml" />
 
-	<!-- 所有的calss -->
+	<!-- 所有的class -->
 	<logger name="com.milepost" level="debug"/>
 
 	<root level="info">
