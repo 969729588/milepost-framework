@@ -543,6 +543,12 @@ public class MilepostApplication extends SpringApplication{
             //https://www.jianshu.com/p/6dddcf873be2
             //https://blog.csdn.net/chengqiuming/article/details/81052322
             //defaultProperties.put("eureka.client.healthcheck.enabled", "true");
+
+            //tx-client
+            //milepost框架为了实现多租户而重写了一个负载均衡策略，并标注了@Primary，所以即时这里开启了，
+            //也不会使用LCN的负载均衡(com.codingapi.txlcn.tracing.http.ribbon.TxlcnZoneAvoidanceRule)，
+            //以后有时间可以把这个加入进来，目前采取的措施是在代码中避免这种情况的发生。
+            defaultProperties.put("tx-lcn.ribbon.loadbalancer.dtx.enabled", false);
         }
 
         //eureka.instance相关页面地址

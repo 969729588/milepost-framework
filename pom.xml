@@ -26,12 +26,13 @@
     <modules>
         <module>milepost-parent</module>
 
+        <module>milepost-test</module>
         <module>milepost-api</module>
         <module>milepost-log</module>
         <module>milepost-mybatis-generator</module>
 
         <module>milepost-core</module>
-        <module>milepost-test</module>
+
         <module>milepost-ui</module>
         <module>milepost-service</module>
 
