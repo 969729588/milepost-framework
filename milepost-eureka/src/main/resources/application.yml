@@ -1,6 +1,6 @@
 info:
   app:
-    name: milepost-eureka
+    name: 注册中心
     description: 注册中心
     version: 1.0.0.100
 
