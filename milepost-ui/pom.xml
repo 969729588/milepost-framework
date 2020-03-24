@@ -91,23 +91,6 @@
 			<artifactId>spring-security-oauth2</artifactId>
 		</dependency>
 
-		<!--分布式事务-->
-		<dependency>
-			<groupId>com.codingapi.txlcn</groupId>
-			<artifactId>txlcn-tc</artifactId>
-			<exclusions>
-				<exclusion>
-					<groupId>com.github.jsqlparser</groupId>
-					<artifactId>jsqlparser</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-
-		<dependency>
-			<groupId>com.codingapi.txlcn</groupId>
-			<artifactId>txlcn-txmsg-netty</artifactId>
-		</dependency>
-
 	</dependencies>
 
 </project>
