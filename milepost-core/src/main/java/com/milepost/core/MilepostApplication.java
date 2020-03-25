@@ -670,6 +670,8 @@ public class MilepostApplication extends SpringApplication{
                 //也不会使用LCN的负载均衡(com.codingapi.txlcn.tracing.http.ribbon.TxlcnZoneAvoidanceRule)，
                 //以后有时间可以把这个加入进来，目前采取的措施是在代码中避免这种情况的发生。
                 defaultProperties.put("tx-lcn.ribbon.loadbalancer.dtx.enabled", false);
+                //分布式事务框架存储的业务切面信息。采用的是h2数据库。绝对路径。该参数默认的值为{user.dir}/.txlcn/{application.name}-{application.port}
+                defaultProperties.put("tx-lcn.aspect.log.file-path", "./tmp/tx-lcn-aspect-log/h2_log");
             }
         }else{
             //设置UI类服务调用的JWT
