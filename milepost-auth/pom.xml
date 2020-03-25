@@ -34,6 +34,17 @@
 		<dependency>
 			<groupId>com.milepost</groupId>
 			<artifactId>milepost-service</artifactId>
+			<!--JWT服务不需要分布式事务，因为不涉及到更改数据，只是查询数据-->
+			<exclusions>
+				<exclusion>
+					<groupId>com.codingapi.txlcn</groupId>
+					<artifactId>txlcn-tc</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.codingapi.txlcn</groupId>
+					<artifactId>txlcn-txmsg-netty</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>

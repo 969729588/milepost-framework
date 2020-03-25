@@ -9,6 +9,8 @@ import org.springframework.core.env.ConfigurableEnvironment;
 /**
  * Created by Ruifu Hua on 2020/1/14.
  * SpringApplicationRunListener
+ * 这个类上不需要加@Component注解，也不需要扫描进SpringIOC中，
+ * 因为在META-INF/spring.factories配置了
  */
 public class MilepostSpringApplicationRunListener implements SpringApplicationRunListener {
 

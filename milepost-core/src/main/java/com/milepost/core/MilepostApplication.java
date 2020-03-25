@@ -296,7 +296,9 @@ public class MilepostApplication extends SpringApplication{
         Map<String,Object> defaultProperties = new HashMap<>();
 
         //profiles
-        defaultProperties.put("spring.profiles.active", springProfilesActiveDev);
+        String springProfilesActive = getConfigProByPriority("spring.profiles.active", springProfilesActiveDev);
+        defaultProperties.put("spring.profiles.active", springProfilesActive);//这里需要设置一下，logback使用这个
+
         defaultProperties.put("spring.main.banner-mode", "off");//关闭，使用自己写的com.milepost.core.banner.PrintBanner打印banner
 
         //允许多个接口上的@FeignClient(“相同服务名”)
@@ -650,7 +652,6 @@ public class MilepostApplication extends SpringApplication{
             defaultProperties.put("mybatis.mapper-locations", "classpath:com/milepost/**/**/dao/*.xml");
 
             if(MilepostApplicationType.SERVICE.getValue().equalsIgnoreCase(applicationType)){
-                String springProfilesActive = getConfigProByPriority("spring.profiles.active", springProfilesActiveDev);
                 if(springProfilesActiveDev.equalsIgnoreCase(springProfilesActive)){
                     //开发(dev)环境中，开启swagger，
                     defaultProperties.put("swagger.enabled", true);
