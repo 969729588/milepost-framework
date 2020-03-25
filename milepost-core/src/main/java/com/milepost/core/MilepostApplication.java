@@ -301,8 +301,8 @@ public class MilepostApplication extends SpringApplication{
 
         defaultProperties.put("spring.main.banner-mode", "off");//关闭，使用自己写的com.milepost.core.banner.PrintBanner打印banner
 
-        //允许多个接口上的@FeignClient(“相同服务名”)
-        defaultProperties.put("spring.main.allow-bean-definition-overriding", true);
+        //允许多个接口上的@FeignClient(“相同服务名”)，通过配置@FeignClient的contextId解决，不要把这个配置从true改成false.
+        //defaultProperties.put("spring.main.allow-bean-definition-overriding", true);
 
         //这里的默认属性也支持加密。
         //defaultProperties.put("info.app.description", "ENC(Cni63Asy/ryIyTshDZ6fdLtuiZB8ZRYTyxpiMXEUrvk=)");
