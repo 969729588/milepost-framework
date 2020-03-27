@@ -50,7 +50,10 @@
 			<artifactId>spring-cloud-starter-openfeign</artifactId>
 		</dependency>
 
-		<!--hystrix-->
+		<!--hystrix，
+		如果只是用@FeignClient的fallback则不需要依赖hystrix，
+		如果要使用断路器@EnableHystrix/@HystrixCommand，则需要依赖hystrix，
+		同时会给@FeignClient的fallback增加断路器功能。-->
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-netflix-hystrix</artifactId>

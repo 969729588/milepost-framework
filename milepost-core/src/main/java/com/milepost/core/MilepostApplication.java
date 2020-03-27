@@ -24,6 +24,7 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Ruifu Hua on 2019/12/30.
@@ -523,7 +524,7 @@ public class MilepostApplication extends SpringApplication{
              * received for the period specified in leaseExpirationDurationInSeconds, eureka
              * server will remove the instance from its view, there by disallowing traffic to this
              * instance. default=30
-             * EurekaClient向EurekaServer的续约间隔时间，默认30，这里改成10
+             * EurekaClient向EurekaServer的续约间隔时间，默认30，
              */
             //defaultProperties.put("eureka.instance.lease-renewal-interval-in-seconds", "4");//10
             /**
@@ -537,7 +538,7 @@ public class MilepostApplication extends SpringApplication{
              * glitches.This value to be set to atleast higher than the value specified in
              * leaseRenewalIntervalInSeconds. default=90
              *
-             * EurekaClient向EurekaServer的续约过期时长，默认90，iplatform的这里没做改变，我把他改成15
+             * EurekaClient向EurekaServer的续约过期时长，默认90，
              */
             //defaultProperties.put("eureka.instance.lease-expiration-duration-in-seconds", "6");//15
 
@@ -545,6 +546,13 @@ public class MilepostApplication extends SpringApplication{
             //https://www.jianshu.com/p/6dddcf873be2
             //https://blog.csdn.net/chengqiuming/article/details/81052322
             //defaultProperties.put("eureka.client.healthcheck.enabled", "true");
+
+            //配置feign
+            configFeign(defaultProperties);
+            //配置ribbon
+            configRibbon(defaultProperties);
+            //配置hystrix
+            configHystrix(defaultProperties);
         }
 
         //eureka.instance相关页面地址
@@ -712,6 +720,45 @@ public class MilepostApplication extends SpringApplication{
         }
 
         return defaultProperties;
+    }
+
+    /**
+     * 配置hystrix，配置执行线程超时时间，大于ribbon超时时间
+     * @param defaultProperties
+     */
+    private void configHystrix(Map<String, Object> defaultProperties) {
+        defaultProperties.put("hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds", TimeUnit.SECONDS.toMillis(10));
+        //为了方便调试，能看出效果
+        //滚动时间窗口内，失败请求数超过此数则断路器开启，默认20
+        //defaultProperties.put("hystrix.command.default.circuitBreaker.requestVolumeThreshold", 2);
+        //断路器开启后，超过此时间后尝试一次，如请求正常了，则关闭断路器，默认5000
+        //defaultProperties.put("hystrix.command.default.circuitBreaker.sleepWindowInMilliseconds", TimeUnit.SECONDS.toMillis(10));
+    }
+
+    /**
+     * 配置ribbon，关闭重试，配置超时
+     * @param defaultProperties
+     */
+    private void configRibbon(Map<String, Object> defaultProperties) {
+        //在同一个服务提供者中重试的次数，不包括第一次请求
+        defaultProperties.put("ribbon.MaxAutoRetries", 0);
+        //切换其他服务提供者重试的次数，不包括第一次请求
+        defaultProperties.put("ribbon.MaxAutoRetriesNextServer", 0);
+        //是否所有类型的请求都进行重试操作
+        defaultProperties.put("ribbon.OkToRetryOnAllOperations", false);
+        //连接超时时间，单位ms，默认1000ms
+        defaultProperties.put("ribbon.ConnectTimeout", TimeUnit.SECONDS.toMillis(8));
+        //读取超时时间，单位ms，默认1000ms
+        defaultProperties.put("ribbon.ReadTimeout", TimeUnit.SECONDS.toMillis(8));
+    }
+
+    /**
+     * 配置feign，开启hystrix
+     * @param defaultProperties
+     */
+    private void configFeign(Map<String, Object> defaultProperties) {
+        //开启hystrix后才可以使用@FeignClient注解的fallback属性和fallbackFactory属性
+        defaultProperties.put("feign.hystrix.enabled", true);
     }
 
     /**
