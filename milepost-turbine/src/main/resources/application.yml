@@ -15,12 +15,6 @@ spring:
   profiles:
     active: dev
 
-turbine:
-  #要监控的服务名称，支持逗号分割，"_all_"表示监控所有服务。
-  app-config: _all_
-  combine-host-port: true
-  cluster-name-expression: new String("default")
-
 eureka:
   client:
     service-url:
@@ -30,8 +24,4 @@ eureka:
 
 multiple-tenant:
   tenant: tenant1
-  weight: 9
-  label-and: aa,bb
-  label-or: dd,ee,ff
-
 

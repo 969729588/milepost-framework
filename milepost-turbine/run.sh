@@ -8,7 +8,7 @@ start() {
     --spring.profiles.active=test \
     --server.port=8769 \
     --eureka.instance.ip-address=192.168.223.129 \
-    --turbine.app-config=_all_ \
+    --multiple-tenant.tenant=tenant1 \
     >/dev/null 2>&1 &
 }
 
