@@ -125,7 +125,8 @@ public class CommonsInstanceDiscovery implements InstanceDiscovery {
     }
 
     /**
-     * 我重写了这个方法，当turbine.app-config=_all_时，表示监控全部服务，
+     * 返回服务名称(appName)的方法，
+     * 我重写了这个方法，当turbine.app-config=_all_时，返回监控全部服务，
      * @return
      */
     protected List<String> getApplications() {
