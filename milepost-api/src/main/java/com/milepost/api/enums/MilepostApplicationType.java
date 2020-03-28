@@ -10,7 +10,8 @@ public enum MilepostApplicationType {
     UI("UI"),
     SERVICE("SERVICE"),
     EUREKA("EUREKA"),
-    AUTH("AUTH");
+    AUTH("AUTH"),
+    TURBINE("TURBINE");
 
     private final String value;
 

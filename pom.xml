@@ -38,6 +38,7 @@
 
         <module>milepost-eureka</module>
         <module>milepost-auth</module>
+        <module>milepost-turbine</module>
     </modules>
 
 </project>

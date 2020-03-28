@@ -1,0 +1,37 @@
+info:
+  app:
+    name: Turbine监控
+    description: Turbine监控
+    version: 1.0.0.100
+
+server:
+  port: 8769
+  servlet:
+    context-path: "/milepost-turbine"
+
+spring:
+  application:
+    name: milepost-turbine
+  profiles:
+    active: dev
+
+turbine:
+  #要监控的服务名称，支持逗号分割，"_all_"表示监控所有服务。
+  app-config: _all_
+  combine-host-port: true
+  cluster-name-expression: new String("default")
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://192.168.223.129:8761/eureka/
+  instance:
+    ip-address: 192.168.223.1
+
+multiple-tenant:
+  tenant: tenant1
+  weight: 9
+  label-and: aa,bb
+  label-or: dd,ee,ff
+
+

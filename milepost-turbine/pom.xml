@@ -10,20 +10,13 @@
 		<relativePath/>
 	</parent>
 
-	<!--坐标中没指定的则继承父工程-->
-	<artifactId>milepost-eureka</artifactId>
-	<version>1.0.0.100</version><!--1.0.0是应用版本，100是框架版本-->
+	<artifactId>milepost-turbine</artifactId>
+	<version>1.0.0.100</version>
 	<packaging>jar</packaging>
-	<name>milepost-eureka</name>
-	<description>注册中心</description>
-	<!--
-	继承milepost-parent，
-	依赖milepost-log，
-	其余的都自己管理，不需要指定依赖的版本，继承自milepost-parent。
-	-->
+	<name>milepost-turbine</name>
+	<description>Turbine监控</description>
 
 	<dependencies>
-
 		<!--单元测试-->
 		<dependency>
 			<groupId>com.milepost</groupId>
@@ -43,25 +36,23 @@
 
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-starter-netflix-eureka-server</artifactId>
+			<artifactId>spring-cloud-starter-netflix-hystrix-dashboard</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-netflix-turbine</artifactId>
 		</dependency>
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
-		<!--支持springboot的http 监控端点-->
+
 		<dependency>
-			<groupId>org.springframework.hateoas</groupId>
-			<artifactId>spring-hateoas</artifactId>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
 		</dependency>
-
-		<!--为了测试默认属性增加的依赖-->
-		<!--<dependency>
-			<groupId>mysql</groupId>
-			<artifactId>mysql-connector-java</artifactId>
-		</dependency>-->
-
 	</dependencies>
 
 	<build>

@@ -71,6 +71,7 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
             .csrf().disable()
             .authorizeRequests()
             .antMatchers("/milepost-actuator/**",//监控
+                    "/hystrix.stream/**", //hystrix监控
                     "/**/*.css", "/**/*.js", "/**/*.jpg", "/**/*.png", "/**/*.gif", "/**/*.ico", "/**/*.woff", "/**/*.ttf")//静态资源
                 .permitAll()
             .antMatchers("/**").authenticated();

@@ -335,6 +335,7 @@ public class MilepostApplication extends SpringApplication{
         include.add("health");
         include.add("configprops");//显示当前项目的属性配置信息（通过@ConfigurationProperties 配置）
         include.add("loggers");//显示并修改应用程序中记录器的配置
+        include.add("hystrix.stream");//hystrix监控
         defaultProperties.put("management.endpoints.web.exposure.include", include);//如开启全部，则在yml中要写"*"，不能 *
 
         //禁用以下组件的健康检查，每一个组件对应一个指示器，如redis的指示器是 RedisHealthIndicator
@@ -480,8 +481,8 @@ public class MilepostApplication extends SpringApplication{
         String serverServletContextPath = this.getConfigProByPriority("server.servlet.context-path", "");
 
         //在EurekaServer的启动类中将isEurekaServer属性设置进了java系统属性中，System.setProperty("isEurekaServer", "true");
-        boolean isEurekaServer = this.isEurekaServer();
-        if(isEurekaServer) {
+        if(MilepostApplicationType.EUREKA.getValue().equals(applicationType)){
+            //EurekaServer
             //defaultProperties.put("eureka.client.service-url.defaultZone", "${discovery.server.address}");
             //EurekaServer两个false，注意，当集群部署时候要开启，否则EurekaServer控制台的基本信息中显示副本不可达，
             //当abc集群时，a向bc注册，b向ac注册，c向ab注册，所以EurekaServer本质上还是非自注册的。
@@ -513,7 +514,9 @@ public class MilepostApplication extends SpringApplication{
 
             //更新控制台页面上续约阈值的时间间隔，
             //defaultProperties.put("eureka.server.renewal-threshold-update-interval-ms",15*60*1000);
-        } else {
+        }else{
+            //除了EurekaServer
+
             //defaultProperties.put("eureka.client.service-url.defaultZone", "${discovery.server.address}");
             //Indicates how often(in seconds) to fetch the registry information from the eureka server. 默认是30，这里改成5，
             //这里最好与EurekaServer端的eureka.server.response-cache-update-interval-ms一致
@@ -547,12 +550,18 @@ public class MilepostApplication extends SpringApplication{
             //https://blog.csdn.net/chengqiuming/article/details/81052322
             //defaultProperties.put("eureka.client.healthcheck.enabled", "true");
 
-            //配置feign
-            configFeign(defaultProperties);
-            //配置ribbon
-            configRibbon(defaultProperties);
-            //配置hystrix
-            configHystrix(defaultProperties);
+            if(!MilepostApplicationType.TURBINE.getValue().equalsIgnoreCase(applicationType)){
+                //除了EurekaServer和Turbine
+                //配置feign
+                configFeign(defaultProperties);
+                //配置ribbon
+                configRibbon(defaultProperties);
+                //配置hystrix
+                configHystrix(defaultProperties);
+            }else {
+                //Tuibine
+
+            }
         }
 
         //eureka.instance相关页面地址
@@ -660,6 +669,7 @@ public class MilepostApplication extends SpringApplication{
             defaultProperties.put("mybatis.mapper-locations", "classpath:com/milepost/**/**/dao/*.xml");
 
             if(MilepostApplicationType.SERVICE.getValue().equalsIgnoreCase(applicationType)){
+                //Service类服务的swagger
                 if(springProfilesActiveDev.equalsIgnoreCase(springProfilesActive)){
                     //开发(dev)环境中，开启swagger，
                     defaultProperties.put("swagger.enabled", true);
@@ -682,12 +692,14 @@ public class MilepostApplication extends SpringApplication{
                 defaultProperties.put("tx-lcn.aspect.log.file-path", "./tmp/tx-lcn-aspect-log/h2_log");
             }
         }else{
+            //除了Service类服务和JWT，都不使用flyway
+            defaultProperties.put("spring.flyway.enabled", "false");
+        }
+
+        if(MilepostApplicationType.UI.getValue().equalsIgnoreCase(applicationType)){
             //设置UI类服务调用的JWT
             defaultProperties.put("info.app.auth-service.name", "milepost-auth");
             defaultProperties.put("info.app.auth-service.prefix", "milepost-auth");
-
-            //UI不使用flyway
-            defaultProperties.put("spring.flyway.enabled", "false");
         }
 
         //velocity与thymeleaf类似，是一个模版引擎，

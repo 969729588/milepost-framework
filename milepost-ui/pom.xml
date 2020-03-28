@@ -55,11 +55,11 @@
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-netflix-hystrix</artifactId>
 		</dependency>
-		<!--hystrix的dashboard-->
-		<dependency>
+		<!--hystrix的dashboard，不使用单独的dashboard，使用turbine聚合dashboard-->
+		<!--<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-netflix-hystrix-dashboard</artifactId>
-		</dependency>
+		</dependency>-->
 
 		<!--ribbon，暂时不需要单独引入，因为openfeign已经集成(依赖)了ribbon-->
 		<!--<dependency>

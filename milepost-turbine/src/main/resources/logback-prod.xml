@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<included>
+	<include resource="file-appender.xml" />
+
+	<!-- 所有的class -->
+	<logger name="com.milepost" level="debug"/>
+
+	<root level="info">
+		<appender-ref ref="file" />
+	</root>
+	<!--
+	生产环境只输出到文件，
+	生产环境推荐配置为info或者warn，便于排查错误
+	-->
+</included>

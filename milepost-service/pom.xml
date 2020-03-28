@@ -58,10 +58,11 @@
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-netflix-hystrix</artifactId>
 		</dependency>
-		<dependency>
+		<!--hystrix的dashboard，不使用单独的dashboard，使用turbine聚合dashboard-->
+		<!--<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-netflix-hystrix-dashboard</artifactId>
-		</dependency>
+		</dependency>-->
 		<!--hystrix使用的15.0的guava，swagger使用20.0的guava，这里升级成20.0-->
 		<dependency>
 			<groupId>com.google.guava</groupId>
