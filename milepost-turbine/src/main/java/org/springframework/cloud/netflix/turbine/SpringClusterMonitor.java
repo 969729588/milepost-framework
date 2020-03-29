@@ -71,7 +71,7 @@ public class SpringClusterMonitor extends AggregateClusterMonitor {
                 url = this.defaultUrlClosureConfig.get();
             }
             //--------------------，指定要监控的服务的 hystrix.stream url
-            url = host.getAttributes().get("management.context-path") + "/hystrix.stream";
+            url = host.getAttributes().get("management.context-path").substring(1) + "/hystrix.stream";
             //--------------------
 
             if (url == null) {
