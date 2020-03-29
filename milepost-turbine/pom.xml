@@ -24,31 +24,37 @@
 			<scope>test</scope>
 		</dependency>
 
+		<!--日志-->
 		<dependency>
 			<groupId>com.milepost</groupId>
 			<artifactId>milepost-log</artifactId>
 		</dependency>
 
+		<!--核心-->
 		<dependency>
 			<groupId>com.milepost</groupId>
 			<artifactId>milepost-core</artifactId>
 		</dependency>
 
+		<!--hystrix-dashboard-->
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-netflix-hystrix-dashboard</artifactId>
 		</dependency>
 
+		<!--turbine-->
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-netflix-turbine</artifactId>
 		</dependency>
 
+		<!--监控端点-->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
 
+		<!--eureka-client-->
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>

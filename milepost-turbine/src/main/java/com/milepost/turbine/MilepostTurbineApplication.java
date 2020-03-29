@@ -25,7 +25,7 @@ public class MilepostTurbineApplication {
 	public static void main(String[] args) {
 //		SpringApplication.run(MilepostTurbineApplication.class, args);
 
-		//EurekaServer需要的自定义属性
+		//自定义属性
 		Map<String, Object> customProperties = new HashMap<>();
 		customProperties.put(MilepostConstant.MILEPOST_APPLICATION_TYPE_KEY, MilepostApplicationType.TURBINE.getValue());
 		MilepostApplication.run(customProperties, MilepostTurbineApplication.class, args);
