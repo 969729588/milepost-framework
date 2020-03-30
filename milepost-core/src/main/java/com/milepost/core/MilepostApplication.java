@@ -287,6 +287,10 @@ public class MilepostApplication extends SpringApplication{
         FileCopyUtils.copy(ResourceUtils.getURL("classpath:public.key").openStream(), new FileOutputStream(new File("public.key")));
         FileCopyUtils.copy(ResourceUtils.getURL("classpath:license.dat").openStream(), new FileOutputStream(new File("license.dat")));
 
+        //认证UI 登录SBA Server 的用户信息，
+        String loginSbaServerUser = "admin";
+        String loginSbaServerPassword = "XSRF-TOKEN=random";
+
         //获取当前应用的应用类型
         String applicationType = "";
         if(customProperties != null){
@@ -327,16 +331,18 @@ public class MilepostApplication extends SpringApplication{
         //management监控相关，
         //监控相关端点的前缀，访问路径为https://localhost:port/${server.servlet.context-path}/milepost-actuator
         defaultProperties.put("management.endpoints.web.base-path", "/milepost-actuator");
-        //只开启以下端点，具体有哪些见《深入浅出Spring Boot 2.x-标注版.pdf》394页
-        Set<String> include = new LinkedHashSet<>();
-        include.add("info");
-        include.add("env");
-        include.add("beans");//显示S pring loC 容器关于Bean 的信息
-        include.add("health");
-        include.add("configprops");//显示当前项目的属性配置信息（通过@ConfigurationProperties 配置）
-        include.add("loggers");//显示并修改应用程序中记录器的配置
-        include.add("hystrix.stream");//hystrix监控
-        defaultProperties.put("management.endpoints.web.exposure.include", include);//如开启全部，则在yml中要写"*"，不能 *
+        //原本是只开启以下端点，具体有哪些见《深入浅出Spring Boot 2.x-标注版.pdf》394页
+        //增加了SpringBoot Admin后，开放了所有的端点，用Oauth保护所有端点，
+        //Set<String> include = new LinkedHashSet<>();
+        //include.add("info");
+        //include.add("env");
+        //include.add("beans");//显示Spring loC 容器关于Bean 的信息
+        //include.add("health");
+        //include.add("configprops");//显示当前项目的属性配置信息（通过@ConfigurationProperties 配置）
+        //////include.add("loggers");//显示并修改应用程序中记录器的配置
+        //include.add("hystrix.stream");//hystrix监控
+        defaultProperties.put("management.endpoints.web.exposure.include", "*");//如开启全部，则在yml中要写"*"，不能 *
+        defaultProperties.put("management.endpoint.health.show-details", "ALWAYS");
 
         //禁用以下组件的健康检查，每一个组件对应一个指示器，如redis的指示器是 RedisHealthIndicator
         defaultProperties.put("management.health.redis.enabled", "false");
@@ -550,19 +556,68 @@ public class MilepostApplication extends SpringApplication{
             //https://blog.csdn.net/chengqiuming/article/details/81052322
             //defaultProperties.put("eureka.client.healthcheck.enabled", "true");
 
-            if(!MilepostApplicationType.TURBINE.getValue().equalsIgnoreCase(applicationType)){
-                //除了EurekaServer和Turbine
+            //配置SpringBoot Admin client端相关的默认属性，只要注册到EurekaServer上的服务都需要配置
+            configSpringBootAdminClient(defaultProperties, springProfilesActive, springApplicationName);
+
+            //UI和Service
+            if(MilepostApplicationType.UI.getValue().equalsIgnoreCase(applicationType) ||
+                    MilepostApplicationType.SERVICE.getValue().equalsIgnoreCase(applicationType)){
                 //配置feign
                 configFeign(defaultProperties);
                 //配置ribbon
                 configRibbon(defaultProperties);
                 //配置hystrix
                 configHystrix(defaultProperties);
-            }else {
-                //Tuibine
+            }
+
+            //Tuibine
+            if(MilepostApplicationType.TURBINE.getValue().equalsIgnoreCase(applicationType)){
                 defaultProperties.put("turbine.app-config", "_all_");//监控本租户下的所有服务实例
                 defaultProperties.put("turbine.combine-host-port", true);
                 defaultProperties.put("turbine.cluster-name-expression", "new String(\"default\")");
+            }
+
+            //Admin，SpringBoot Admin Server
+            if(MilepostApplicationType.ADMIN.getValue().equalsIgnoreCase(applicationType)){
+                //设置SpringBoot Admin Server服务调用的JWT
+                defaultProperties.put("info.app.auth-service.name", "milepost-auth");
+                defaultProperties.put("info.app.auth-service.prefix", "/milepost-auth");
+
+                //设置SBA Server端的用户名和密码，即保护SBA Server的security的用户名和密码，是一个写死的值，
+                // 这个值也配置在认证UI的元数据中，在认证UI页面点击SBA Server时传入这个用户信息，
+                defaultProperties.put("spring.security.user.name", loginSbaServerUser);
+                defaultProperties.put("spring.security.user.password", loginSbaServerPassword);
+
+                //禁止打印一个很长的warn
+                defaultProperties.put("logging.level.de.codecentric.boot.admin.server.services.EndpointDetectionTrigger", "error");
+                //禁止打印一个没影响的error
+                defaultProperties.put("logging.level.org.apache.catalina.connector.CoyoteAdapter", "off");
+
+                //以下是给SBA Client端的默认配置，也需要配置在SBA Server端，原因同上
+                defaultProperties.put("eureka.instance.metadata-map.startup", "${random.int}");
+
+                //SBA Server其实也是一个SBA Client，因为SBA Server本身也被SBA Server监控，
+                //但是SBA Server与Service和UI类服务不同，他没有使用Oauth保护，只使用spring-boot-starter-security保护，
+                //在SBA Server请求自己本身的监控数据时候，采用Basic Auth，才能沟通过，所以这里也需要与Service和UI类服务类似的方式设置
+                defaultProperties.put("eureka.instance.metadata-map.sba_server.user", loginSbaServerUser);
+                defaultProperties.put("eureka.instance.metadata-map.sba_server.password", loginSbaServerPassword);
+
+                //实时浏览日志，只有测试环境和生产环境才有日志文件
+                if(!springProfilesActive.equalsIgnoreCase("dev")){
+                    defaultProperties.put("logging.file", "./logs/"+ springApplicationName +".log");
+                    //带颜色的日志没生效
+                    //"%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(%5p) %clr(${PID}){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n%wEx"
+                    //defaultProperties.put("logging.pattern.file", "[${eureka.instance.instance-id}] %yellow(%d{yyyy-MM-dd HH:mm:ss.SSS}) - [%highlight(%-5level)] [%green(%-50logger{50}): %blue(%-4line)] - %msg%n");
+                    //defaultProperties.put("logging.pattern.file", "[${eureka.instance.instance-id}] %clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){yellow} - [%clr(%-5level){highlight}] [%clr(%-50logger{50}){green}: %clr(%-4line){blue}] - %msg%n");
+                }
+
+
+                //暂时用上但是比较有用的
+                //修改页面标题
+                //spring.boot.admin.ui.title=Milepost-Admin
+                //Headers not to be forwarded when making requests to clients。默认值[Cookie, Set-Cookie, Authorization]
+                //spring.boot.admin.instance-proxy.ignored-headers=[Cookie, Set-Cookie, Authorization]
+                //spring.boot.admin.discovery.ignored-services=example-ui111
             }
         }
 
@@ -590,6 +645,7 @@ public class MilepostApplication extends SpringApplication{
         String infoAppVersion = ReadAppYml.getValue("info.app.version");
         infoAppVersion = StringUtils.isBlank(infoAppVersion)? MilepostConstant.APPLICATION_VERSION : infoAppVersion;//应用版本
         defaultProperties.put("eureka.instance.metadata-map.management.context-path", serverServletContextPath +"${management.endpoints.web.base-path}");
+        //共SpringBoot、HystrixTurbine等各种监控系统使用的
         defaultProperties.put("eureka.instance.metadata-map.context-path", serverServletContextPath);
 
         //从配置文件中读取权重和跟踪采样率，设置默认值，
@@ -654,6 +710,7 @@ public class MilepostApplication extends SpringApplication{
 
         if(MilepostApplicationType.SERVICE.getValue().equalsIgnoreCase(applicationType)
                 || MilepostApplicationType.AUTH.getValue().equalsIgnoreCase(applicationType)){
+            //JWT和Service
             //flyway，使用这个属性
             String springDatasourcePlatform = getConfigProByPriority("spring.datasource.platform", "mysql");
             defaultProperties.put("spring.datasource.initialize", "false");//禁止spring使用data.sql来初始化。
@@ -694,14 +751,19 @@ public class MilepostApplication extends SpringApplication{
                 defaultProperties.put("tx-lcn.aspect.log.file-path", "./tmp/tx-lcn-aspect-log/h2_log");
             }
         }else{
-            //除了Service类服务和JWT，都不使用flyway
+            //除了Service类服务和JWT服务，都不使用flyway
             defaultProperties.put("spring.flyway.enabled", "false");
         }
 
         if(MilepostApplicationType.UI.getValue().equalsIgnoreCase(applicationType)){
             //设置UI类服务调用的JWT
             defaultProperties.put("info.app.auth-service.name", "milepost-auth");
-            defaultProperties.put("info.app.auth-service.prefix", "milepost-auth");
+            defaultProperties.put("info.app.auth-service.prefix", "/milepost-auth");
+
+            //设置SBA Server端的用户名和密码，即保护SBA Server的security的用户名和密码，是一个写死的值，
+            // 这个值也配置在认证UI的元数据中，在认证UI页面点击SBA Server时传入这个用户信息，
+            defaultProperties.put("eureka.instance.metadata-map.login_sba_server.user", loginSbaServerUser);
+            defaultProperties.put("eureka.instance.metadata-map.login_sba_server.password", loginSbaServerPassword);
         }
 
         //velocity与thymeleaf类似，是一个模版引擎，
@@ -734,6 +796,31 @@ public class MilepostApplication extends SpringApplication{
         }
 
         return defaultProperties;
+    }
+
+    /**
+     * 配置SpringBoot Admin client端相关的默认属性，只要注册到EurekaServer上的服务都需要配置
+     * @param defaultProperties
+     */
+    private void configSpringBootAdminClient(Map<String, Object> defaultProperties, String springProfilesActive, String springApplicationName) {
+        //https://codecentric.github.io/spring-boot-admin/2.1.0/#_what_is_spring_boot_admin
+        //https://codecentric.github.io/spring-boot-admin/2.1.0/#spring-cloud-discovery-support
+        //needed to trigger info and endpoint update after restart
+        defaultProperties.put("eureka.instance.metadata-map.startup", "${random.int}");
+
+        //SBA Client放入实例元数据中的用户名和密码，SBA Server抓取到实例元数据并获取到下面的两个配置，
+        // 从JWT请求token，然后携带token去SBA Client抓取监控数据，这个用户数据已经写在jwt服务的slq脚本中了
+        defaultProperties.put("eureka.instance.metadata-map.sba_server.user", "SBA_Server");
+        defaultProperties.put("eureka.instance.metadata-map.sba_server.password", "123456");
+
+        //实时浏览日志，只有测试环境和生产环境才有日志文件
+        if(!springProfilesActive.equalsIgnoreCase("dev")){
+            defaultProperties.put("logging.file", "./logs/"+ springApplicationName +".log");
+            //带颜色的日志没生效
+            //"%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(%5p) %clr(${PID}){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n%wEx"
+            //defaultProperties.put("logging.pattern.file", "[${eureka.instance.instance-id}] %yellow(%d{yyyy-MM-dd HH:mm:ss.SSS}) - [%highlight(%-5level)] [%green(%-50logger{50}): %blue(%-4line)] - %msg%n");
+            //defaultProperties.put("logging.pattern.file", "[${eureka.instance.instance-id}] %clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){yellow} - [%clr(%-5level){highlight}] [%clr(%-50logger{50}){green}: %clr(%-4line){blue}] - %msg%n");
+        }
     }
 
     /**

@@ -33,6 +33,7 @@ CREATE TABLE oauth_client_details (
   autoapprove varchar(256) DEFAULT NULL,
   PRIMARY KEY (client_id)
 ) ;
+-- 测试client
 INSERT INTO oauth_client_details VALUES ('test-client-id', null, '123456', 'test', 'implicit,refresh_token,password,authorization_code', null, null, '7200', '7200', '{\"a\":\"b\"}', 'true');
 
 CREATE TABLE oauth_client_token (
@@ -68,3 +69,5 @@ CREATE TABLE user (
 ) ;
 -- 初始用户，admin/123456
 INSERT INTO user(id, username, truename, mobile, email, password, activated) values('1', 'admin', 'Huarf', '18310891237', '969729588@qq.com', 'e10adc3949ba59abbe56e057f20f883e', '1');
+-- SpringBoot Admin用户，SBA_Server/123456
+INSERT INTO user(id, username, truename, mobile, email, password, activated) values('2', 'SBA_Server', 'SpringBoot Admin', '18310891237', '969729588@qq.com', 'e10adc3949ba59abbe56e057f20f883e', '1');

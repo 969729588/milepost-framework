@@ -15,15 +15,7 @@
     <packaging>jar</packaging>
     <name>milepost-core</name>
     <description>core</description>
-    <!--
-    里面包含：
-        1、维护集群中多实例的角色
-        2、分布式锁，分布式调度。
 
-
-    所有service和ui都应该依赖这个pom，所以应该写在milepost-service.pom和milepost-ui.pom中。
-
-    -->
     <dependencies>
 
         <!--单元测试-->
@@ -33,31 +25,35 @@
             <scope>test</scope>
         </dependency>
 
+        <!--api-->
         <dependency>
             <groupId>com.milepost</groupId>
             <artifactId>milepost-api</artifactId>
         </dependency>
 
+        <!--jackson-->
         <dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>
             <artifactId>jackson-dataformat-yaml</artifactId>
         </dependency>
-
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
         </dependency>
 
+        <!--eureka-client-->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
         </dependency>
 
+        <!--注解，面向切面-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-aop</artifactId>
         </dependency>
 
+        <!--redis-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>
@@ -120,6 +116,12 @@
         <dependency>
             <groupId>org.messaginghub</groupId>
             <artifactId>pooled-jms</artifactId>
+        </dependency>
+
+        <!--SpringBoot Admin 的 JMX-beans，所有被监控的服务（即所有注册到在EurekaServer中的）都要增加这个依赖-->
+        <dependency>
+            <groupId>org.jolokia</groupId>
+            <artifactId>jolokia-core</artifactId>
         </dependency>
 
     </dependencies>

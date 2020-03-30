@@ -282,6 +282,13 @@
                 <artifactId>my-ojdbc6</artifactId>
                 <version>12.1.0.2</version>
             </dependency>
+
+            <!--spring-boot-admin，不是SpringBoot管理的-->
+            <dependency>
+                <groupId>de.codecentric</groupId>
+                <artifactId>spring-boot-admin-starter-server</artifactId>
+                <version>2.1.0</version>
+            </dependency>
        </dependencies>
     </dependencyManagement>
 

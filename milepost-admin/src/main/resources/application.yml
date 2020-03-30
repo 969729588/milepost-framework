@@ -1,0 +1,71 @@
+# 详细配置见https://codecentric.github.io/spring-boot-admin/2.1.0/#spring-boot-admin-server
+
+info:
+  app:
+    name: Admin监控
+    description: Admin监控
+    version: 1.0.0.100
+#    auth-service:
+#      name: milepost-auth
+#      prefix: "/milepost-auth"
+
+server:
+  port: 8768
+  #不支持设置context-path，前端请求时没有加context-path
+#  servlet:
+#    context-path: "/milepost-admin"
+
+spring:
+  application:
+    name: milepost-admin
+  profiles:
+    active: dev
+#  security:
+#    user:
+#      name: "admin"
+#      password: "XSRF-TOKEN=random"
+#  boot:
+#    admin:
+#      ui:
+#        title: Milepost-Admin
+#      instance-proxy:
+#        # Headers not to be forwarded when making requests to clients。默认值[Cookie, Set-Cookie, Authorization]
+#        ignored-headers: [Cookie, Set-Cookie, Authorization]
+#      discovery:
+#        # This services will be included when using discovery and registered as application. Supports simple patterns (e.g. "foo*", "*bar", "foo*bar*").
+#        #services:
+#        # This services will be ignored when using discovery and not registered as application. Supports simple patterns (e.g. "foo*", "*bar", "foo*bar*").
+#        ignored-services: example-ui111
+eureka:
+  client:
+    service-url:
+      defaultZone: http://192.168.223.129:8761/eureka/
+  instance:
+    ip-address: 192.168.223.1
+#    metadata-map:
+#      user:
+#        name: ${spring.security.user.name}
+#        password: ${spring.security.user.password}
+
+multiple-tenant:
+  tenant: tenant1
+
+
+##########
+#management:
+#  endpoints:
+#    web:
+#      exposure:
+#        include: "*"
+#  endpoint:
+#    health:
+#      show-details: ALWAYS
+#logging:
+#  level:
+#    #禁止打印一个很长的warn
+#    de.codecentric.boot.admin.server.services.EndpointDetectionTrigger: error
+#    #禁止打印一个没影响的error
+#    com.milepost.core.MilepostApplication: off
+
+
+

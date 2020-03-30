@@ -9,19 +9,7 @@
     <packaging>pom</packaging>
     <version>1.0.0-SNAPSHOT</version>
     <description>框架父工程</description>
-    <!--
-    用来管理框架核心组件的，不继承，也没有依赖，只起管理作用
-	包含如下子模块
-	milepost-parent
-	milepost-eureka
-	milepost-auth
-	milepost-core
-	milepost-service
-	milepost-ui
-	milepost-log
-	milepost-api
-	milepost-test
-    -->
+    <!--用来管理框架核心组件的，不继承，也没有依赖，只起管理作用-->
 
     <modules>
         <module>milepost-parent</module>
@@ -39,6 +27,7 @@
         <module>milepost-eureka</module>
         <module>milepost-auth</module>
         <module>milepost-turbine</module>
+        <module>milepost-admin</module>
     </modules>
 
 </project>
