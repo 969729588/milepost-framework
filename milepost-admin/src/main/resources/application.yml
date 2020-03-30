@@ -30,7 +30,7 @@ spring:
 #        mail:
 #          enabled: true
           #from: Spring Boot Admin <${spring.mail.username}>
-          to: 969729588@qq.com
+          #to: 969729588@qq.com
 #  security:
 #    user:
 #      name: "admin"
