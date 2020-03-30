@@ -7,6 +7,7 @@ start() {
     -jar ${JAR_NAME} \
     --spring.profiles.active=test \
     --server.port=8768 \
+    --eureka.client.service-url.defaultZone='http://192.168.223.129:8761/eureka/' \
     --eureka.instance.ip-address=192.168.223.129 \
     --spring.boot.admin.ui.title=milepost-admin \
     --spring.mail.username=m18310891237@163.com \
