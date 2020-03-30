@@ -593,6 +593,13 @@ public class MilepostApplication extends SpringApplication{
                 //禁止打印一个没影响的error
                 defaultProperties.put("logging.level.org.apache.catalina.connector.CoyoteAdapter", "off");
 
+                //发送邮件提醒通知，发件人必须是邮箱服务器的所属人，
+                String springMailUsername = getConfigProByPriority("spring.mail.username", null);
+                if(StringUtils.isNotBlank(springMailUsername)){
+                    String fromPersonName = "Milepost Spring Boot Admin";//发件人名称
+                    defaultProperties.put("spring.boot.admin.notify.mail.from", fromPersonName + " " + "<"+ springMailUsername +">");
+                }
+
                 //以下是给SBA Client端的默认配置，也需要配置在SBA Server端，原因同上
                 defaultProperties.put("eureka.instance.metadata-map.startup", "${random.int}");
 

@@ -20,6 +20,17 @@ spring:
     name: milepost-admin
   profiles:
     active: dev
+#  mail:
+#    username: m18310891237@163.com
+#    password: sqm123456qweasd
+#    host: smtp.163.com
+#  boot:
+#    admin:
+#      notify:
+#        mail:
+#          enabled: true
+          #from: Spring Boot Admin <${spring.mail.username}>
+          to: 969729588@qq.com
 #  security:
 #    user:
 #      name: "admin"
