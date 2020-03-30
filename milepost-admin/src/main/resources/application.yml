@@ -46,7 +46,7 @@ spring:
 #        # This services will be included when using discovery and registered as application. Supports simple patterns (e.g. "foo*", "*bar", "foo*bar*").
 #        #services:
 #        # This services will be ignored when using discovery and not registered as application. Supports simple patterns (e.g. "foo*", "*bar", "foo*bar*").
-#        ignored-services: example-ui111
+#        ignored-services: [Cookie, Set-Cookie, Authorization]
 eureka:
   client:
     service-url:

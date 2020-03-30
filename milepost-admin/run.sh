@@ -13,7 +13,7 @@ start() {
     --spring.mail.password=sqm123456qweasd \
     --spring.mail.host=smtp.163.com \
     --spring.boot.admin.notify.mail.to=969729588@qq.com \
-    --spring.boot.admin.discovery.ignored-services=test-service \
+    --spring.boot.admin.discovery.ignored-services=[test-appName-1, test-appName-1] \
     --multiple-tenant.tenant=tenant1 \
     >/dev/null 2>&1 &
 }
