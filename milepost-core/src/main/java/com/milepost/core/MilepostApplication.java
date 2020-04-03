@@ -134,7 +134,7 @@ public class MilepostApplication extends SpringApplication{
         }
 
         String envValue = System.getenv(envKey);
-        //envValue = "http://192.168.223.129:8761/eureka/";
+        //envValue = "http://192.168.223.136:8761/eureka/";
         if(StringUtils.isNotBlank(envValue) && !argsContained){
             argList.add("--" + argsKey + "=" + envValue);
         }
@@ -755,7 +755,8 @@ public class MilepostApplication extends SpringApplication{
                 //以后有时间可以把这个加入进来，目前采取的措施是在代码中避免这种情况的发生。
                 defaultProperties.put("tx-lcn.ribbon.loadbalancer.dtx.enabled", false);
                 //分布式事务框架存储的业务切面信息。采用的是h2数据库。绝对路径。该参数默认的值为{user.dir}/.txlcn/{application.name}-{application.port}
-                defaultProperties.put("tx-lcn.aspect.log.file-path", "./tmp/tx-lcn-aspect-log/h2_log");
+                //若在同一个服务器上的同一个目录下启动两个实例，则他们会使用同一个h2数据文件，所以增加端口加以区分。
+                defaultProperties.put("tx-lcn.aspect.log.file-path", "./tmp/tx-lcn-aspect-log/h2_"+ serverPort +"log_");
             }
         }else{
             //除了Service类服务和JWT服务，都不使用flyway

@@ -1,4 +1,4 @@
-package com.milepost.core.mq;
+package com.milepost.core.activeMq;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +21,7 @@ public class JmsListenerContainerFactoryConfig {
     private static Logger logger = LoggerFactory.getLogger(JmsListenerContainerFactoryConfig.class);
 
     public JmsListenerContainerFactoryConfig() {
-        logger.info("初始化消息总线服务JmsListenerContainerFactory...");
+        logger.info("初始化ActiveMQ服务JmsListenerContainerFactory...");
     }
 
     /**

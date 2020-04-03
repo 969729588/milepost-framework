@@ -9,7 +9,7 @@ start() {
     --server.port=8761 \
     --info.app.description=注册中心 \
     --spring.application.name=milepost-eureka \
-    --eureka.instance.ip-address=192.168.223.129 \
+    --eureka.instance.ip-address=192.168.223.136 \
     >/dev/null 2>&1 &
 }
 

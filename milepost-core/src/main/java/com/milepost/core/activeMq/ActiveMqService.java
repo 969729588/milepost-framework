@@ -1,4 +1,4 @@
-package com.milepost.core.mq;
+package com.milepost.core.activeMq;
 
 import javax.jms.Queue;
 import javax.jms.Topic;

@@ -10,7 +10,7 @@ start() {
     --info.app.description=JWT服务 \
     --spring.datasource.platform=mysql \
     --spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver \
-    --spring.datasource.url='jdbc:mysql://localhost:3306/milepost_auth?useUnicode=true&characterEncoding=utf8&characterSetResults=utf8&serverTimezone=GMT%2B8' \
+    --spring.datasource.url='jdbc:mysql://192.168.223.136:3306/milepost_auth?useUnicode=true&characterEncoding=utf8&characterSetResults=utf8&serverTimezone=GMT%2B8' \
     --spring.datasource.username=root \
     --spring.datasource.password='ENC(tXVsX2fiUQfrNM9Gqey3pmRiLgw+Znp/ISEaZCOMDo0=)' \
     --spring.datasource.hikari.connection-timeout=30000 \
@@ -18,8 +18,8 @@ start() {
     --spring.datasource.hikari.max-lifetime=1800000 \
     --spring.datasource.hikari.maximum-pool-size=10 \
     --spring.datasource.hikari.minimum-idle=10 \
-    --eureka.client.service-url.defaultZone='http://192.168.223.129:8761/eureka/' \
-    --eureka.instance.ip-address=192.168.223.129 \
+    --eureka.client.service-url.defaultZone='http://192.168.223.136:8761/eureka/' \
+    --eureka.instance.ip-address=192.168.223.136 \
     --multiple-tenant.tenant=tenant1 \
     --multiple-tenant.weight=1 \
     --multiple-tenant.label-and=aa,bb,cc \

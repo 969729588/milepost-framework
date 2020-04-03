@@ -7,14 +7,14 @@ start() {
     -jar ${JAR_NAME} \
     --spring.profiles.active=test \
     --server.port=8768 \
-    --eureka.client.service-url.defaultZone='http://192.168.223.129:8761/eureka/' \
-    --eureka.instance.ip-address=192.168.223.129 \
+    --eureka.client.service-url.defaultZone='http://192.168.223.136:8761/eureka/' \
+    --eureka.instance.ip-address=192.168.223.136 \
     --spring.boot.admin.ui.title=milepost-admin \
     --spring.mail.username=m18310891237@163.com \
     --spring.mail.password=sqm123456qweasd \
     --spring.mail.host=smtp.163.com \
     --spring.boot.admin.notify.mail.to=969729588@qq.com \
-    --spring.boot.admin.discovery.ignored-services=[test-appName-1, test-appName-1] \
+    --spring.boot.admin.discovery.ignored-services='[test-appName-1, test-appName-1]' \
     --multiple-tenant.tenant=tenant1 \
     >/dev/null 2>&1 &
 }

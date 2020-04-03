@@ -1,6 +1,6 @@
-package com.milepost.core.mq.impl;
+package com.milepost.core.activeMq.impl;
 
-import com.milepost.core.mq.ActiveMqService;
+import com.milepost.core.activeMq.ActiveMqService;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.command.ActiveMQTopic;
 import org.slf4j.Logger;
@@ -26,7 +26,7 @@ public class ActiveMqServiceImpl implements ActiveMqService{
     private static Logger logger = LoggerFactory.getLogger(ActiveMqServiceImpl.class);
 
     public ActiveMqServiceImpl() {
-        logger.info("初始化消息总线服务...");
+        logger.info("初始化初始化ActiveMQ服务...");
     }
 
     /**

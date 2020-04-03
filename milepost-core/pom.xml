@@ -124,6 +124,12 @@
             <artifactId>jolokia-core</artifactId>
         </dependency>
 
+        <!--amqp，它会将RabbitMQ对应的包加载进来-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-amqp</artifactId>
+        </dependency>
+
     </dependencies>
 
 </project>

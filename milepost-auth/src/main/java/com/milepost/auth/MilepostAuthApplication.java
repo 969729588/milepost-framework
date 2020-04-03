@@ -18,8 +18,8 @@ import java.util.Map;
 		"com.milepost.core.spring",// ApplicationContextProvider
 		//jwt服务没有license，以提高性能
 		//"com.milepost.core.lns",//license
-		"com.milepost.core.mq",//mq
-		"com.milepost.core.restTemplate",//restTemplate
+        //"com.milepost.core.activeMq",//mq
+		//"com.milepost.core.restTemplate",//restTemplate
 		"com.milepost.core.exception",//全局异常处理
 		"com.milepost.service.config.dynamicDs"//动态数据源
 })

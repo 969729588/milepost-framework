@@ -71,7 +71,7 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
             .csrf().disable()
             .authorizeRequests()
             //增加了SpringBoot Admin后，开放了所有的端点，用Oauth保护所有端点，为了不影响EurekaServer，忽略以下端点的保护
-            .antMatchers("/milepost-actuator/info", "/milepost-actuator/env", "/milepost-actuator/beans", "/milepost-actuator/health", "/milepost-actuator/configprops", "/milepost-actuator/hystrix.stream",//监控
+            .antMatchers("/milepost-actuator/info", /*"/milepost-actuator/env", "/milepost-actuator/beans",*/ "/milepost-actuator/health", /*"/milepost-actuator/configprops", */"/milepost-actuator/hystrix.stream",//监控
                     //"/hystrix.stream/**", //hystrix监控，不使用每个服务独立的监控页面，
                     "/**/*.css", "/**/*.js", "/**/*.jpg", "/**/*.png", "/**/*.gif", "/**/*.ico", "/**/*.woff", "/**/*.ttf")//静态资源
                 .permitAll()

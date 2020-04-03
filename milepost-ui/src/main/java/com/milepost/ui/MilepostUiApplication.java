@@ -17,11 +17,13 @@ import java.util.Map;
 		"com.milepost.core.multipleTenant",//多租户、
 		"com.milepost.core.spring",// ApplicationContextProvider
 		"com.milepost.core.lns",//license
-		"com.milepost.core.mq",//mq
+        "com.milepost.core.activeMq",//activeMq
+        "com.milepost.core.rabbitMq",//rabbitMq
 		"com.milepost.core.restTemplate",//restTemplate
 		"com.milepost.core.redisTemplate",//redisTemplate
 		"com.milepost.core.exception",//全局异常处理
-		"com.milepost.ui.index.controller"//内置controller，接收认证参数，传给前端
+		"com.milepost.ui.index.controller",//内置controller，接收认证参数，传给前端
+		"com.milepost.core.serviceDiscovery"//服务发现
 })
 public class MilepostUiApplication {
 

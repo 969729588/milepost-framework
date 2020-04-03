@@ -50,7 +50,7 @@ spring:
 eureka:
   client:
     service-url:
-      defaultZone: http://192.168.223.129:8761/eureka/
+      defaultZone: http://192.168.223.136:8761/eureka/
   instance:
     ip-address: 192.168.223.1
 #    metadata-map:
