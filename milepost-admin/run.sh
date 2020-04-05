@@ -16,6 +16,8 @@ start() {
     --spring.boot.admin.notify.mail.to=969729588@qq.com \
     --spring.boot.admin.discovery.ignored-services='[test-appName-1, test-appName-1]' \
     --multiple-tenant.tenant=tenant1 \
+    --track.enabled=true \
+    --track.sampling=1 \
     >/dev/null 2>&1 &
 }
 

@@ -26,6 +26,8 @@ start() {
     --multiple-tenant.label-or=dd,ee,ff \
     --auth.client-detail.access-token-validity=7300 \
     --auth.client-detail.refresh-token-validity=7300 \
+    --track.enabled=true \
+    --track.sampling=1 \
     >/dev/null 2>&1 &
 }
 

@@ -37,12 +37,6 @@ public class MultipleTenantProperties {
      * 过滤算法：交集不为空，就选中服务实例<br>
      */
     private String labelOr;
-    /**
-     * 跟踪采样率<br>
-     * 格式：0~1，如0.1，0.02<br>
-     * 计算方法：<br>
-     */
-    private Float trackSampling = 0.1f;
 
     public String getTenant() {
         return tenant;
@@ -76,13 +70,6 @@ public class MultipleTenantProperties {
         this.labelOr = labelOr;
     }
 
-    public float getTrackSampling() {
-        return trackSampling;
-    }
-
-    public void setTrackSampling(Float trackSampling) {
-        this.trackSampling = trackSampling;
-    }
 
     @Override
     public String toString() {
@@ -91,7 +78,6 @@ public class MultipleTenantProperties {
                 ", weight=" + weight +
                 ", labelAnd='" + labelAnd + '\'' +
                 ", labelOr='" + labelOr + '\'' +
-                ", trackSampling=" + trackSampling +
                 '}';
     }
 }

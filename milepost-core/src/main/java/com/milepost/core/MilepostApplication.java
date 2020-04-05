@@ -648,6 +648,20 @@ public class MilepostApplication extends SpringApplication{
         defaultProperties.put("eureka.instance.status-page-url", protocol + "://${eureka.instance.ip-address}:${server.port}"+ serverServletContextPath +"${management.endpoints.web.base-path}/info");
         defaultProperties.put("eureka.instance.status-page-url-path",  serverServletContextPath +"${management.endpoints.web.base-path}/info");
 
+        //链路跟踪
+        String trackEnabled = getConfigProByPriority("track.enabled", "true");//默认开启
+        String trackSampling = getConfigProByPriority("track.sampling", "0.1");//默认0.1
+        if(Boolean.valueOf(trackEnabled)){
+            //开启sleuth,zipkin，必须有RabbitMQ的支持，即必须配置RabbitMQ
+            defaultProperties.put("spring.sleuth.web.client.enabled", true);
+            defaultProperties.put("spring.sleuth.sampler.probability", Float.valueOf(trackSampling));
+            defaultProperties.put("spring.zipkin.sender.type", "rabbit");//强制使用RabbitMQ
+        }else{
+            //关闭sleuth,zipkin
+            defaultProperties.put("sleuth.enabled", false);
+            defaultProperties.put("zipkin.enabled", false);
+        }
+
         //eureka.instance.metadata-map
         String infoAppVersion = ReadAppYml.getValue("info.app.version");
         infoAppVersion = StringUtils.isBlank(infoAppVersion)? MilepostConstant.APPLICATION_VERSION : infoAppVersion;//应用版本
@@ -658,7 +672,7 @@ public class MilepostApplication extends SpringApplication{
         //从配置文件中读取权重和跟踪采样率，设置默认值，
         // 默认值写在pojo的属性中了，但是这里无法注入，所以只能判断一下，写在pojo中的默认值当作编写yml时的提示，
         String weight = getConfigProByPriority("multiple-tenant.weight", "1");//默认值为1
-        String trackSampling = getConfigProByPriority("multiple-tenant.track-sampling", "0.1");//默认值为0.1
+        //String t1rackS2ampling = getConfigProByPriority("multiple-tenant.trac1k-sa2mpling", "0.1");//默认值为0.1
         defaultProperties.put("eureka.instance.metadata-map.weight", weight);//权重
         defaultProperties.put("eureka.instance.metadata-map.track-sampling", trackSampling);//应用的跟中采样率
         //如果配置文件中设置了租户、标签则读取出来设置到eureka.instance.metadata-map中，
@@ -705,16 +719,7 @@ public class MilepostApplication extends SpringApplication{
 //        defaultProperties.put("logger.kafka.partitions", "20");
 //        defaultProperties.put("logger.kafka.replication", "1");
 
-        //sleuth
-//        defaultProperties.put("spring.sleuth.enabled", "false");
-//        defaultProperties.put("spring.zipkin.type", "activemq");
-//        defaultProperties.put("spring.sleuth.mybatis.enabled", "true");
-//        defaultProperties.put("spring.sleuth.event.http.time.overpct", "3");
-//        defaultProperties.put("spring.sleuth.event.sql.time.overpct", "3");
-//        defaultProperties.put("spring.sleuth.event.scheduling.time.overpct", "3");
-
         //service、auth需要flyway和mybatis
-
         if(MilepostApplicationType.SERVICE.getValue().equalsIgnoreCase(applicationType)
                 || MilepostApplicationType.AUTH.getValue().equalsIgnoreCase(applicationType)){
             //JWT和Service

@@ -25,9 +25,10 @@ import java.util.Map;
 @EnableEurekaServer
 @SpringBootApplication
 @ComponentScan(basePackages = {
-		"com.milepost.core.spring"//ApplicationContextProvider
+		"com.milepost.core.spring",//ApplicationContextProvider
         //EurekaServer服务没有license，以提高性能
         //"com.milepost.core.lns"//license
+		"com.milepost.core.sleuth"//链路跟踪
 })
 public class MilepostEurekaApplication{
 

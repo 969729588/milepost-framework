@@ -21,9 +21,9 @@ import java.util.Map;
 		"com.milepost.core.rabbitMq",//rabbitMq
 		"com.milepost.core.restTemplate",//restTemplate
 		"com.milepost.core.redisTemplate",//redisTemplate
-		"com.milepost.core.exception",//全局异常处理
 		"com.milepost.service.config.dynamicDs",//动态数据源
-		"com.milepost.core.serviceDiscovery"//服务发现
+		"com.milepost.core.serviceDiscovery",//服务发现
+		"com.milepost.core.sleuth"//链路跟踪
 })
 //Swagger，这里好像默认是全部扫描，之后需要指定一下扫描的包,
 //访问：http://192.168.223.1:9991/authentication-service/swagger-ui.html

@@ -1,6 +1,8 @@
 package com.milepost.core.rabbitMq.impl;
 
 import com.milepost.core.rabbitMq.RabbitMqService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -15,11 +17,17 @@ import org.springframework.stereotype.Service;
 @ConditionalOnProperty("spring.rabbitmq.host")
 public class RabbitMqServiceImpl implements RabbitMqService{
 
+    private static Logger logger = LoggerFactory.getLogger(RabbitMqServiceImpl.class);
+
     @Autowired
     private Environment environment;
 
     @Autowired
     private RabbitTemplate rabbitTemplate;
+
+    public RabbitMqServiceImpl() {
+        logger.info("初始化RabbitMQ服务...");
+    }
 
     /**
      * 向指定租户下的所有服务实例发消息

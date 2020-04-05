@@ -10,6 +10,8 @@ start() {
     --info.app.description=注册中心 \
     --spring.application.name=milepost-eureka \
     --eureka.instance.ip-address=192.168.223.136 \
+    --track.enabled=true \
+    --track.sampling=1 \
     >/dev/null 2>&1 &
 }
 

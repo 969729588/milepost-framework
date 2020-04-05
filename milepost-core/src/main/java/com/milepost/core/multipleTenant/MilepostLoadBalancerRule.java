@@ -5,7 +5,6 @@ import com.netflix.client.config.IClientConfig;
 import com.netflix.discovery.EurekaClient;
 import com.netflix.loadbalancer.AbstractLoadBalancerRule;
 import com.netflix.loadbalancer.ILoadBalancer;
-import com.netflix.loadbalancer.RoundRobinRule;
 import com.netflix.loadbalancer.Server;
 import com.netflix.niws.loadbalancer.DiscoveryEnabledServer;
 import org.apache.commons.lang.StringUtils;
@@ -35,13 +34,13 @@ public class MilepostLoadBalancerRule extends AbstractLoadBalancerRule {
     private static final boolean AVAILABLE_ONLY_SERVERS = true;
     private static final boolean ALL_SERVERS = false;
 
-    private static Logger log = LoggerFactory.getLogger(RoundRobinRule.class);
+    private static Logger log = LoggerFactory.getLogger(MilepostLoadBalancerRule.class);
 
     public static final String TENANT = "tenant";
     public static final String WEIGHT = "weight";
     public static final String LABEL_AND = "label-and";
     public static final String LABEL_OR = "label-or";
-    public static final String TRACK_SAMPLING = "track-sampling";
+    //public static final String T R A C K_S A M P LING = "tr a ck-sa mpli ng";
 
     /**
      * 用来获取当前服务实例的InstanceInfo，

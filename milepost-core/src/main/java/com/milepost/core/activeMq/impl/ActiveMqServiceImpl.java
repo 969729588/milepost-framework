@@ -26,7 +26,7 @@ public class ActiveMqServiceImpl implements ActiveMqService{
     private static Logger logger = LoggerFactory.getLogger(ActiveMqServiceImpl.class);
 
     public ActiveMqServiceImpl() {
-        logger.info("初始化初始化ActiveMQ服务...");
+        logger.info("初始化ActiveMQ服务...");
     }
 
     /**

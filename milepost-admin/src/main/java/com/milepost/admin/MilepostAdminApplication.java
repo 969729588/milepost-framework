@@ -21,7 +21,8 @@ import java.util.Map;
 @ComponentScan(basePackages = {
 		"com.milepost.admin",
 		"com.milepost.core.multipleTenant",//多租户、
-		"com.milepost.core.spring"//ApplicationContextProvider
+		"com.milepost.core.spring",//ApplicationContextProvider
+		"com.milepost.core.sleuth"//链路跟踪
 })
 public class MilepostAdminApplication {
 

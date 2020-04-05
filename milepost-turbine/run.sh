@@ -10,6 +10,8 @@ start() {
     --eureka.client.service-url.defaultZone='http://192.168.223.136:8761/eureka/' \
     --eureka.instance.ip-address=192.168.223.136 \
     --multiple-tenant.tenant=tenant1 \
+    --track.enabled=true \
+    --track.sampling=1 \
     >/dev/null 2>&1 &
 }
 
