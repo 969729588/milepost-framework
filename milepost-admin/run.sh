@@ -10,16 +10,17 @@ start() {
     --eureka.client.service-url.defaultZone='http://192.168.223.136:8761/eureka/' \
     --eureka.instance.ip-address=192.168.223.136 \
     --spring.boot.admin.ui.title=milepost-admin \
-    #--spring.mail.username=m18310891237@163.com \
-    #--spring.mail.password=sqm123456qweasd \
-    #--spring.mail.host=smtp.163.com \
-    #--spring.boot.admin.notify.mail.to=969729588@qq.com \
     --spring.boot.admin.discovery.ignored-services='[test-appName-1, test-appName-1]' \
     --multiple-tenant.tenant=tenant1 \
     --track.enabled=true \
     --track.sampling=1 \
     >/dev/null 2>&1 &
 }
+
+#--spring.mail.username=m18310891237@163.com \
+#--spring.mail.password=sqm123456qweasd \
+#--spring.mail.host=smtp.163.com \
+#--spring.boot.admin.notify.mail.to=969729588@qq.com \
 
 
 stop() {
