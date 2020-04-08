@@ -1,13 +1,9 @@
 # 详细配置见https://codecentric.github.io/spring-boot-admin/2.1.0/#spring-boot-admin-server
-
 info:
   app:
     name: Admin监控
     description: Admin监控
     version: 1.0.0.100
-#    auth-service:
-#      name: milepost-auth
-#      prefix: "/milepost-auth"
 
 server:
   port: 8768
@@ -20,6 +16,15 @@ spring:
     name: milepost-admin
   profiles:
     active: dev
+  rabbitmq:
+    #rabbitmq服务器ip
+    host: 192.168.223.136
+    #rabbitmq端口
+    port: 5672
+    #rabbitmq用户
+    username: admin
+    #rabbitmq密码
+    password: admin
 #  mail:
 #    username: m18310891237@163.com
 #    password: sqm123456qweasd
@@ -47,10 +52,14 @@ spring:
 #        #services:
 #        # This services will be ignored when using discovery and not registered as application. Supports simple patterns (e.g. "foo*", "*bar", "foo*bar*").
 #        ignored-services: [Cookie, Set-Cookie, Authorization]
+track:
+  enabled: true
+  sampling: 1
+
 eureka:
   client:
     service-url:
-      defaultZone: http://192.168.223.136:8761/eureka/
+      defaultZone: http://192.168.223.1:8761/eureka/
   instance:
     ip-address: 192.168.223.1
 #    metadata-map:

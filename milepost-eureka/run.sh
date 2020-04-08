@@ -7,9 +7,11 @@ start() {
     -jar ${JAR_NAME} \
     --spring.profiles.active=test \
     --server.port=8761 \
-    --info.app.description=注册中心 \
-    --spring.application.name=milepost-eureka \
     --eureka.instance.ip-address=192.168.223.136 \
+    --spring.rabbitmq.host=192.168.223.136 \
+    --spring.rabbitmq.port=5672 \
+    --spring.rabbitmq.username=admin \
+    --spring.rabbitmq.password=admin \
     --track.enabled=true \
     --track.sampling=1 \
     >/dev/null 2>&1 &

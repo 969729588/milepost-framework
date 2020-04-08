@@ -12,11 +12,22 @@ spring:
     name: milepost-eureka
   profiles:
     active: dev
+  rabbitmq:
+    #rabbitmq服务器ip
+    host: 192.168.223.136
+    #rabbitmq端口
+    port: 5672
+    #rabbitmq用户
+    username: admin
+    #rabbitmq密码
+    password: admin
+track:
+  enabled: true
+  sampling: 1
 
 eureka:
   instance:
-    #ip-address: 172.16.1.208
-    ip-address: 192.168.1.105
+    ip-address: 192.168.223.1
   client:
     service-url:
       defaultZone: http://${eureka.instance.ip-address}:${server.port}/eureka/

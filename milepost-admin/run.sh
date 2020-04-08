@@ -11,9 +11,13 @@ start() {
     --eureka.instance.ip-address=192.168.223.136 \
     --spring.boot.admin.ui.title=milepost-admin \
     --spring.boot.admin.discovery.ignored-services='[test-appName-1, test-appName-1]' \
-    --multiple-tenant.tenant=tenant1 \
+    --spring.rabbitmq.host=192.168.223.136 \
+    --spring.rabbitmq.port=5672 \
+    --spring.rabbitmq.username=admin \
+    --spring.rabbitmq.password=admin \
     --track.enabled=true \
     --track.sampling=1 \
+    --multiple-tenant.tenant=tenant1 \
     >/dev/null 2>&1 &
 }
 

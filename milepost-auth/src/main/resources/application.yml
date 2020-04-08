@@ -26,10 +26,23 @@ spring:
       max-lifetime: 1800000
       maximum-pool-size: 10
       minimum-idle: 10
+  rabbitmq:
+    #rabbitmq服务器ip
+    host: 192.168.223.136
+    #rabbitmq端口
+    port: 5672
+    #rabbitmq用户
+    username: admin
+    #rabbitmq密码
+    password: admin
+track:
+  enabled: true
+  sampling: 1
+
 eureka:
   client:
     service-url:
-      defaultZone: http://192.168.223.136:8761/eureka/
+      defaultZone: http://192.168.223.1:8761/eureka/
   instance:
     ip-address: 192.168.223.1
 

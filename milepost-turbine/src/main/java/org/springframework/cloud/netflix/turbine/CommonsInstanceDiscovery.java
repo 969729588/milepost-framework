@@ -140,9 +140,10 @@ public class CommonsInstanceDiscovery implements InstanceDiscovery {
             List<Application> registeredApplications = applications.getRegisteredApplications();
             for(Application application : registeredApplications){
                 String appName = application.getName();
-                //除了EurekaServer、jwt、turbine
+                //除了EurekaServer、Jwt、Turbine、Admin
                 if("MILEPOST-TURBINE".equalsIgnoreCase(appName) ||
                         "MILEPOST-AUTH".equalsIgnoreCase(appName) ||
+                        "MILEPOST-ADMIN".equalsIgnoreCase(appName) ||
                         "MILEPOST-EUREKA".equalsIgnoreCase(appName) ){
                     continue;
                 }
