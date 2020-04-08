@@ -1,5 +1,7 @@
 package com.milepost.core.lock;
 
+import brave.Span;
+import brave.Tracer;
 import com.milepost.api.enums.InstanceRole;
 import com.milepost.api.util.RedisUtil;
 import com.netflix.appinfo.InstanceInfo;
@@ -8,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.core.env.Environment;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -30,6 +33,9 @@ public class InstanceRoleHandleScheduler {
 
     @Autowired
     private RedisTemplate redisTemplate;
+
+    @Autowired(required = false)
+    private Tracer tracer;
 
     /**
      * 用于获取当前应用的appName和instanceId
@@ -142,10 +148,18 @@ public class InstanceRoleHandleScheduler {
         //这里最好不要使用@Value读取配置文件，因为在不配置这个属性时，@Value注解报错，而这个方法返回UNKNOWN
         String currAppName = this.instanceInfo.getAppName();//注意，无论配置如何，这里都会获取到大写的，所以在DiscoveryClient中获取到小写的需要转换成大写的
         String currInstanceId = this.instanceInfo.getInstanceId();
+        String currTenant = this.instanceInfo.getMetadata().get("tenant");
 
         logger.info("服务名称=" + currAppName + "，实例ID=" + currInstanceId + "，开始维护心跳和抢占" + InstanceRole.MASTER.getValue() + "，" +
                 "每" + schedulerLockProperties.getHeartbeatExpirationDurationInSeconds() + "秒更新一次心跳，抢占一次" + InstanceRole.MASTER.getValue() + "，心跳失效时间为" +
                 schedulerLockProperties.getHeartbeatExpirationDurationInSeconds() + "秒。");
+
+        //链路跟踪标签
+        if(tracer != null){
+            Span currentSpan = tracer.currentSpan();
+            currentSpan.tag("instanceId", currInstanceId);
+            currentSpan.tag("tenant", currTenant);
+        }
 
         JedisCommands jedisCommands = null;
 
