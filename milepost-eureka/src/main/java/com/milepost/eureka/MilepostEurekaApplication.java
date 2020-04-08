@@ -3,22 +3,16 @@ package com.milepost.eureka;
 import com.milepost.api.constant.MilepostConstant;
 import com.milepost.api.enums.MilepostApplicationType;
 import com.milepost.core.MilepostApplication;
-import com.netflix.appinfo.InstanceInfo;
-import com.netflix.discovery.shared.Application;
-import com.netflix.discovery.shared.Applications;
-import com.netflix.eureka.EurekaServerContextHolder;
-import com.netflix.eureka.registry.PeerAwareInstanceRegistry;
+import com.milepost.core.sleuth.SleuthFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @EnableScheduling
@@ -29,7 +23,9 @@ import java.util.Map;
         //EurekaServer服务没有license，以提高性能
         //"com.milepost.core.lns"//license
 		"com.milepost.core.sleuth"//链路跟踪
-})
+}, excludeFilters = @ComponentScan.Filter(
+		type = FilterType.ASSIGNABLE_TYPE,
+		classes = SleuthFilter.class))//排除SleuthFilter，因为EurekaServer不区分租户
 public class MilepostEurekaApplication{
 
 	private static Logger logger = LoggerFactory.getLogger(MilepostEurekaApplication.class);
