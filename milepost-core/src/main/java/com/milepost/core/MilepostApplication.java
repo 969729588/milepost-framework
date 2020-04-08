@@ -570,7 +570,7 @@ public class MilepostApplication extends SpringApplication{
                 configHystrix(defaultProperties);
             }
 
-            //Tuibine
+            //Turbine
             if(MilepostApplicationType.TURBINE.getValue().equalsIgnoreCase(applicationType)){
                 defaultProperties.put("turbine.app-config", "_all_");//监控本租户下的所有服务实例
                 defaultProperties.put("turbine.combine-host-port", true);
