@@ -6,31 +6,13 @@ start() {
     nohup java -Xmx128m -Xms128m \
     -jar ${JAR_NAME} \
     --spring.profiles.active=test \
-    --server.port=9999 \
     --eureka.client.service-url.defaultZone='http://192.168.223.136:8761/eureka/' \
     --eureka.instance.ip-address=192.168.223.136 \
-    --spring.datasource.platform=mysql \
-    --spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver \
-    --spring.datasource.url='jdbc:mysql://192.168.223.136:3306/milepost_auth?useUnicode=true&characterEncoding=utf8&characterSetResults=utf8&serverTimezone=GMT%2B8' \
-    --spring.datasource.username=root \
-    --spring.datasource.password='ENC(tXVsX2fiUQfrNM9Gqey3pmRiLgw+Znp/ISEaZCOMDo0=)' \
     --spring.datasource.hikari.connection-timeout=30000 \
     --spring.datasource.hikari.idle-timeout=600000 \
     --spring.datasource.hikari.max-lifetime=1800000 \
     --spring.datasource.hikari.maximum-pool-size=10 \
     --spring.datasource.hikari.minimum-idle=10 \
-    --auth.client-detail.access-token-validity=7200 \
-    --auth.client-detail.refresh-token-validity=7200 \
-    --spring.rabbitmq.host=192.168.223.136
-    --spring.rabbitmq.port=5672
-    --spring.rabbitmq.username=admin
-    --spring.rabbitmq.password=admin
-    --track.enabled=true \
-    --track.sampling=1 \
-    --multiple-tenant.tenant=tenant1 \
-    --multiple-tenant.weight=1 \
-    --multiple-tenant.label-and=aa,bb,cc \
-    --multiple-tenant.label-or=dd,ee,ff \
     >/dev/null 2>&1 &
 }
 

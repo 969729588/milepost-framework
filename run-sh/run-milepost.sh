@@ -3,16 +3,7 @@
 DELIMITER='==================================================================================================='
 
 start() {
-	echo ${DELIMITER}
-	cd /opt/root/milepost/milepost-turbine;
-	chmod +x run.sh;
-    ./run.sh start;
-	
-	echo ${DELIMITER}
-	cd /opt/root/milepost/milepost-admin;
-	chmod +x run.sh;
-    ./run.sh start;
-	
+
 	echo ${DELIMITER}
 	cd /opt/root/milepost/milepost-auth;
 	chmod +x run.sh;
@@ -27,21 +18,22 @@ start() {
 	cd /opt/root/milepost/authentication-ui;
 	chmod +x run.sh;
     ./run.sh start;
-	
+
+    echo ${DELIMITER}
+	cd /opt/root/milepost/milepost-turbine;
+	chmod +x run.sh;
+    ./run.sh start;
+
+	echo ${DELIMITER}
+	cd /opt/root/milepost/milepost-admin;
+	chmod +x run.sh;
+    ./run.sh start;
+
 	echo ${DELIMITER}
 }
 
 stop() {  
-	echo ${DELIMITER}
-	cd /opt/root/milepost/milepost-turbine;
-	chmod +x run.sh;
-    ./run.sh stop;
-	
-	echo ${DELIMITER}
-	cd /opt/root/milepost/milepost-admin;
-	chmod +x run.sh;
-    ./run.sh stop;
-	
+
 	echo ${DELIMITER}
 	cd /opt/root/milepost/milepost-auth;
 	chmod +x run.sh;
@@ -56,7 +48,17 @@ stop() {
 	cd /opt/root/milepost/authentication-ui;
 	chmod +x run.sh;
     ./run.sh stop;
-	
+
+	echo ${DELIMITER}
+	cd /opt/root/milepost/milepost-turbine;
+	chmod +x run.sh;
+    ./run.sh stop;
+
+	echo ${DELIMITER}
+	cd /opt/root/milepost/milepost-admin;
+	chmod +x run.sh;
+    ./run.sh stop;
+
 	echo ${DELIMITER}
 }
 
@@ -67,16 +69,7 @@ restart() {
 }
 
 status() {
-	echo ${DELIMITER}
-	cd /opt/root/milepost/milepost-turbine;
-	chmod +x run.sh;
-    ./run.sh status;
-	
-	echo ${DELIMITER}
-	cd /opt/root/milepost/milepost-admin;
-	chmod +x run.sh;
-    ./run.sh status;
-	
+
 	echo ${DELIMITER}
 	cd /opt/root/milepost/milepost-auth;
 	chmod +x run.sh;
@@ -89,6 +82,16 @@ status() {
 	
 	echo ${DELIMITER}
 	cd /opt/root/milepost/authentication-ui;
+	chmod +x run.sh;
+    ./run.sh status;
+
+    echo ${DELIMITER}
+	cd /opt/root/milepost/milepost-turbine;
+	chmod +x run.sh;
+    ./run.sh status;
+
+	echo ${DELIMITER}
+	cd /opt/root/milepost/milepost-admin;
 	chmod +x run.sh;
     ./run.sh status;
 	

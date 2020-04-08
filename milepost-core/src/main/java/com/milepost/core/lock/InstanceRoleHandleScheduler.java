@@ -51,9 +51,6 @@ public class InstanceRoleHandleScheduler {
     @Autowired
     private SchedulerLockProperties schedulerLockProperties;
 
-    @Autowired
-    private ThreadPoolProperties threadPoolProperties;
-
     /**
      * 是否已经成功初始化了角色
      */

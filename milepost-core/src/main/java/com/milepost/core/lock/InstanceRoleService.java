@@ -14,7 +14,7 @@ import redis.clients.jedis.JedisCommands;
  * Created by Ruifu Hua on 2019/12/24.<br>
  *
  * 实例角色服务，获取一个实例的角色是master还是slave。<br>
- * {@link InstanceRoleHandleRunner} 中已经把一个服务的多个实例中的master的实例id（instanceId）放到了redis中，key是服务名称（appName）。
+ * {@link InstanceRoleHandleScheduler} 中已经把一个服务的多个实例中的master的实例id（instanceId）放到了redis中，key是服务名称（appName）。
  */
 @Service
 public class InstanceRoleService {

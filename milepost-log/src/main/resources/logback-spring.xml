@@ -31,16 +31,16 @@
 		<!--当springboot配置文件中没有配置相关属性时，这里取不到属性值，即使这个属性有默认值也取不到(比如${eureka.instance.instance-id}属性)，
         所以要在应用启动时候，将这样的属性注入到环境变量中。具体见org.iplatform.microservices.core.IPlatformApplication#loadDefaultProperties。-->
 		<!--<property name="LOG_PATTERN" value="${server.host} ${eureka.instance.metadataMap.tenant} ${spring.application.name} ${eureka.instance.instance-id} %d{yyyy-MM-dd HH:mm:ss.SSS} [%-5level] ${PID:- } [%t] %logger{39}.%M [%line] : %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}"/>-->
-		<property name="LOG_PATTERN" value="[${eureka.instance.instance-id}] %yellow(%d{yyyy-MM-dd HH:mm:ss.SSS}) - [%highlight(%-5level)] [%green(%-50logger{50}): %blue(%-4line)] - %msg%n"/>
+		<property name="LOG_PATTERN" value="[${eureka.instance.instance-id}] [%yellow(%d{yyyy-MM-dd HH:mm:ss.SSS})] [%highlight(%-5level)] [%X{X-B3-TraceId:-},%X{X-B3-SpanId:-}] [%green(%-50logger{50}): %blue(%-4line)] - %msg%n"/>
 		<include resource="logback-dev.xml"/>
 	</springProfile>
 	<springProfile name="test">
 		<!--level后面是 [%-30thread]，导致日志文件不在整齐，去掉了-->
-		<property name="LOG_PATTERN" value="[${eureka.instance.instance-id}] %d{yyyy-MM-dd HH:mm:ss.SSS} - [%-5level] [%-50logger{50}: %-4line] - %msg%n"/>
+		<property name="LOG_PATTERN" value="[${eureka.instance.instance-id}] [%d{yyyy-MM-dd HH:mm:ss.SSS}] [%-5level] [%X{X-B3-TraceId:-},%X{X-B3-SpanId:-}] [%-50logger{50}: %-4line] - %msg%n"/>
 		<include resource="logback-tes.xml"/>
 	</springProfile>
 	<springProfile name="prod">
-		<property name="LOG_PATTERN" value="[${eureka.instance.instance-id}] %d{yyyy-MM-dd HH:mm:ss.SSS} - [%-5level] [%-50logger{50}: %-4line] - %msg%n"/>
+		<property name="LOG_PATTERN" value="[${eureka.instance.instance-id}] [%d{yyyy-MM-dd HH:mm:ss.SSS}] [%-5level] [%X{X-B3-TraceId:-},%X{X-B3-SpanId:-}] [%-50logger{50}: %-4line] - %msg%n"/>
 		<include resource="logback-prod.xml"/>
 	</springProfile>
 </configuration>

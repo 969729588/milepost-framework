@@ -6,21 +6,12 @@ start() {
     nohup java -Xmx128m -Xms128m \
     -jar ${JAR_NAME} \
     --spring.profiles.active=test \
-    --server.port=8761 \
     --eureka.instance.ip-address=192.168.223.136 \
-    --spring.rabbitmq.host=192.168.223.136 \
-    --spring.rabbitmq.port=5672 \
-    --spring.rabbitmq.username=admin \
-    --spring.rabbitmq.password=admin \
-    --track.enabled=true \
-    --track.sampling=1 \
     >/dev/null 2>&1 &
 }
 
 # java后加“-Dssl=true”开启https，多个-D参数使用空格分离，如“-Dssl=false -Daa=11”
 # java后加“-Xmx256m -Xms256m”配置内存，支持的m、g单位。
-
-
 
 
 stop() {
