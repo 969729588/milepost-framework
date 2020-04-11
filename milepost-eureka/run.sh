@@ -3,7 +3,7 @@ JAR_NAME=milepost-eureka-1.0.0.100.jar
 start() {
     echo "start process...";
     rm -rf ./logs
-    nohup java -Xmx128m -Xms128m \
+    nohup java -Xmx64m -Xms32m \
     -jar ${JAR_NAME} \
     --spring.profiles.active=test \
     --eureka.instance.ip-address=192.168.223.136 \

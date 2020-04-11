@@ -4,62 +4,62 @@ DELIMITER='=====================================================================
 
 start() {
 
-	echo ${DELIMITER}
-	cd /opt/root/milepost/milepost-auth;
-	chmod +x run.sh;
-    ./run.sh start;
-	
-	echo ${DELIMITER}
-	cd /opt/root/milepost/authentication-service;
-	chmod +x run.sh;
-    ./run.sh start;
-	
-	echo ${DELIMITER}
-	cd /opt/root/milepost/authentication-ui;
-	chmod +x run.sh;
+    echo ${DELIMITER}
+    cd /opt/root/milepost/milepost-auth;
+    chmod +x run.sh;
     ./run.sh start;
 
     echo ${DELIMITER}
-	cd /opt/root/milepost/milepost-turbine;
-	chmod +x run.sh;
+    cd /opt/root/milepost/authentication-service;
+    chmod +x run.sh;
     ./run.sh start;
 
-	echo ${DELIMITER}
-	cd /opt/root/milepost/milepost-admin;
-	chmod +x run.sh;
+    echo ${DELIMITER}
+    cd /opt/root/milepost/authentication-ui;
+    chmod +x run.sh;
     ./run.sh start;
 
-	echo ${DELIMITER}
+    echo ${DELIMITER}
+    cd /opt/root/milepost/milepost-turbine;
+    chmod +x run.sh;
+    ./run.sh start;
+
+    echo ${DELIMITER}
+    cd /opt/root/milepost/milepost-admin;
+    chmod +x run.sh;
+    ./run.sh start;
+
+    echo ${DELIMITER}
 }
 
 stop() {  
 
-	echo ${DELIMITER}
-	cd /opt/root/milepost/milepost-auth;
-	chmod +x run.sh;
-    ./run.sh stop;
-	
-	echo ${DELIMITER}
-	cd /opt/root/milepost/authentication-service;
-	chmod +x run.sh;
-    ./run.sh stop;
-	
-	echo ${DELIMITER}
-	cd /opt/root/milepost/authentication-ui;
-	chmod +x run.sh;
+    echo ${DELIMITER}
+    cd /opt/root/milepost/milepost-auth;
+    chmod +x run.sh;
     ./run.sh stop;
 
-	echo ${DELIMITER}
-	cd /opt/root/milepost/milepost-turbine;
-	chmod +x run.sh;
+    echo ${DELIMITER}
+    cd /opt/root/milepost/authentication-service;
+    chmod +x run.sh;
     ./run.sh stop;
 
-	echo ${DELIMITER}
-	cd /opt/root/milepost/milepost-admin;
-	chmod +x run.sh;
+    echo ${DELIMITER}
+    cd /opt/root/milepost/authentication-ui;
+    chmod +x run.sh;
     ./run.sh stop;
 
-	echo ${DELIMITER}
+    echo ${DELIMITER}
+    cd /opt/root/milepost/milepost-turbine;
+    chmod +x run.sh;
+    ./run.sh stop;
+
+    echo ${DELIMITER}
+    cd /opt/root/milepost/milepost-admin;
+    chmod +x run.sh;
+    ./run.sh stop;
+
+    echo ${DELIMITER}
 }
 
 
@@ -70,32 +70,32 @@ restart() {
 
 status() {
 
-	echo ${DELIMITER}
-	cd /opt/root/milepost/milepost-auth;
-	chmod +x run.sh;
-    ./run.sh status;
-	
-	echo ${DELIMITER}
-	cd /opt/root/milepost/authentication-service;
-	chmod +x run.sh;
-    ./run.sh status;
-	
-	echo ${DELIMITER}
-	cd /opt/root/milepost/authentication-ui;
-	chmod +x run.sh;
+    echo ${DELIMITER}
+    cd /opt/root/milepost/milepost-auth;
+    chmod +x run.sh;
     ./run.sh status;
 
     echo ${DELIMITER}
-	cd /opt/root/milepost/milepost-turbine;
-	chmod +x run.sh;
+    cd /opt/root/milepost/authentication-service;
+    chmod +x run.sh;
     ./run.sh status;
 
-	echo ${DELIMITER}
-	cd /opt/root/milepost/milepost-admin;
-	chmod +x run.sh;
+    echo ${DELIMITER}
+    cd /opt/root/milepost/authentication-ui;
+    chmod +x run.sh;
     ./run.sh status;
-	
-	echo ${DELIMITER}
+
+    echo ${DELIMITER}
+    cd /opt/root/milepost/milepost-turbine;
+    chmod +x run.sh;
+    ./run.sh status;
+
+    echo ${DELIMITER}
+    cd /opt/root/milepost/milepost-admin;
+    chmod +x run.sh;
+    ./run.sh status;
+
+    echo ${DELIMITER}
 }
 
 case "$1" in

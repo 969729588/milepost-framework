@@ -3,7 +3,7 @@ JAR_NAME=milepost-turbine-1.0.0.100.jar
 start() {
     echo "start process...";
     rm -rf ./logs
-    nohup java -Xmx128m -Xms128m \
+    nohup java -Xmx64m -Xms32m \
     -jar ${JAR_NAME} \
     --spring.profiles.active=test \
     --server.port=8769 \
