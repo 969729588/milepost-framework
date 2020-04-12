@@ -1,0 +1,12 @@
+java -Xmx64m -Xms32m ^
+-jar milepost-auth-1.0.0.100.jar ^
+--spring.profiles.active=test ^
+--eureka.client.service-url.defaultZone=http://192.144.136.195:8761/eureka/ ^
+--eureka.instance.ip-address=47.92.206.179 ^
+--spring.datasource.url=jdbc:mysql://localhost:3306/milepost_auth?serverTimezone=GMT ^
+--spring.datasource.hikari.connection-timeout=30000 ^
+--spring.datasource.hikari.idle-timeout=600000 ^
+--spring.datasource.hikari.max-lifetime=1800000 ^
+--spring.datasource.hikari.maximum-pool-size=10 ^
+--spring.datasource.hikari.minimum-idle=10 ^
+--spring.rabbitmq.host=192.144.136.195
