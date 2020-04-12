@@ -77,7 +77,11 @@
                                     <#list instanceInfo.instances as instance>
                                         <div>
                                           <#if instance.isHref>
-                                              <a href="${instance.url}" target="_blank">${instance.id}(${instance.url})</a>
+                                              <#if instance.instanceInfoMap.metadata['milepost-type'] == 'ADMIN'>
+                                                  ${instance.id}
+                                              <#else>
+                                                  <a href="${instance.url}" target="_blank">${instance.id}(${instance.url})</a>
+                                              </#if>
                                           <#else>
                                               ${instance.id}
                                           </#if>
@@ -93,37 +97,38 @@
                                                   </span>
                                                   <#--<button name="tenant" class="btn btn-default btn-xs" style="width:80px;">设置租户</button>-->
                                               </div>
-                                              <div class="itemDiv">
+                                                <#if (instance.instanceInfoMap.metadata['milepost-type'] != 'ADMIN') && (instance.instanceInfoMap.metadata['milepost-type'] != 'TURBINE')>
+                                                    <div class="itemDiv">
                                                   <span>权重：
-                                                <#if instance.instanceInfoMap.metadata.weight??>
-                                                    ${instance.instanceInfoMap.metadata['weight']}
-                                                <#else>
-                                                    未设置
-                                                </#if>
+                                                      <#if instance.instanceInfoMap.metadata.weight??>
+                                                      ${instance.instanceInfoMap.metadata['weight']}
+                                                      <#else>
+                                                          未设置
+                                                      </#if>
                                                   </span>
-                                                  <#--<button name="weight" class="btn btn-default btn-xs" style="width:80px;">设置权重</button>-->
-                                              </div>
-                                              <div class="itemDiv">
+                                                    <#--<button name="weight" class="btn btn-default btn-xs" style="width:80px;">设置权重</button>-->
+                                                    </div>
+                                                    <div class="itemDiv">
                                                   <span>与标签：
-                                                <#if instance.instanceInfoMap.metadata['label-and']??>
-                                                    ${instance.instanceInfoMap.metadata['label-and']}
-                                                <#else>
-                                                    未设置
-                                                </#if>
+                                                      <#if instance.instanceInfoMap.metadata['label-and']??>
+                                                      ${instance.instanceInfoMap.metadata['label-and']}
+                                                      <#else>
+                                                          未设置
+                                                      </#if>
                                                   </span>
-                                                  <#--<button name="label-and" class="btn btn-default btn-xs" style="width:80px;">设置与标签</button>-->
-                                              </div>
-                                              <div class="itemDiv">
+                                                    <#--<button name="label-and" class="btn btn-default btn-xs" style="width:80px;">设置与标签</button>-->
+                                                    </div>
+                                                    <div class="itemDiv">
                                                   <span>或标签：
-                                                <#if instance.instanceInfoMap.metadata['label-or']??>
-                                                    ${instance.instanceInfoMap.metadata['label-or']}
-                                                <#else>
-                                                    未设置
-                                                </#if>
+                                                      <#if instance.instanceInfoMap.metadata['label-or']??>
+                                                      ${instance.instanceInfoMap.metadata['label-or']}
+                                                      <#else>
+                                                          未设置
+                                                      </#if>
                                                   </span>
-                                                  <#--<button name="label-or" class="btn btn-default btn-xs" style="width:80px;">设置或标签</button>-->
-                                              </div>
-                                              <#--暂时不考虑跟踪采样率-->
+                                                    <#--<button name="label-or" class="btn btn-default btn-xs" style="width:80px;">设置或标签</button>-->
+                                                    </div>
+                                                </#if>
                                               <div class="itemDiv">
                                                   <span>跟踪采样率：
                                                 <#if instance.instanceInfoMap.metadata['track-sampling']??>
