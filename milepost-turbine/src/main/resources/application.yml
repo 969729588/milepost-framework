@@ -1,7 +1,7 @@
 info:
   app:
-    name: Turbine监控
-    description: Turbine监控
+    name: Turbine
+    description: Turbine聚合监控本租户下的所有服务实例
     version: 1.0.0.100
 
 server:

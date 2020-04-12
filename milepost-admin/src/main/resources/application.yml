@@ -1,8 +1,8 @@
 # 详细配置见https://codecentric.github.io/spring-boot-admin/2.1.0/#spring-boot-admin-server
 info:
   app:
-    name: Admin监控
-    description: Admin监控
+    name: SpringBoot Admin
+    description: SBA管理本租户下的所有服务实例
     version: 1.0.0.100
 
 server:

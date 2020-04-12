@@ -1,7 +1,7 @@
 info:
   app:
     name: JWT服务
-    description: 发放JWT
+    description: 发放JWT，提供身份认证支持
     version: 1.0.0.100
 
 server:
