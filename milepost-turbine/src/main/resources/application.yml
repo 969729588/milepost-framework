@@ -16,7 +16,7 @@ spring:
     active: dev
   rabbitmq:
     #rabbitmq服务器ip
-    host: 192.168.223.136
+    host: 192.168.186.131
     #rabbitmq端口
     port: 5672
     #rabbitmq用户
@@ -30,9 +30,9 @@ track:
 eureka:
   client:
     service-url:
-      defaultZone: http://192.168.223.1:8761/eureka/
+      defaultZone: http://192.168.186.5:8761/eureka/
   instance:
-    ip-address: 192.168.223.1
+    ip-address: 192.168.186.5
 
 multiple-tenant:
   tenant: tenant1

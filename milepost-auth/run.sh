@@ -6,8 +6,8 @@ start() {
     nohup java -Xmx64m -Xms32m \
     -jar ${JAR_NAME} \
     --spring.profiles.active=test \
-    --eureka.client.service-url.defaultZone='http://192.168.223.136:8761/eureka/' \
-    --eureka.instance.ip-address=192.168.223.136 \
+    --eureka.client.service-url.defaultZone='http://192.168.186.131:8761/eureka/' \
+    --eureka.instance.ip-address=192.168.186.131 \
     --spring.datasource.hikari.connection-timeout=30000 \
     --spring.datasource.hikari.idle-timeout=600000 \
     --spring.datasource.hikari.max-lifetime=1800000 \

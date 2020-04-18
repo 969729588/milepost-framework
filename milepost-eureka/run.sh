@@ -6,7 +6,7 @@ start() {
     nohup java -Xmx64m -Xms32m \
     -jar ${JAR_NAME} \
     --spring.profiles.active=test \
-    --eureka.instance.ip-address=192.168.223.136 \
+    --eureka.instance.ip-address=192.168.186.131 \
     >/dev/null 2>&1 &
 }
 

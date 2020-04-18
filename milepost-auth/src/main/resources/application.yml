@@ -17,7 +17,7 @@ spring:
   datasource:
     platform: mysql
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://192.168.223.136:3306/milepost_auth?useUnicode=true&characterEncoding=utf8&characterSetResults=utf8&serverTimezone=GMT%2B8
+    url: jdbc:mysql://192.168.186.131:3306/milepost_auth?useUnicode=true&characterEncoding=utf8&characterSetResults=utf8&serverTimezone=GMT%2B8
     username: root
     password: admin123
     hikari:
@@ -27,7 +27,7 @@ spring:
       maximum-pool-size: 10
       minimum-idle: 10
   rabbitmq:
-    host: 192.168.223.136
+    host: 192.168.186.131
     port: 5672
     username: admin
     password: admin
@@ -37,9 +37,9 @@ track:
 eureka:
   client:
     service-url:
-      defaultZone: http://192.168.223.1:8761/eureka/
+      defaultZone: http://192.168.186.5:8761/eureka/
   instance:
-    ip-address: 192.168.223.1
+    ip-address: 192.168.186.5
 
 multiple-tenant:
   tenant: tenant1

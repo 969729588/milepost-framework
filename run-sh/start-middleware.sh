@@ -19,13 +19,13 @@ echo ${DELIMITER} '3、activemq' ${DELIMITER};
 #4、elasticsearch
 echo ${DELIMITER} '4、elasticsearch' ${DELIMITER};
 # /opt/root/module/elasticsearch-2.4.6/bin/elasticsearch -d;
-su - elasticsearch -c '/opt/root/module/elasticsearch-6.2.3/bin/elasticsearch -Enetwork.host=192.168.223.136 -d';
+su - elasticsearch -c '/opt/root/module/elasticsearch-6.2.3/bin/elasticsearch -Enetwork.host=192.168.186.131 -d';
 
 #5、kibana
 echo ${DELIMITER} '5、kibana' ${DELIMITER};
 nohup /opt/root/module/kibana-6.2.3-linux-x86_64/bin/kibana \
---elasticsearch=http://192.168.223.136:9200 \
---host=192.168.223.136 \
+--elasticsearch=http://192.168.186.131:9200 \
+--host=192.168.186.131 \
 --log-file=/opt/root/module/kibana-6.2.3-linux-x86_64/kibana.log \
 >/dev/null 2>&1 &
 

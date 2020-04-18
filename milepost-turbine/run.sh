@@ -7,9 +7,9 @@ start() {
     -jar ${JAR_NAME} \
     --spring.profiles.active=test \
     --server.port=8769 \
-    --eureka.client.service-url.defaultZone='http://192.168.223.136:8761/eureka/' \
-    --eureka.instance.ip-address=192.168.223.136 \
-    --spring.rabbitmq.host=192.168.223.136 \
+    --eureka.client.service-url.defaultZone='http://192.168.186.131:8761/eureka/' \
+    --eureka.instance.ip-address=192.168.186.131 \
+    --spring.rabbitmq.host=192.168.186.131 \
     --spring.rabbitmq.port=5672 \
     --spring.rabbitmq.username=admin \
     --spring.rabbitmq.password=admin \

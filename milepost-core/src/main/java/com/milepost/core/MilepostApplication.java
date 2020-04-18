@@ -134,7 +134,7 @@ public class MilepostApplication extends SpringApplication{
         }
 
         String envValue = System.getenv(envKey);
-        //envValue = "http://192.168.223.136:8761/eureka/";
+        //envValue = "http://192.168.186.131:8761/eureka/";
         if(StringUtils.isNotBlank(envValue) && !argsContained){
             argList.add("--" + argsKey + "=" + envValue);
         }
