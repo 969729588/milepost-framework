@@ -100,7 +100,7 @@ public class EncryptionUtil {
 
 
     /**
-     * 生成基于密钥的对称加密的密钥，加密解密私用同一个密钥
+     * 生成基于密钥的对称加密的密钥，加密解密使用同一个密钥
      * @return
      * @throws Exception
      */
