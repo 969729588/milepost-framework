@@ -105,7 +105,7 @@
 			<groupId>org.mybatis.spring.boot</groupId>
 			<artifactId>mybatis-spring-boot-starter</artifactId>
 		</dependency>
-		<!-- *************************ehcache -->
+		<!--ehcache -->
 		<dependency>
 			<groupId>org.mybatis.caches</groupId>
 			<artifactId>mybatis-ehcache</artifactId>
@@ -154,7 +154,6 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-
 		<dependency>
 			<groupId>com.codingapi.txlcn</groupId>
 			<artifactId>txlcn-txmsg-netty</artifactId>
