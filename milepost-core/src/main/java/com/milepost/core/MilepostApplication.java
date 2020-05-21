@@ -55,6 +55,13 @@ public class MilepostApplication extends SpringApplication{
         super(new Class[0]);
     }
 
+    /**
+     * Cloud类应用的run方法
+     * @param customProperties
+     * @param primarySource
+     * @param args
+     * @return
+     */
     public static ConfigurableApplicationContext run(Map<String, Object> customProperties, Class<?> primarySource, String... args) {
         //SpringBoot不能识别java系统属性和操作系统环境变量中的
         // eureka.client.service-url.defaultZone=abc、eureka_client_serviceUrl={defaultZone: http://192.168.1.105:8761/eureka/}
@@ -63,6 +70,19 @@ public class MilepostApplication extends SpringApplication{
 
         MilepostApplication milepostApplication = new MilepostApplication(new Class[]{primarySource}, customProperties);
         ConfigurableApplicationContext context = milepostApplication.run(newArgs);
+        return context;
+    }
+
+    /**
+     * 单一的SpringBoot应用的run方法
+     * @param customProperties
+     * @param primarySource
+     * @param args
+     * @return
+     */
+    public static ConfigurableApplicationContext runSingleBoot(Map<String, Object> customProperties, Class<?> primarySource, String... args) {
+        MilepostApplication milepostApplication = new MilepostApplication(new Class[]{primarySource}, customProperties);
+        ConfigurableApplicationContext context = milepostApplication.runSingleBoot(args);
         return context;
     }
 
@@ -101,6 +121,38 @@ public class MilepostApplication extends SpringApplication{
 
             //启动之后
             this.runAfter();
+        }catch (Exception e){
+            logger.error(e.getMessage(), e);
+        }
+        return context;
+    }
+
+    /**
+     * springboot加载配置项的优先级是  命令行参数   >   java系统属性(System.getProperties())    >   操作系统环境变量(System.getenv())   >   配置文件
+     * 对于一些自己定义的属性，在逻辑处理过程中，要注意这个优先级。
+     * 框架必须要完美支持操作系统环境变量，因为在k8s中，容器创建时候可以指定环境变量，这是很重要的。
+     *
+     * @param args
+     * @return
+     */
+    public ConfigurableApplicationContext runSingleBoot(String... args) {
+        try {
+            //启动之前
+            this.runBefore();
+            //解析命令行参数，主要用于将应用发布到k8s集群中，获取浮动ip。暂时不用关注
+            List<String> argsArray = this.resolverArgs(args);
+
+            //加载默认属性，加载时把this.customProperties  加载进去，并调用SpringApplications.setDefaultProperties方法设置进去
+            Map<String, Object> defaultProperties = this.loadDefaultPropertiesSingleBoot();
+
+            //设置默认属性
+            this.setDefaultProperties(defaultProperties);
+
+            //启动
+            context = super.run((String[])argsArray.toArray(new String[0]));
+
+            //启动之后
+            this.runAfterSingleBoot();
         }catch (Exception e){
             logger.error(e.getMessage(), e);
         }
@@ -233,7 +285,7 @@ public class MilepostApplication extends SpringApplication{
     }
 
     /**
-     * 加载默认属性，配置文件中没有配置的属性会采用这里的值。
+     * 为Cloud相关应用加载默认属性，配置文件中没有配置的属性会采用这里的值。
      * 相当于对springcloud和springboot的默认值进行再一次的定制和改变，
      * 比如默认的server.port=8080，可以在这里改成9090。
      *
@@ -812,6 +864,310 @@ public class MilepostApplication extends SpringApplication{
     }
 
     /**
+     * 为单一的SpringBoot应用加载默认属性，配置文件中没有配置的属性会采用这里的值。
+     * 相当于对springcloud和springboot的默认值进行再一次的定制和改变，
+     * 比如默认的server.port=8080，可以在这里改成9090。
+     *
+     * 相关参数含义
+     * https://blogger.csdn.net/acmman/article/details/99670419
+     *
+     * @return
+     */
+    private Map<String,Object> loadDefaultPropertiesSingleBoot() throws IOException {
+
+        String springProfilesActiveDev = "dev";
+        String springProfilesActiveTest = "test";
+        String springProfilesActiveProd = "prod";
+
+        //System.setProperty是获取java系统属性
+        //在java代码中的System.setProperty("java.security.egd", "file:/dev/./urandom");
+        //就等价于在java启动springboot的jar包是的“-Djava.security.egd=file:/dev/./urandom”参数
+
+        //解决阿里云的tomcat启动慢的问题，SecureRandom在java各种组件中使用广泛，可以可靠的产生随机数。但在大量产生随机数的场景下，性能会较低。
+        //这时可以使用"-Djava.security.egd=file:/dev/./urandom" 加快随机数产生过程。
+        System.setProperty("java.security.egd", "file:/dev/./urandom");
+
+        //java 启动springboot的jar包时指定lib目录，
+        //java -jar -Dloader.path=lib  xxxApp.jar
+        //java -jar -Dloader.path=lib,templates,static  xxxApp.jar
+        System.setProperty("loader.path", "./plugins");
+
+        //如果在java启动springboot的jar包时增加“-Dssl=true”参数，就可以让应用支持https请求，默认是不支持https
+        Boolean supportSsl = Boolean.valueOf(System.getProperty("ssl", "false"));
+        //logger.info("supportSsl=" + supportSsl);
+
+        //生成jwt和https相关文件，这几个文件都是事先放在当前jar包下的
+        //1、生成jks文件
+        //#keytool -genkeypair -alias milepost-alias -validity 365 -keyalg RSA -dname "CN=花瑞富,OU=milepost公司,O=milepost公司,L=shenyan,S=liaoning,C=CH" -keypass milepost -keystore milepost.jks -storepass milepost
+
+        //2、获取jks文件中的公钥(PUBLIC KEY)和证书(CERTIFICATE，证书文件以“.cer”结尾)，将公钥部分保存在public.key文件中，这个文件就是其他服务用来解码jwt的公钥。
+        //#keytool -list -rfc --keystore milepost.jks | openssl x509 -inform pem -pubkey
+
+        //3、获取获取jks文件中的私钥(PUBLIC KEY)和证书(CERTIFICATE，证书文件以“.cer”结尾)，将私钥部分保存在private.key文件中，这个文件就是用来给license.dat文件签名的，使用上面的公钥验签。
+        //keytool -v -importkeystore -srckeystore milepost.jks -srcstoretype jks -srcstorepass milepost -destkeystore milepost.pfx -deststoretype pkcs12 -deststorepass milepost -destkeypass milepost
+        //openssl pkcs12 -in milepost.pfx -nodes
+
+        //StreamFiles.InputStreamToFile(ResourceUtils.getURL("classpath:milepost.jks").openStream(), new File("milepost.jks"));
+        FileCopyUtils.copy(ResourceUtils.getURL(ResourceUtils.CLASSPATH_URL_PREFIX + "milepost.jks").openStream(), new FileOutputStream(new File("milepost.jks")));
+        //设置这两个之后，回去一个临时路径找milepost.jks，导致报错，
+        //System.setProperty("javax.net.ssl.trustStore", "milepost.jks");
+        //System.setProperty("javax.net.ssl.trustStorePassword", defaultPassword);
+
+        //StreamFiles.InputStreamToFile(ResourceUtils.getURL("classpath:public.key").openStream(), new File("public.key"));
+        //StreamFiles.InputStreamToFile(ResourceUtils.getURL("classpath:license.dat").openStream(), new File("license.dat"));
+        FileCopyUtils.copy(ResourceUtils.getURL("classpath:public.key").openStream(), new FileOutputStream(new File("public.key")));
+        FileCopyUtils.copy(ResourceUtils.getURL("classpath:license.dat").openStream(), new FileOutputStream(new File("license.dat")));
+
+        //获取当前应用的应用类型
+        String applicationType = "";
+        if(customProperties != null){
+            applicationType = (String)(customProperties.get(MilepostConstant.MILEPOST_APPLICATION_TYPE_KEY));
+        }
+
+        //构造默认属性
+        Map<String,Object> defaultProperties = new HashMap<>();
+
+        //profiles
+        String springProfilesActive = getConfigProByPriority("spring.profiles.active", springProfilesActiveDev);
+        defaultProperties.put("spring.profiles.active", springProfilesActive);//这里需要设置一下，logback使用这个
+
+        defaultProperties.put("spring.main.banner-mode", "off");//关闭，使用自己写的com.milepost.core.banner.PrintBanner打印banner
+
+        //允许多个接口上的@FeignClient(“相同服务名”)，通过配置@FeignClient的contextId解决，不要把这个配置从true改成false.
+        //defaultProperties.put("spring.main.allow-bean-definition-overriding", true);
+
+        //这里的默认属性也支持加密。
+        //defaultProperties.put("info.app.description", "ENC(Cni63Asy/ryIyTshDZ6fdLtuiZB8ZRYTyxpiMXEUrvk=)");
+
+        //xxs暂时不考虑，后续要加进来
+//        defaultProperties.put("iplatform.xss.enabled", "true");
+//        defaultProperties.put("iplatform.xss.words[0]", "alert\\s*\\(");
+//        defaultProperties.put("iplatform.xss.words[1]", "eval\\s*\\(");
+//        defaultProperties.put("iplatform.xss.words[2]", "javascript:");
+//        defaultProperties.put("iplatform.xss.words[3]", "<script>");
+//        defaultProperties.put("iplatform.xss.regex", "");
+//        defaultProperties.put("iplatform.xss.policy", "break");
+
+        //设置org.apache.activemq的日志级别为error，后续处理，感觉可以放在logback中配置
+        //defaultProperties.put("logging.level.org.apache.activemq", "ERROR");
+        defaultProperties.put("spring.activemq.user", "admin");
+        defaultProperties.put("spring.activemq.password", "admin");
+        defaultProperties.put("spring.activemq.pool.enabled", true);//使用连接池
+        defaultProperties.put("spring.activemq.pool.max-connections", 10);
+
+        //management监控相关，
+        //监控相关端点的前缀，访问路径为https://localhost:port/${server.servlet.context-path}/milepost-actuator
+        defaultProperties.put("management.endpoints.web.base-path", "/milepost-actuator");
+        //原本是只开启以下端点，具体有哪些见《深入浅出Spring Boot 2.x-标注版.pdf》394页
+        //增加了SpringBoot Admin后，开放了所有的端点，用Oauth保护所有端点，
+        //Set<String> include = new LinkedHashSet<>();
+        //include.add("info");
+        //include.add("env");
+        //include.add("beans");//显示Spring loC 容器关于Bean 的信息
+        //include.add("health");
+        //include.add("configprops");//显示当前项目的属性配置信息（通过@ConfigurationProperties 配置）
+        //////include.add("loggers");//显示并修改应用程序中记录器的配置
+        //include.add("hystrix.stream");//hystrix监控
+        defaultProperties.put("management.endpoints.web.exposure.include", "*");//如开启全部，则在yml中要写"*"，不能 *
+        defaultProperties.put("management.endpoint.health.show-details", "ALWAYS");
+
+        //禁用以下组件的健康检查，每一个组件对应一个指示器，如redis的指示器是 RedisHealthIndicator
+        defaultProperties.put("management.health.redis.enabled", "false");
+        defaultProperties.put("management.health.mongo.enabled", "false");
+        defaultProperties.put("management.health.elasticsearch.enabled", "false");
+        defaultProperties.put("management.health.jms.enabled", "false");
+
+        //redis，暂时不考虑，springboot2.x整合redis的配置变了，之前是spring.redis.pool.xxx
+        //Maximum number of connections that can be allocated by the pool at a given time. Use a negative value for no limit.
+        defaultProperties.put("spring.redis.jedis.pool.max-active", "5");
+        /**
+         * Maximum amount of time a connection allocation should block before throwing an
+         * exception when the pool is exhausted. Use a negative value to block
+         * indefinitely.
+         */
+        defaultProperties.put("spring.redis.jedis.pool.max-wait", "-1");
+        /**
+         * Target for the minimum number of idle connections to maintain in the pool. This
+         * setting only has an effect if it is positive.
+         */
+        defaultProperties.put("spring.redis.jedis.pool.min-idle", "1");
+        /**
+         * Maximum number of "idle" connections in the pool. Use a negative value to
+         * indicate an unlimited number of idle connections.
+         */
+        defaultProperties.put("spring.redis.jedis.pool.max-idle", "5");
+        defaultProperties.put("spring.redis.timeout", "1000");
+
+        //datasource，
+//        defaultProperties.put("spring.datasource.test-while-idle", "true");
+//        defaultProperties.put("spring.datasource.time-between-eviction-runs-millis", "300000");
+//        defaultProperties.put("spring.datasource.min-evictable-idle-time-millis", "30000");
+//        defaultProperties.put("spring.datasource.validation-query", "SELECT 1");
+//        defaultProperties.put("spring.datasource.max-active", "100");
+//        defaultProperties.put("spring.datasource.max-idle", "5");
+//        defaultProperties.put("spring.datasource.min-idle", "2");
+//        defaultProperties.put("spring.datasource.max-wait", "30000");
+//        defaultProperties.put("spring.datasource.initial-size", "5");
+
+        //logapi开关
+        //defaultProperties.put("milepost.logapi.enabled", "true");
+
+        //Whether to dispatch OPTIONS requests to the FrameworkServlet doService method.
+        defaultProperties.put("spring.mvc.dispatch-options-request", "true");
+
+        //favicon开关，默认是开启的，这里改成关闭
+        defaultProperties.put("spring.mvc.favicon.enabled", "false");
+
+        //tomcat
+        //Maximum amount of worker threads. default=200,
+        defaultProperties.put("server.tomcat.max-threads", "2000");
+        //Maximum queue length for incoming connection requests when all possible request processing threads are in use.  default=100,
+        defaultProperties.put("server.tomcat.accept-count", "200");
+        //Minimum amount of worker threads. default=10,
+        defaultProperties.put("server.tomcat.min-spare-threads", "10");
+        //Character encoding to use to decode the URI. default=Charset.forName("UTF-8");
+        defaultProperties.put("server.tomcat.uri-encoding", "UTF-8");
+        //defaultProperties.put("server.tomcat.max-http-header-size", "65536");//这个过期了，单位是B，65536B=64KB
+        //Maximum size of the HTTP message header. default=8KB
+        defaultProperties.put("server.max-http-header-size", "64KB");//使用这个
+
+        //没有这个属性了
+        //defaultProperties.put("server.tomcat.disabled.methods", "OPTIONS,HEAD,TRACE");
+
+        //feign，后续处理
+//        defaultProperties.put("feign.hystrix.enabled", "true");
+
+        //cache，spring的缓存感觉不太好用，太复杂，不如用mybatis的缓存。
+        //defaultProperties.put("spring.cache.type", "guava");
+
+        //thymeleaf，我不使用thymeleaf
+        //defaultProperties.put("spring.thymeleaf.cache", "true");
+        //defaultProperties.put("spring.thymeleaf.mode", "LEGACYHTML5");
+
+        //Whether to enable the content Version Strategy. default=false
+        defaultProperties.put("spring.resources.chain.strategy.content.enabled", "true");
+        defaultProperties.put("spring.resources.chain.strategy.content.paths", "/**");
+
+        //ribbon，后续处理
+//        defaultProperties.put("ribbon.eureka.enabled", "true");
+//        defaultProperties.put("ribbon.ConnectTimeout", "10000");
+//        defaultProperties.put("ribbon.ReadTimeout", "60000");
+
+        //https://www.jianshu.com/p/838f4d2b926a,
+        //引入这个jasypt-spring-boot-starter依赖才有下面这个配置，
+        //jasyt是一个加密框架，见https://github.com/ulisesbocchio/jasypt-spring-boot
+        defaultProperties.put("jasypt.encryptor.password", defaultPassword);
+        defaultProperties.put("jasypt.encryptor.algorithm", "PBEWithMD5AndDES");
+
+        //Date format to use.
+        defaultProperties.put("spring.mvc.date-format", "yyyy-MM-dd HH:mm:ss");
+
+        //jackson
+        defaultProperties.put("spring.jackson.time-zone", "GMT+8");
+        defaultProperties.put("spring.jackson.date-format", "yyyy-MM-dd HH:mm:ss");
+
+        //hystrix
+//        defaultProperties.put("hystrix.command.default.fallback.enabled", "true");
+//        defaultProperties.put("hystrix.command.default.fallback.isolation.semaphore.maxConcurrentRequests", "5000");
+//        defaultProperties.put("hystrix.command.default.execution.timeout.enabled", "true");
+//        defaultProperties.put("hystrix.command.default.execution.isolation.strategy", "SEMAPHORE");
+//        defaultProperties.put("hystrix.command.default.execution.isolation.semaphore.maxConcurrentRequests", "5000");
+//        defaultProperties.put("hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds", "180000");
+
+        //h2是一个数据库，不使用h2数据库
+        defaultProperties.put("spring.h2.console.enabled", "false");
+
+        if(supportSsl.booleanValue()) {
+            defaultProperties.put("server.ssl.enabled", "true");
+            defaultProperties.put("server.ssl.key-store", "classpath:milepost.jks");
+            defaultProperties.put("server.ssl.key-store-password", defaultPassword);
+            defaultProperties.put("server.ssl.key-password", defaultPassword);
+            defaultProperties.put("server.ssl.key-alias", "milepost-alias");
+            defaultProperties.put("server.ssl.key-store-type", "jks");
+        } else {
+            defaultProperties.put("server.ssl.enabled", "false");
+        }
+
+        //Value to use for the Server response header (if empty, no header is sent).
+        defaultProperties.put("server.server-header", "milepost-framework");
+
+        //oauth2，后续处理
+        //defaultProperties.put("security.oauth2.resource.userInfoUri", "AUTH-SERVICE");
+
+        String springApplicationName = this.getConfigProByPriority("spring.application.name", null);
+        String serverPort = this.getConfigProByPriority("server.port", "8080");
+        defaultProperties.put("spring.application.name", springApplicationName);
+        defaultProperties.put("server.port", serverPort);
+        //这两个属性必须设置，否则下面的eureka.instance.instance-id在没有加载到springboot配置文件时是无法解析的
+        //所以，以上这两个配置项是必须要配置的，即loadDefaultPropertiesSingleBoot方法中设置的属性，如果是${xxx}形式，就必须能取到值，
+
+        String serverServletContextPath = this.getConfigProByPriority("server.servlet.context-path", "");
+
+        //eureka.instance.metadata-map
+        String infoAppVersion = ReadAppYml.getValue("info.app.version");
+        infoAppVersion = StringUtils.isBlank(infoAppVersion)? MilepostConstant.APPLICATION_VERSION : infoAppVersion;//应用版本
+
+        //------------
+        //JWT和Service
+        //flyway，使用这个属性
+        String springDatasourcePlatform = getConfigProByPriority("spring.datasource.platform", "mysql");
+        defaultProperties.put("spring.datasource.initialize", "false");//禁止spring使用data.sql来初始化。
+        defaultProperties.put("spring.flyway.enabled", "true");//默认开启
+        defaultProperties.put("spring.flyway.baseline-on-migrate", "true");//当迁移时发现目标schema非空，而且带有没有元数据的表时，是否自动执行基准迁移，默认false.
+        //defaultProperties.put("spring.flyway.baseline-description", "init");//对执行迁移时基准版本的描述.
+        defaultProperties.put("spring.flyway.baseline-version", "0");//执行基线时用来标记已有Schema的版本，默认值为1.
+        defaultProperties.put("spring.flyway.locations", "classpath:db/" + springDatasourcePlatform);//sql脚本存放位置，按照数据库类型区分
+        defaultProperties.put("spring.flyway.clean-on-validation-error", "true");//Whether to automatically call clean when a validation error occurs.
+        defaultProperties.put("spring.flyway.clean-disabled", "true");//Whether to disable cleaning of the database.
+        defaultProperties.put("spring.flyway.table", "flyway_md_" + springApplicationName);//flyway元数据表名称
+
+        //mybatis
+        defaultProperties.put("mybatis.config-location", "classpath:mybatis-config.xml");
+        defaultProperties.put("mybatis.mapper-locations", "classpath:com/milepost/**/**/dao/*.xml");
+
+        //swagger
+        if(springProfilesActiveDev.equalsIgnoreCase(springProfilesActive)){
+            //开发(dev)环境中，开启swagger，
+            defaultProperties.put("swagger.enabled", true);
+        }else{
+            //生产(prod)环境和测试(test)环境中，关闭swagger，
+            defaultProperties.put("swagger.enabled", false);
+        }
+
+        //无论默认值是开启还是关闭，这里都必须要设置默认值，否则当开发者在配置文件中只配置开关时候，没有下面的配置是不行的。
+        defaultProperties.put("swagger.authorization.key-name", "Authorization");//swagger-ui调用接口时传入的token请求头名称，值为“Bearer {token}”
+        defaultProperties.put("swagger.title", springApplicationName + " swagger");//swagger-ui调用接口时传入的token请求头名称，值为“Bearer {token}”
+        defaultProperties.put("swagger.description", springApplicationName + " swagger");//swagger-ui调用接口时传入的token请求头名称，值为“Bearer {token}”
+
+        //velocity与thymeleaf类似，是一个模版引擎，
+        defaultProperties.put("spring.velocity.enabled", "false");
+
+        //multipart
+        //默认为true
+        defaultProperties.put("spring.servlet.multipart.enabled", "true");
+        //默认为0B
+        defaultProperties.put("spring.servlet.multipart.file-size-threshold", "0B");
+        //默认为1MB
+        defaultProperties.put("spring.servlet.multipart.max-file-size", "100MB");
+        //默认为10MB
+        defaultProperties.put("spring.servlet.multipart.max-request-size", "1000MB");
+
+        //把customProperties放进来
+        if(this.customProperties != null) {
+            Iterator it = this.customProperties.entrySet().iterator();
+
+            while(it.hasNext()) {
+                Map.Entry entry = (Map.Entry)it.next();
+                Object key = entry.getKey();
+                Object value = entry.getValue();
+                defaultProperties.put(key.toString(), value.toString());
+            }
+        }
+
+        return defaultProperties;
+    }
+
+    /**
      * 配置SpringBoot Admin client端相关的默认属性，只要注册到EurekaServer上的服务都需要配置
      * @param defaultProperties
      */
@@ -902,21 +1258,6 @@ public class MilepostApplication extends SpringApplication{
 
 
     private void runBefore() {
-        //printEnv();
-//        Runtime.getRuntime().addShutdownHook(new Thread() {
-//            public void run() {
-//                //这里不知道什么时候能进来，我没发现能进来的时候
-//                if(MilepostApplication.this.discoveryClient != null) {
-//                    try {
-//                        MilepostApplication.logger.info("在注册中心注销本服务。");
-//                        MilepostApplication.this.discoveryClient.shutdown();
-//                        MilepostApplication.this.discoveryClient = null;
-//                    } catch (Exception e) {
-//                        MilepostApplication.logger.error("在注册中心注销服务错误。", e);
-//                    }
-//                }
-//            }
-//        });
         Runtime.getRuntime().addShutdownHook(new Thread() {
             //使用SpringBoot的shutdown端点和 kill -15 pid 关闭应用时，如果成功的正常关闭了，就会进入这里，
             public void run() {
@@ -942,6 +1283,29 @@ public class MilepostApplication extends SpringApplication{
             logger.info("supportSsl=" + supportSsl);
 
             this.showEurekaInfo();
+            started = Boolean.TRUE;
+            logger.info("服务启动完毕。");
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+    private void runAfterSingleBoot() {
+        try {
+            //打印命令行参数
+            this.printArgs();
+            //打印Java系统属性
+            printJavaProperty();
+            //打印操作系统环境变量
+            printEnv();
+            //打印进程id
+            String processinfo = ManagementFactory.getRuntimeMXBean().getName().split("@")[0];
+            logger.info("processinfo {}", processinfo);
+
+            //打印是否支持ssl
+            Boolean supportSsl = Boolean.valueOf(System.getProperty("ssl", "false"));
+            logger.info("supportSsl=" + supportSsl);
+
             started = Boolean.TRUE;
             logger.info("服务启动完毕。");
         } catch (Exception e) {

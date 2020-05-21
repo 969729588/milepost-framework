@@ -86,6 +86,11 @@
             </dependency>
             <dependency>
                 <groupId>com.milepost</groupId>
+                <artifactId>milepost-single-boot</artifactId>
+                <version>${milepost.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.milepost</groupId>
                 <artifactId>milepost-mybatis-generator</artifactId>
                 <version>${milepost.version}</version>
             </dependency>

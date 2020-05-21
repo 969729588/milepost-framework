@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>com.milepost</groupId>
+		<artifactId>milepost-parent</artifactId>
+		<version>1.0.0-SNAPSHOT</version>
+		<relativePath/>
+	</parent>
+
+	<artifactId>milepost-single-boot</artifactId>
+	<packaging>jar</packaging>
+	<name>milepost-single-boot</name>
+	<description>单体SpringBoot应用</description>
+	<!--单体SpringBoot应该集成的父模块，没有SpringCloud相关的任何组件。-->
+
+	<dependencies>
+		<dependency>
+			<groupId>com.milepost</groupId>
+			<artifactId>milepost-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<!--不需要加入，有自己独立的日志配置文件
+		<dependency>
+			<groupId>com.milepost</groupId>
+			<artifactId>milepost-log</artifactId>
+		</dependency>-->
+
+		<dependency>
+			<groupId>com.milepost</groupId>
+			<artifactId>milepost-core</artifactId>
+			<exclusions>
+				<!--eureka-client-->
+				<exclusion>
+					<groupId>org.springframework.cloud</groupId>
+					<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+				</exclusion>
+
+				<!--SpringBoot Admin 的 JMX-beans-->
+				<exclusion>
+					<groupId>org.jolokia</groupId>
+					<artifactId>jolokia-core</artifactId>
+				</exclusion>
+
+				<!--Spring Cloud Bus-->
+				<exclusion>
+					<groupId>org.springframework.cloud</groupId>
+					<artifactId>spring-cloud-starter-bus-amqp</artifactId>
+				</exclusion>
+
+				<!--链路跟踪-->
+				<exclusion>
+					<groupId>org.springframework.cloud</groupId>
+					<artifactId>spring-cloud-starter-sleuth</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.springframework.cloud</groupId>
+					<artifactId>spring-cloud-starter-zipkin</artifactId>
+				</exclusion>
+				<!--依赖spring-rabbit实现链路跟踪，不依赖http-->
+				<exclusion>
+					<groupId>org.springframework.amqp</groupId>
+					<artifactId>spring-rabbit</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<!--actuator-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+		<!--支持springboot的http 监控端点-->
+		<dependency>
+			<groupId>org.springframework.hateoas</groupId>
+			<artifactId>spring-hateoas</artifactId>
+		</dependency>
+
+		<!--读取spring配置文件-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-configuration-processor</artifactId>
+			<optional>true</optional>
+		</dependency>
+
+		<!--数据库相关-->
+		<!--mysql驱动包-->
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<!-- oracle驱动包-->
+		<dependency>
+			<groupId>com.oracle</groupId>
+			<artifactId>my-ojdbc6</artifactId>
+		</dependency>
+		<!--MyBatis，这个starter是mybatis自己写的，不是springboot提供的-->
+		<dependency>
+			<groupId>org.mybatis.spring.boot</groupId>
+			<artifactId>mybatis-spring-boot-starter</artifactId>
+		</dependency>
+		<!--ehcache -->
+		<dependency>
+			<groupId>org.mybatis.caches</groupId>
+			<artifactId>mybatis-ehcache</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>net.sf.ehcache</groupId>
+			<artifactId>ehcache-core</artifactId>
+		</dependency>
+		<!--pagehelper分页插件，不是被springboot管理的-->
+		<dependency>
+			<groupId>com.github.pagehelper</groupId>
+			<artifactId>pagehelper</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-core</artifactId>
+		</dependency>
+
+
+		<!--spring-boot-starter-swagger
+			https://github.com/SpringForAll/spring-boot-starter-swagger
+		-->
+		<dependency>
+			<groupId>com.spring4all</groupId>
+			<artifactId>swagger-spring-boot-starter</artifactId>
+		</dependency>
+
+		<!--认证-->
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-jwt</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.security.oauth</groupId>
+			<artifactId>spring-security-oauth2</artifactId>
+		</dependency>
+	</dependencies>
+
+</project>

@@ -23,6 +23,7 @@
 
         <module>milepost-ui</module>
         <module>milepost-service</module>
+        <module>milepost-single-boot</module>
 
         <module>milepost-eureka</module>
         <module>milepost-auth</module>
