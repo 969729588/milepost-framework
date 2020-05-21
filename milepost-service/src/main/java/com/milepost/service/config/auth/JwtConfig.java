@@ -19,6 +19,9 @@ import java.io.IOException;
 @Configuration
 public class JwtConfig {
 
+    /**
+     * 将jwtTokenEnhancer()方法实例化的bean注入到本类中，以便于在tokenStore()方法中使用，
+     */
     @Autowired
     JwtAccessTokenConverter jwtAccessTokenConverter;
 
@@ -30,9 +33,14 @@ public class JwtConfig {
     @Bean
     @Qualifier("tokenStore")
     public TokenStore tokenStore() {
+        //这里的jwtAccessTokenConverter可以简略为调用jwtTokenEnhancer方法，也不用放到SpringIOC容器中
         return new JwtTokenStore(jwtAccessTokenConverter);
     }
 
+    /**
+     * 实例化JwtAccessTokenConverter类型的bean，并注入到SpringIOC容器中，
+     * @return
+     */
     @Bean
     protected JwtAccessTokenConverter jwtTokenEnhancer() {
         JwtAccessTokenConverter converter =  new JwtAccessTokenConverter();
