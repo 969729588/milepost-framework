@@ -9,6 +9,7 @@ public enum MilepostApplicationType {
 
     UI("UI"),
     SERVICE("SERVICE"),
+    SINGLE_BOOT("SINGLE_BOOT"),
     EUREKA("EUREKA"),
     AUTH("AUTH"),
     ADMIN("ADMIN"),
