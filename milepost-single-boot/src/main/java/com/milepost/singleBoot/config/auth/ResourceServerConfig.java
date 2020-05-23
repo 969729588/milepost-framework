@@ -72,7 +72,8 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
             .antMatchers("/milepost-actuator/info",/* "/milepost-actuator/env", "/milepost-actuator/beans",*/ "/milepost-actuator/health", /*"/milepost-actuator/configprops", */"/milepost-actuator/hystrix.stream",//监控
                     //"/hystrix.stream/**", //hystrix监控
                     "/swagger-resources/**", "/v2/**", "/swagger-ui.html/**", "/webjars/**",//swagger
-                    "/enc"//文本加密
+                    "/enc",//文本加密
+                    "/**/*.css", "/**/*.js", "/**/*.jpg", "/**/*.png", "/**/*.gif", "/**/*.ico", "/**/*.woff", "/**/*.ttf"//静态资源
             ).permitAll()
             .antMatchers("/**").authenticated();
     }

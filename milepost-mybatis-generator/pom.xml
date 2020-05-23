@@ -20,6 +20,16 @@
         <dependency>
             <groupId>com.milepost</groupId>
             <artifactId>milepost-api</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-data-mongodb</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-data-mongodb-reactive</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <!-- mybatis代码生成器 -->
         <dependency>
