@@ -21,6 +21,16 @@
             <groupId>com.milepost</groupId>
             <artifactId>milepost-api</artifactId>
             <exclusions>
+                <!--排除Redis -->
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-data-redis</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>redis.clients</groupId>
+                    <artifactId>jedis</artifactId>
+                </exclusion>
+                <!--排除mongodb -->
                 <exclusion>
                     <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-starter-data-mongodb</artifactId>

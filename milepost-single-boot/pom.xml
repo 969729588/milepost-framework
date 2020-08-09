@@ -23,12 +23,6 @@
 			<scope>test</scope>
 		</dependency>
 
-		<!--不需要加入，有自己独立的日志配置文件
-		<dependency>
-			<groupId>com.milepost</groupId>
-			<artifactId>milepost-log</artifactId>
-		</dependency>-->
-
 		<dependency>
 			<groupId>com.milepost</groupId>
 			<artifactId>milepost-core</artifactId>
@@ -112,11 +106,8 @@
 			<groupId>com.oracle</groupId>
 			<artifactId>my-ojdbc6</artifactId>
 		</dependency>
-		<!--MyBatis，这个starter是mybatis自己写的，不是springboot提供的-->
-		<dependency>
-			<groupId>org.mybatis.spring.boot</groupId>
-			<artifactId>mybatis-spring-boot-starter</artifactId>
-		</dependency>
+
+		<!--mybatis缓存，mp只对mybatis增强，不改变，所以原来的缓存现在还能用-->
 		<!--ehcache -->
 		<dependency>
 			<groupId>org.mybatis.caches</groupId>
@@ -126,11 +117,22 @@
 			<groupId>net.sf.ehcache</groupId>
 			<artifactId>ehcache-core</artifactId>
 		</dependency>
+
+		<!--以下是mybatis相关的，替换成mp之后，都不需要了-->
+		<!--MyBatis，这个starter是mybatis自己写的，不是springboot提供的-->
+		<dependency>
+			<groupId>org.mybatis.spring.boot</groupId>
+			<artifactId>mybatis-spring-boot-starter</artifactId>
+		</dependency>
+
 		<!--pagehelper分页插件，不是被springboot管理的-->
 		<dependency>
 			<groupId>com.github.pagehelper</groupId>
 			<artifactId>pagehelper</artifactId>
 		</dependency>
+		<!--以上是mybatis相关的，替换成mp之后，都不需要了-->
+
+		<!--flyway-->
 		<dependency>
 			<groupId>org.flywaydb</groupId>
 			<artifactId>flyway-core</artifactId>
