@@ -40,6 +40,7 @@
         <txlcn.version>5.0.2.RELEASE</txlcn.version>
         <jasypt.version>3.0.1</jasypt.version>
         <poi.version>3.14</poi.version>
+        <mybatisplus.version>3.3.2</mybatisplus.version>
     </properties>
 
     <dependencies>
@@ -91,7 +92,7 @@
             </dependency>
             <dependency>
                 <groupId>com.milepost</groupId>
-                <artifactId>milepost-mybatis-generator</artifactId>
+                <artifactId>milepost-mybatis-plus-generator</artifactId>
                 <version>${milepost.version}</version>
             </dependency>
 
@@ -142,14 +143,6 @@
                 <version>2.3.4.RELEASE</version>
             </dependency>
 
-            <!--test-->
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter-test</artifactId>
-                <version>${spring-boot.version}</version>
-                <scope>test</scope>
-            </dependency>
-
             <!--配置文件加密-->
             <!--jasypt，https://github.com/ulisesbocchio/jasypt-spring-boot
                 去https://www.oracle.com/technetwork/java/javase/downloads/jce8-download-2133166.html
@@ -193,12 +186,32 @@
                 <version>1.3.2</version>
             </dependency>
 
-            <!--MyBatis，这个starter是mybatis自己写的，不是springboot提供的-->
+            <!--mybatis-plus 启动器-->
             <dependency>
-                <groupId>org.mybatis.spring.boot</groupId>
-                <artifactId>mybatis-spring-boot-starter</artifactId>
-                <version>2.1.1</version>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-boot-starter</artifactId>
+                <version>${mybatisplus.version}</version>
             </dependency>
+            <!--mybatis-plus使用了lombok，不需要在这里指定版本，以为他是被springboot管理的-->
+            <!--<dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <scope>provided</scope>
+            </dependency>-->
+
+            <!--这里mybatis-plus-generator相关的都不是test，因为我们把整个milepost-mybatis-plus-generator依赖作为test来使用-->
+            <!--mybatis-plus-generator-->
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-generator</artifactId>
+                <version>${mybatisplus.version}</version>
+            </dependency>
+            <!--mybatis-plus-generator使用了模板引擎，不需要在这里指定版本，因为这个是springboot的启动器，被spring-boot-starter-parent管理的-->
+            <!--<dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-freemarker</artifactId>
+                <scope>test</scope>
+            </dependency>-->
             <!--ehcache缓存-->
             <dependency>
                 <groupId>org.mybatis.caches</groupId>
@@ -209,24 +222,6 @@
                 <groupId>net.sf.ehcache</groupId>
                 <artifactId>ehcache-core</artifactId>
                 <version>2.6.8</version>
-            </dependency>
-            <!-- mybatis代码生成器 -->
-            <dependency>
-                <groupId>org.mybatis.generator</groupId>
-                <artifactId>mybatis-generator-core</artifactId>
-                <version>1.3.2</version>
-            </dependency>
-            <!-- mbg实现动态改变配置文件 -->
-            <dependency>
-                <groupId>org.dom4j</groupId>
-                <artifactId>dom4j</artifactId>
-                <version>2.0.0</version>
-            </dependency>
-            <!--pagehelper分页插件，不是被springboot管理的-->
-            <dependency>
-                <groupId>com.github.pagehelper</groupId>
-                <artifactId>pagehelper</artifactId>
-                <version>5.1.11</version>
             </dependency>
 
             <!--swagger-->
@@ -293,6 +288,14 @@
                 <groupId>de.codecentric</groupId>
                 <artifactId>spring-boot-admin-starter-server</artifactId>
                 <version>2.1.0</version>
+            </dependency>
+
+            <!--send mail-->
+            <dependency>
+                <groupId>com.sun.mail</groupId>
+                <artifactId>javax.mail</artifactId>
+                <version>1.6.2</version>
+                <scope>test</scope>
             </dependency>
        </dependencies>
     </dependencyManagement>

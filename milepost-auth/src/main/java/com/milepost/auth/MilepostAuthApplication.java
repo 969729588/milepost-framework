@@ -3,6 +3,7 @@ package com.milepost.auth;
 import com.milepost.api.constant.MilepostConstant;
 import com.milepost.api.enums.MilepostApplicationType;
 import com.milepost.core.MilepostApplication;
+import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.context.annotation.ComponentScan;
@@ -12,6 +13,7 @@ import java.util.Map;
 
 @EnableEurekaClient
 @SpringBootApplication
+@MapperScan("com.milepost.auth.*.dao")
 @ComponentScan(basePackages = {
 		"com.milepost.auth",//这里必须得指定一下默认扫描的包，而且最好放到第一行，否则无法扫描这个包
 		"com.milepost.core.multipleTenant",//多租户、

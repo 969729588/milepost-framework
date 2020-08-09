@@ -44,12 +44,20 @@
 					<groupId>com.codingapi.txlcn</groupId>
 					<artifactId>txlcn-txmsg-netty</artifactId>
 				</exclusion>
+				<exclusion>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-data-mongodb</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-data-mongodb-reactive</artifactId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 
 		<dependency>
 			<groupId>com.milepost</groupId>
-			<artifactId>milepost-mybatis-generator</artifactId>
+			<artifactId>milepost-mybatis-plus-generator</artifactId>
 			<scope>test</scope>
 		</dependency>
 

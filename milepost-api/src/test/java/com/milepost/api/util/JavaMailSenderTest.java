@@ -3,10 +3,8 @@ package com.milepost.api.util;
 import com.milepost.test.BaseTest;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 
 import javax.mail.internet.MimeMessage;
@@ -15,7 +13,7 @@ import java.io.File;
 /**
  * Created by Ruifu Hua on 2018-12-12.
  */
-public class JavaMailSenderTest extends BaseTest {
+public class JavaMailSenderTest extends BaseTest<JavaMailSenderTest> {
 
     private String mailUsername;
 
@@ -38,7 +36,7 @@ public class JavaMailSenderTest extends BaseTest {
     @Before
     public void init(){
         mailUsername = getProperty("spring.mail.username");
-//        mailSender = getBean(JavaMailSender.class);
+        mailSender = getBean(JavaMailSender.class);
     }
 
     /**

@@ -100,12 +100,20 @@
 			<groupId>com.oracle</groupId>
 			<artifactId>my-ojdbc6</artifactId>
 		</dependency>
-		<!--MyBatis，这个starter是mybatis自己写的，不是springboot提供的-->
+
+		<!--mybatis-plus 启动器-->
 		<dependency>
-			<groupId>org.mybatis.spring.boot</groupId>
-			<artifactId>mybatis-spring-boot-starter</artifactId>
+			<groupId>com.baomidou</groupId>
+			<artifactId>mybatis-plus-boot-starter</artifactId>
 		</dependency>
-		<!--ehcache -->
+		<!--mybatis-plus使用了lombok，不需要在这里指定版本，以为他是被springboot管理的-->
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<scope>provided</scope>
+		</dependency>
+
+		<!--mybatis缓存，mp只对mybatis增强，不改变，所以原来的缓存现在还能用-->
 		<dependency>
 			<groupId>org.mybatis.caches</groupId>
 			<artifactId>mybatis-ehcache</artifactId>
@@ -114,11 +122,7 @@
 			<groupId>net.sf.ehcache</groupId>
 			<artifactId>ehcache-core</artifactId>
 		</dependency>
-		<!--pagehelper分页插件，不是被springboot管理的-->
-		<dependency>
-			<groupId>com.github.pagehelper</groupId>
-			<artifactId>pagehelper</artifactId>
-		</dependency>
+
 		<dependency>
 			<groupId>org.flywaydb</groupId>
 			<artifactId>flyway-core</artifactId>

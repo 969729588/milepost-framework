@@ -1,8 +1,8 @@
 package com.milepost.auth.listener;
 
-import com.milepost.auth.clientDetail.entity.ClientDetail;
-import com.milepost.auth.clientDetail.entity.ClientDetailExample;
-import com.milepost.auth.clientDetail.service.ClientDetailService;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.milepost.auth.clientDetail.entity.ClientDetails;
+import com.milepost.auth.clientDetail.service.ClientDetailsService;
 import com.milepost.core.multipleTenant.MultipleTenantProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,10 +17,10 @@ public class AuthApplicationRunner implements ApplicationRunner {
     private Logger logger = LoggerFactory.getLogger(AuthApplicationRunner.class);
 
     @Autowired
-    private ClientDetailService clientDetailService;
+    private ClientDetailsService clientDetailsService;
 
     @Autowired
-    private ClientDetail clientDetailProperties;
+    private ClientDetails clientDetailsProperties;
 
     @Autowired
     private MultipleTenantProperties multipleTenantProperties;
@@ -42,23 +42,24 @@ public class AuthApplicationRunner implements ApplicationRunner {
         String clientId = "client_id_" + tenant;
         String clientSecret = "client_secret_" + tenant;
 
-        clientDetailProperties.setClientId(clientId);
-        clientDetailProperties.setClientSecret(clientSecret);
+        clientDetailsProperties.setClientId(clientId);
+        clientDetailsProperties.setClientSecret(clientSecret);
 
-        ClientDetailExample ex = new ClientDetailExample();
-        ex.or().andClientIdEqualTo(clientId).andClientSecretEqualTo(clientSecret);
-        ClientDetail clientDetail = clientDetailService.selectOneByExample(ex);
-        int effectRow = 0;
-        if(clientDetail == null){
-            effectRow = clientDetailService.insert(clientDetailProperties);
-            if(effectRow > 0){
+        ClientDetails clientDetails = clientDetailsService.getOne(new QueryWrapper<ClientDetails>()
+                .eq("client_id", clientId)
+                .eq("client_secret", clientSecret));
+        if(clientDetails == null){
+            boolean saveSuccess = clientDetailsService.save(clientDetailsProperties);
+            //effectRow = clientDetailService.insert(clientDetailsProperties);
+            if(saveSuccess){
                 logger.info("认证数据库中不存在租户["+ tenant +"]的客户端数据，初始化客户端数据成功。");
             }else{
                 logger.error("认证数据库中不存在租户["+ tenant +"]的客户端数据，初始化客户端数据失败。");
             }
         }else{
-            effectRow = clientDetailService.updateByPrimaryKey(clientDetailProperties);
-            if(effectRow > 0){
+            boolean updateSuccess = clientDetailsService.updateById(clientDetailsProperties);
+            //effectRow = clientDetailService.updateByPrimaryKey(clientDetailsProperties);
+            if(updateSuccess){
                 logger.info("认证数据库存中在租户["+ tenant +"]的客户端数据，更新客户端数据成功。");
             }else{
                 logger.error("认证数据库存中在租户["+ tenant +"]的客户端数据，更新客户端数据失败。");

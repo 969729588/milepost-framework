@@ -13,7 +13,7 @@ spring:
   profiles:
     active: dev
   rabbitmq:
-    host: 192.168.186.131
+    host: 192.168.17.131
     port: 5672
     username: admin
     password: admin
@@ -22,7 +22,7 @@ track:
 
 eureka:
   instance:
-    ip-address: 192.168.186.5
+    ip-address: 192.168.17.1
   client:
     service-url:
       defaultZone: http://${eureka.instance.ip-address}:${server.port}/eureka/

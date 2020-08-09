@@ -7,11 +7,11 @@ start() {
     -jar ${JAR_NAME} \
     --spring.profiles.active=test \
     --server.port=8768 \
-    --eureka.client.service-url.defaultZone='http://192.168.186.131:8761/eureka/' \
-    --eureka.instance.ip-address=192.168.186.131 \
+    --eureka.client.service-url.defaultZone='http://192.168.17.131:8761/eureka/' \
+    --eureka.instance.ip-address=192.168.17.131 \
     --spring.boot.admin.ui.title=milepost-admin \
     --spring.boot.admin.discovery.ignored-services='[test-appName-1, test-appName-1]' \
-    --spring.rabbitmq.host=192.168.186.131 \
+    --spring.rabbitmq.host=192.168.17.131 \
     --spring.rabbitmq.port=5672 \
     --spring.rabbitmq.username=admin \
     --spring.rabbitmq.password=admin \

@@ -25,7 +25,7 @@ eureka:
   instance:
     #ip-address: 192.168.1.105
     ip-address: 172.16.1.208
-#    ip-address: 192.168.186.5
+#    ip-address: 192.168.17.5
 #    ip-address: 192.168.243.1
 #    prefer-ip-address: true
   client:
@@ -38,9 +38,9 @@ eureka:
       defaultZone: http://${eureka.instance.ip-address}:${server.port}/eureka/
   server:
     enable-self-preservation: false
-#      defaultZone: http://192.168.186.5:8762/eureka/,http://192.168.243.1:8763/eureka/
+#      defaultZone: http://192.168.17.5:8762/eureka/,http://192.168.243.1:8763/eureka/
 #      defaultZone: http://192.168.1.105:8761/eureka/,http://192.168.243.1:8763/eureka/
-#      defaultZone: http://192.168.186.5:8762/eureka/,http://192.168.1.105:8761/eureka/
+#      defaultZone: http://192.168.17.5:8762/eureka/,http://192.168.1.105:8761/eureka/
 #  server:
 #    renewal-threshold-update-interval-ms: 5000
 

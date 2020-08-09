@@ -1,19 +1,34 @@
 package com.milepost.auth.clientDetail.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import java.io.Serializable;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
-import java.io.Serializable;
-
 /**
  * 认证客户端信息配置
+ *
+ * @author huarf
+ * @since 2020-08-10
  */
+@TableName("oauth_client_details")
+@ApiModel(value="ClientDetails对象", description="")
 @Component
-@ConfigurationProperties(prefix="auth.client-detail")
-public class ClientDetail implements Serializable {
+@ConfigurationProperties(prefix="auth.client-details")
+public class ClientDetails implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
     /**
      * 不需要配置，固定为client_id_ + tenant
      */
+    @TableField
+    @TableId(value = "client_id", type = IdType.ASSIGN_UUID)
     private String clientId;
 
     /**
@@ -66,64 +81,55 @@ public class ClientDetail implements Serializable {
      */
     private String autoapprove = "true";
 
-    private static final long serialVersionUID = 1L;
-
     public String getClientId() {
         return clientId;
     }
 
     public void setClientId(String clientId) {
-        this.clientId = clientId == null ? null : clientId.trim();
+        this.clientId = clientId;
     }
-
     public String getResourceIds() {
         return resourceIds;
     }
 
     public void setResourceIds(String resourceIds) {
-        this.resourceIds = resourceIds == null ? null : resourceIds.trim();
+        this.resourceIds = resourceIds;
     }
-
     public String getClientSecret() {
         return clientSecret;
     }
 
     public void setClientSecret(String clientSecret) {
-        this.clientSecret = clientSecret == null ? null : clientSecret.trim();
+        this.clientSecret = clientSecret;
     }
-
     public String getScope() {
         return scope;
     }
 
     public void setScope(String scope) {
-        this.scope = scope == null ? null : scope.trim();
+        this.scope = scope;
     }
-
     public String getAuthorizedGrantTypes() {
         return authorizedGrantTypes;
     }
 
     public void setAuthorizedGrantTypes(String authorizedGrantTypes) {
-        this.authorizedGrantTypes = authorizedGrantTypes == null ? null : authorizedGrantTypes.trim();
+        this.authorizedGrantTypes = authorizedGrantTypes;
     }
-
     public String getWebServerRedirectUri() {
         return webServerRedirectUri;
     }
 
     public void setWebServerRedirectUri(String webServerRedirectUri) {
-        this.webServerRedirectUri = webServerRedirectUri == null ? null : webServerRedirectUri.trim();
+        this.webServerRedirectUri = webServerRedirectUri;
     }
-
     public String getAuthorities() {
         return authorities;
     }
 
     public void setAuthorities(String authorities) {
-        this.authorities = authorities == null ? null : authorities.trim();
+        this.authorities = authorities;
     }
-
     public Integer getAccessTokenValidity() {
         return accessTokenValidity;
     }
@@ -131,7 +137,6 @@ public class ClientDetail implements Serializable {
     public void setAccessTokenValidity(Integer accessTokenValidity) {
         this.accessTokenValidity = accessTokenValidity;
     }
-
     public Integer getRefreshTokenValidity() {
         return refreshTokenValidity;
     }
@@ -139,41 +144,35 @@ public class ClientDetail implements Serializable {
     public void setRefreshTokenValidity(Integer refreshTokenValidity) {
         this.refreshTokenValidity = refreshTokenValidity;
     }
-
     public String getAdditionalInformation() {
         return additionalInformation;
     }
 
     public void setAdditionalInformation(String additionalInformation) {
-        this.additionalInformation = additionalInformation == null ? null : additionalInformation.trim();
+        this.additionalInformation = additionalInformation;
     }
-
     public String getAutoapprove() {
         return autoapprove;
     }
 
     public void setAutoapprove(String autoapprove) {
-        this.autoapprove = autoapprove == null ? null : autoapprove.trim();
+        this.autoapprove = autoapprove;
     }
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getClass().getSimpleName());
-        sb.append(" [");
-        sb.append("Hash = ").append(hashCode());
-        sb.append(", clientId=").append(clientId);
-        sb.append(", resourceIds=").append(resourceIds);
-        sb.append(", clientSecret=").append(clientSecret);
-        sb.append(", scope=").append(scope);
-        sb.append(", authorizedGrantTypes=").append(authorizedGrantTypes);
-        sb.append(", webServerRedirectUri=").append(webServerRedirectUri);
-        sb.append(", authorities=").append(authorities);
-        sb.append(", accessTokenValidity=").append(accessTokenValidity);
-        sb.append(", refreshTokenValidity=").append(refreshTokenValidity);
-        sb.append(", additionalInformation=").append(additionalInformation);
-        sb.append(", autoapprove=").append(autoapprove);
-        sb.append("]");
-        return sb.toString();
+        return "ClientDetails{" +
+            "clientId=" + clientId +
+            ", resourceIds=" + resourceIds +
+            ", clientSecret=" + clientSecret +
+            ", scope=" + scope +
+            ", authorizedGrantTypes=" + authorizedGrantTypes +
+            ", webServerRedirectUri=" + webServerRedirectUri +
+            ", authorities=" + authorities +
+            ", accessTokenValidity=" + accessTokenValidity +
+            ", refreshTokenValidity=" + refreshTokenValidity +
+            ", additionalInformation=" + additionalInformation +
+            ", autoapprove=" + autoapprove +
+        "}";
     }
 }

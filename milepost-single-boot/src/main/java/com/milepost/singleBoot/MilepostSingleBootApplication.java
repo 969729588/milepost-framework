@@ -21,7 +21,7 @@ import java.util.Map;
 		"com.milepost.singleBoot.config.dynamicDs"//动态数据源
 })
 //Swagger，这里好像默认是全部扫描，之后需要指定一下扫描的包,
-//访问：http://192.168.186.5:9991/authentication-service/swagger-ui.html
+//访问：http://192.168.17.5:9991/authentication-service/swagger-ui.html
 @EnableSwagger2Doc
 public class MilepostSingleBootApplication {
 

@@ -1,15 +1,16 @@
 package com.milepost.auth.user.dao;
 
 import com.milepost.auth.user.entity.User;
-import com.milepost.auth.user.entity.UserExample;
-import com.milepost.service.mybatis.dao.BaseMapper;
-import org.apache.ibatis.annotations.Mapper;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**
- * Created by Ruifu Hua on 2020/1/20.
+ * <p>
+ *  Mapper 接口
+ * </p>
+ *
+ * @author huarf
+ * @since 2020-08-10
  */
-@Mapper
-public interface UserMapper extends BaseMapper<User, UserExample>{
+public interface UserMapper extends BaseMapper<User> {
 
-    User selectByUsername(String username);
 }

@@ -186,7 +186,7 @@ public class MilepostApplication extends SpringApplication{
         }
 
         String envValue = System.getenv(envKey);
-        //envValue = "http://192.168.186.131:8761/eureka/";
+        //envValue = "http://192.168.17.131:8761/eureka/";
         if(StringUtils.isNotBlank(envValue) && !argsContained){
             argList.add("--" + argsKey + "=" + envValue);
         }
@@ -787,9 +787,18 @@ public class MilepostApplication extends SpringApplication{
             defaultProperties.put("spring.flyway.clean-disabled", "true");//Whether to disable cleaning of the database.
             defaultProperties.put("spring.flyway.table", "flyway_md_" + springApplicationName);//flyway元数据表名称
 
-            //mybatis
-            defaultProperties.put("mybatis.config-location", "classpath:mybatis-config.xml");
-            defaultProperties.put("mybatis.mapper-locations", "classpath:com/milepost/**/**/dao/*.xml");
+            //mybatis，换成mybatis-plus就不需要这两个配置了
+            //defaultProperties.put("mybatis.config-location", "classpath:mybatis-config.xml");
+            //defaultProperties.put("mybatis.mapper-locations", "classpath:com/milepost/**/**/dao/*.xml");
+
+            //换成mybatis-plus需要增加如下配置：
+            //mybatis-plus全局字段策略，具体见@com.baomidou.mybatisplus.annotation.FieldStrategy
+            defaultProperties.put("mybatis-plus.global-config.db-config.select-strategy", "not_null");
+            defaultProperties.put("mybatis-plus.global-config.db-config.insert-strategy", "not_null");
+            //忽略判断，update-strategy不会影响 UpdateWrapper，因为他是指定更新字段的
+            //所以可以使用UpdateWrapper来实现部分字段更新，和把某个字段从非null更新成null，
+            //使用updateBy(entity)方法来实现全字段更新，
+            defaultProperties.put("mybatis-plus.global-config.db-config.update-strategy", "ignored");
 
             if(MilepostApplicationType.SERVICE.getValue().equalsIgnoreCase(applicationType)){
                 //Service类服务的swagger

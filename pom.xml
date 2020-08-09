@@ -17,7 +17,7 @@
         <module>milepost-test</module>
         <module>milepost-api</module>
         <module>milepost-log</module>
-        <module>milepost-mybatis-generator</module>
+        <module>milepost-mybatis-plus-generator</module>
 
         <module>milepost-core</module>
 
@@ -29,6 +29,7 @@
         <module>milepost-auth</module>
         <module>milepost-turbine</module>
         <module>milepost-admin</module>
+
     </modules>
 
 </project>
